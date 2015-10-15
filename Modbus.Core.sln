@@ -29,19 +29,4 @@ Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 4
-		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = http://sgivc-itc01:8080/tfs/energosv
-		SccLocalPath0 = .
-		SccProjectUniqueName1 = Modbus.Core\\Modbus.Core.csproj
-		SccProjectName1 = Modbus.Core
-		SccLocalPath1 = Modbus.Core
-		SccProjectUniqueName2 = Modbus.UnitTests\\Modbus.UnitTests.csproj
-		SccProjectName2 = Modbus.UnitTests
-		SccLocalPath2 = Modbus.UnitTests
-		SccProjectUniqueName3 = ..\\TestModbusClassLib\\TestModbusClassLib\\TestModbusClassLib.csproj
-		SccProjectName3 = ../TestModbusClassLib/TestModbusClassLib
-		SccLocalPath3 = ..\\TestModbusClassLib\\TestModbusClassLib
-	EndGlobalSection
 EndGlobal
