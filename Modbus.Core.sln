@@ -1,0 +1,47 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Modbus.Core", "Modbus.Core\Modbus.Core.csproj", "{89D68483-4090-4F6F-B08F-7F34B914606B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Modbus.UnitTests", "Modbus.UnitTests\Modbus.UnitTests.csproj", "{32A99A30-E4A7-42D7-B67A-7C288D8365F6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestModbusClassLib", "TestModbusClassLib\TestModbusClassLib.csproj", "{D56C6495-71DE-4686-8004-59450ED42C4C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{89D68483-4090-4F6F-B08F-7F34B914606B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{89D68483-4090-4F6F-B08F-7F34B914606B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{89D68483-4090-4F6F-B08F-7F34B914606B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{89D68483-4090-4F6F-B08F-7F34B914606B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32A99A30-E4A7-42D7-B67A-7C288D8365F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32A99A30-E4A7-42D7-B67A-7C288D8365F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32A99A30-E4A7-42D7-B67A-7C288D8365F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32A99A30-E4A7-42D7-B67A-7C288D8365F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D56C6495-71DE-4686-8004-59450ED42C4C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D56C6495-71DE-4686-8004-59450ED42C4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D56C6495-71DE-4686-8004-59450ED42C4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D56C6495-71DE-4686-8004-59450ED42C4C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 4
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = http://sgivc-itc01:8080/tfs/energosv
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = Modbus.Core\\Modbus.Core.csproj
+		SccProjectName1 = Modbus.Core
+		SccLocalPath1 = Modbus.Core
+		SccProjectUniqueName2 = Modbus.UnitTests\\Modbus.UnitTests.csproj
+		SccProjectName2 = Modbus.UnitTests
+		SccLocalPath2 = Modbus.UnitTests
+		SccProjectUniqueName3 = ..\\TestModbusClassLib\\TestModbusClassLib\\TestModbusClassLib.csproj
+		SccProjectName3 = ../TestModbusClassLib/TestModbusClassLib
+		SccLocalPath3 = ..\\TestModbusClassLib\\TestModbusClassLib
+	EndGlobalSection
+EndGlobal
