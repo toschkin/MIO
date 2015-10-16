@@ -191,8 +191,9 @@ namespace Modbus.Core
             if(rawPacketData == null)
                 throw new ArgumentNullException();
 
-            int totalLengthInBytesOfRequestedData = 0;
-
+            UInt32 totalLengthInBytesOfRequestedData = 0;
+            int currentIndexInPacketData = 0;
+            int currentIndexInOutputValues = 0;
             foreach (var value in outputValues)
             {
                 if (value == null)
@@ -202,10 +203,12 @@ namespace Modbus.Core
                 {
                     if (ModbusDataMappingHelper.IsNumericType(value.GetType()))
                     {
-                        totalLengthInBytesOfRequestedData += Marshal.SizeOf(value);
+                        totalLengthInBytesOfRequestedData += (UInt32)Marshal.SizeOf(value);
                         if (totalLengthInBytesOfRequestedData > rawPacketData.Length)
                             return false;
-                        //furter processing 
+                        //further processing
+                        //outputValues[currentIndexInOutputValues].
+                        //currentIndexInPacketData                        
                     }
                 }
                 else//here we will process properties (only numeric) from complex (class) types 
@@ -213,13 +216,11 @@ namespace Modbus.Core
                     try
                     {
                         Type[] arrayOfOutputTypes = ModbusDataMappingHelper.GetObjectPropertiesTypeArray(value);
-                        foreach (var field in value.GetType().GetProperties())
-                        {
-                            totalLengthInBytesOfRequestedData += Marshal.SizeOf(field.PropertyType);
-                            if (totalLengthInBytesOfRequestedData > rawPacketData.Length)
-                                return false;
-                            //furter processing 
-                        }
+                        totalLengthInBytesOfRequestedData += ModbusDataMappingHelper.SizeOfPublicProperties(value);
+                        if (totalLengthInBytesOfRequestedData > rawPacketData.Length)
+                            return false;
+                        //further processing 
+                        //SetObjectPropertiesValuesFromArray(ref object obj, object[] arrayValues)                                             
                     }
                     catch (ArgumentException)
                     {
@@ -230,6 +231,7 @@ namespace Modbus.Core
                         return false;
                     }                    
                 }
+                currentIndexInOutputValues++;
             }
             return true;
             /*Type typeOfArray = typeof(T);            

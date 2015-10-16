@@ -52,6 +52,22 @@ namespace TestModbusClassLib
             Console.WriteLine(b);            
         }
     }
+    class MyClass3
+    {
+        public MyClass3()
+        {
+            a = 0;
+            b = 0;
+        }
+        public UInt16 a { get; set; }
+        private UInt32 b { get; set; }
+
+        public void Print()
+        {
+            Console.WriteLine(a);
+            Console.WriteLine(b);
+        }
+    }
     class Program
     {
         static Type[] GetObjectPropertiesTypesArray(object obj)
@@ -60,7 +76,8 @@ namespace TestModbusClassLib
             PropertyInfo[] membersOfClass = obj.GetType().GetProperties();
             foreach (var item in membersOfClass)
             {
-                lstTypesOfClassMembers.Add(item.PropertyType);
+                if (item.PropertyType.IsPublic)
+                    lstTypesOfClassMembers.Add(item.PropertyType);
             }
             return lstTypesOfClassMembers.ToArray<Type>();
         }
@@ -183,6 +200,15 @@ namespace TestModbusClassLib
                 }
             }
             Console.WriteLine(totalLengthInBytesOfRequestedData);
+
+            Console.WriteLine("MyClass3------------------");
+            MyClass3 cl3 = new MyClass3();
+            tmp = (object)cl3;
+            Type[] arrOutput3 = GetObjectPropertiesTypesArray(tmp);
+            foreach (var item3 in arrOutput3)
+            {
+                Console.WriteLine(item3.ToString());
+            }
 
             Console.ReadLine();
             /*ModbusRTUProtocol protM = new ModbusRTUProtocol();

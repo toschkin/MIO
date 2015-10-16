@@ -22,11 +22,25 @@ namespace Modbus.UnitTests
             b = 0;
             c = 0.0f;
             d = 0.0;
-        }
+        }        
         public Int16 a { get; set; }
         public Int32 b { get; set; }
         public Single c { get; set; }
         public Double d { get; set; }       
+    }
+    class MyClassWithPrivateProperty
+    {
+        public MyClassWithPrivateProperty()
+        {
+            a = 0;
+            b = 0;
+            c = 0.0f;
+            d = 0.0;
+        }
+        private Int16 a { get; set; }
+        public Int32 b { get; set; }
+        public Single c { get; set; }
+        public Double d { get; set; }
     }
     public static class TestHelper
     {
@@ -454,7 +468,7 @@ namespace Modbus.UnitTests
             packetSend = prot.MakePacket(slaveAddr, funcCode, startAddress, quantity);
             Assert.AreEqual(packetSendCompare, packetSend);
         }
-        [Test]
+        /*[Test]
         public void ProcessData_ShouldProcessRawPacketBytesToApropriateValuesOfApropriateTypeIntoOutputArrayAndReturnTrueOnSuccess()
         {
             ModbusRTUProtocol prot = new ModbusRTUProtocol();
@@ -470,7 +484,7 @@ namespace Modbus.UnitTests
             Assert.AreEqual(0, ((ModbusDataRegisterUInt16)rtuData[2]).value);
             Assert.AreEqual(1234567890, rtuData[3]);
             Assert.AreEqual(true, ret);
-        }
+        }*/
         [Test]
         [ExpectedException(typeof(ArgumentException))]
         public void ProcessData_ShouldThrowIfNotValueTypeElementsAreRequestedInOutputArray()
@@ -507,7 +521,19 @@ namespace Modbus.UnitTests
         }
     }
     class ModbusDataMappingHelperTest
-    { 
+    {
+        [Test]
+        public void SizeOfPublicPropertiesOfClass_ShouldReturnValidSize()
+        {
+            MyClassWithPrivateProperty cl = new MyClassWithPrivateProperty();
+            UInt32 size = ModbusDataMappingHelper.SizeOfPublicProperties(cl);
+            Assert.AreEqual(16, size);
+        }        
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void SizeOfPublicPropertiesOfClass_ShouldThrowOnNullArgument()
+        {            
+            UInt32 size = ModbusDataMappingHelper.SizeOfPublicProperties(null);            
+        }
         [Test]
         public void GetObjectPropertiesTypesArray_ShouldReturnArrayOfValidSizeAndValidTypes()
         {            		      
@@ -546,7 +572,20 @@ namespace Modbus.UnitTests
                 }    
             }            
         }
-        
+        [Test]
+        public void GetObjectPropertiesTypesArray_ShouldExtractOnlyPublicPropertiesFromArgument()
+        {
+            object[] array = { new MyClassWithPrivateProperty(), new MyClassWithPrivateProperty() };
+            Type[] arrayOfTypes = ModbusDataMappingHelper.GetObjectPropertiesTypeArray(array);
+            Assert.AreEqual(arrayOfTypes.Length, 6);       
+        }
+        [Test]
+        public void GetObjectPropertiesTypesArray_ShouldExtractOnlyPublicPropertiesFromArgumentArray()
+        {
+            MyClassWithPrivateProperty cl = new MyClassWithPrivateProperty();
+            Type[] arrayOfTypes = ModbusDataMappingHelper.GetObjectPropertiesTypeArray(cl);
+            Assert.AreEqual(arrayOfTypes.Length, 3);
+        }
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
         public void GetObjectPropertiesTypesArray_ShouldThrowOnNullArrayArgument()
@@ -582,6 +621,18 @@ namespace Modbus.UnitTests
             Assert.AreEqual(arrayValues[1], cl.b);
             Assert.AreEqual(arrayValues[2], cl.c);
             Assert.AreEqual(arrayValues[3], cl.d);
+        }
+        [Test]
+        public void SetObjectPropertiesValuesFromArray_ShouldSetOnlyPublicPropertiesToValuesFromArrayAndReturnTrueOnSuccess()
+        {
+            MyClassWithPrivateProperty cl = new MyClassWithPrivateProperty();
+            object tmp = (object)cl;
+            ValueType[] arrayValues = { (Int32)(-123456), (Single)123.456f, (Double)1234567890.0 };
+            bool ret = ModbusDataMappingHelper.SetObjectPropertiesValuesFromArray(ref tmp, arrayValues);
+            Assert.AreEqual(true, ret);
+            Assert.AreEqual(arrayValues[0], cl.b);
+            Assert.AreEqual(arrayValues[1], cl.c);
+            Assert.AreEqual(arrayValues[2], cl.d);            
         }
         [Test]
         public void SetObjectPropertiesValuesFromArray_ShouldReturnFalseIfFailed()
