@@ -70,7 +70,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>$(MSBuildBinPath)\MSBuild.exe /p:Configuration=Release $(ProjectDir)\Modbus.Core.shfbproj</PostBuildEvent>
+    <PostBuildEvent>$(MSBuildBinPath)\MSBuild.exe /p:Configuration=Release $(ProjectDir)Modbus.Core.shfbproj</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>

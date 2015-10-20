@@ -8,7 +8,29 @@ using System.Runtime.InteropServices;
 
 namespace Modbus.Core
 {
-    public static class ModbusDataMappingHelper
+    public static class SizeofHelper
+    {
+        /// <summary>
+        /// Calculates total size in bytes of all public properties of an object
+        /// </summary>
+        /// <param name="obj">object which properties size should be calculated</param>
+        /// <returns>size in bytes of all public properties of an object</returns>
+        public static UInt32 SizeOfPublicProperties(object obj)
+        {
+            if (obj == null)
+                throw new ArgumentNullException();
+
+            UInt32 totalLengthInBytes = 0;
+            foreach (var field in obj.GetType().GetProperties())
+            {
+                if (field.PropertyType.IsPublic)	
+                    totalLengthInBytes += (UInt32)Marshal.SizeOf(field.PropertyType);                
+            }
+            return totalLengthInBytes;
+        }
+    }
+
+    public static class GetTypeHelper
     {
         /// <summary>
         /// Checks whether the type is numerical
@@ -35,6 +57,10 @@ namespace Modbus.Core
                     return false;
             }
         }
+    }
+
+    public static class ModbusDataMappingHelper
+    {
         /// <summary>
         /// Extracts types of object's public properties
         /// </summary>
@@ -49,7 +75,7 @@ namespace Modbus.Core
             PropertyInfo[] membersOfClass = obj.GetType().GetProperties();
             foreach (var item in membersOfClass)
             {
-                if (!IsNumericType(item.PropertyType))
+                if (!GetTypeHelper.IsNumericType(item.PropertyType))
                     throw new ArgumentException();
                 if (item.PropertyType.IsPublic)
                     lstTypesOfClassMembers.Add(item.PropertyType);
@@ -74,7 +100,7 @@ namespace Modbus.Core
                 PropertyInfo[] membersOfClass = item.GetType().GetProperties();
                 foreach (var item2 in membersOfClass)
                 {
-                    if (!IsNumericType(item2.PropertyType))
+                    if (!GetTypeHelper.IsNumericType(item2.PropertyType))
                         throw new ArgumentException();
                     if (item2.PropertyType.IsPublic)
                         lstTypesOfClassMembers.Add(item2.PropertyType);
@@ -124,22 +150,79 @@ namespace Modbus.Core
                 return false;
         }
         /// <summary>
-        /// Calculates total size in bytes of all public properties of an object
+        /// Converts raw Modbus packet data to numeric type value
         /// </summary>
-        /// <param name="obj">object which properties size should be calculated</param>
-        /// <returns>size in bytes of all public properties of an object</returns>
-        public static UInt32 SizeOfPublicProperties(object obj)
+        /// <param name="packetRawData"></param>
+        /// <param name="currentCursorPosition"></param>
+        /// <param name="value"></param>
+        public static void ExtractValueFromArrayByType(byte[] packetRawData, ref int currentCursorPosition, ref object value)
         {
-            if (obj == null)
+            if (!GetTypeHelper.IsNumericType(value.GetType())) 
+                throw  new ArgumentException();
+            if (packetRawData == null)
                 throw new ArgumentNullException();
-
-            UInt32 totalLengthInBytes = 0;
-            foreach (var field in obj.GetType().GetProperties())
+            int valueSize = Marshal.SizeOf(value);
+            if ((currentCursorPosition < 0) || (currentCursorPosition > packetRawData.Length - valueSize))
+                throw new ArgumentOutOfRangeException();
+            switch (value.GetType().Name)
             {
-                if (field.PropertyType.IsPublic)	
-                    totalLengthInBytes += (UInt32)Marshal.SizeOf(field.PropertyType);                
+                case "Byte":
+                {
+                    value = packetRawData[currentCursorPosition];
+                    break;
+                }
+                case "SByte":
+                {
+                    value = unchecked((SByte)(packetRawData[currentCursorPosition]));
+                    break;
+                }
+                case "UInt16":
+                {
+                    value = ConversionHelper.ReverseBytes(BitConverter.ToUInt16(packetRawData, currentCursorPosition));
+                    break;
+                }
+                case "Int16":
+                {
+                    value = ConversionHelper.ReverseBytes(BitConverter.ToInt16(packetRawData, currentCursorPosition));
+                        break;
+                }
+                case "UInt32":
+                {
+                    value = ConversionHelper.ReverseBytes(BitConverter.ToUInt32(packetRawData, currentCursorPosition));                        
+                    break;
+                }
+                case "Int32":
+                {
+                    value = ConversionHelper.ReverseBytes(BitConverter.ToInt32(packetRawData, currentCursorPosition));
+                    break;
+                }
+                case "UInt64":
+                {
+                    value = ConversionHelper.ReverseBytes(BitConverter.ToUInt64(packetRawData, currentCursorPosition));
+                    break;
+                }
+                case "Int64":
+                {
+                    value = ConversionHelper.ReverseBytes(BitConverter.ToInt64(packetRawData, currentCursorPosition));
+                    break;
+                }
+                case "Single":
+                {
+                    value = ConversionHelper.ConvertBytesToFloat(packetRawData, currentCursorPosition, true);
+                    break;
+                }
+                case "Double":
+                {
+                    value = ConversionHelper.ConvertBytesToDouble(packetRawData, currentCursorPosition, true);
+                    break;
+                }
+                case "Decimal":
+                {
+                    value = ConversionHelper.ConvertBytesToDecimal(packetRawData, currentCursorPosition, true);
+                    break;
+                }
             }
-            return totalLengthInBytes;
-        }       
+            currentCursorPosition += valueSize;
+        }
     }    
 }

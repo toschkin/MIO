@@ -201,7 +201,7 @@ namespace Modbus.Core
 
                 if (value.GetType().IsValueType)//here we will process simple (only numeric) types
                 {
-                    if (ModbusDataMappingHelper.IsNumericType(value.GetType()))
+                    if (GetTypeHelper.IsNumericType(value.GetType()))
                     {
                         totalLengthInBytesOfRequestedData += (UInt32)Marshal.SizeOf(value);
                         if (totalLengthInBytesOfRequestedData > rawPacketData.Length)
@@ -216,7 +216,7 @@ namespace Modbus.Core
                     try
                     {
                         Type[] arrayOfOutputTypes = ModbusDataMappingHelper.GetObjectPropertiesTypeArray(value);
-                        totalLengthInBytesOfRequestedData += ModbusDataMappingHelper.SizeOfPublicProperties(value);
+                        totalLengthInBytesOfRequestedData += SizeofHelper.SizeOfPublicProperties(value);
                         if (totalLengthInBytesOfRequestedData > rawPacketData.Length)
                             return false;
                         //further processing 

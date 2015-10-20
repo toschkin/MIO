@@ -355,6 +355,11 @@ namespace Modbus.UnitTests
             public UInt16 address;
             public UInt16 value { get; set; }
         }
+        class ModbusDataRegisterInt32
+        {
+            public Int32 address;
+            public Int32 value { get; set; }
+        }
               
         /*[Test]
         public void _ModbusRTUProtocol_ReadHoldingRegistersShouldReturnOKcodeOnSuccess()
@@ -428,31 +433,50 @@ namespace Modbus.UnitTests
             bRetCode = prot.CheckCRC(packet);
             Assert.AreEqual(false, bRetCode);           
         }
+
         [Test]
-        public void CheckPacketShouldReturnApropriateCodeInApropriateConditions()
+        public void CheckPacketShouldReturnOKCodeOnValidPacket()
         {
             ModbusRTUProtocol prot = new ModbusRTUProtocol();
             //valid packet                      
-            Byte[] packetRecieve = { 0x01, 0x03, 0x02, 0x00, 0x00, 0xB8, 0x44 };
-            ModbusErrorCode err = prot.CheckPacket(packetRecieve, 0x01, 0x03,7);
+            Byte[] packetRecieve = {0x01, 0x03, 0x02, 0x00, 0x00, 0xB8, 0x44};
+            ModbusErrorCode err = prot.CheckPacket(packetRecieve, 0x01, 0x03, 7);
             Assert.AreEqual(ModbusErrorCode.codeOK, err);
+        }
 
+        public void CheckPacketShouldReturncodeInvalidPacketLengthOnNullPacket()
+        {
+            ModbusRTUProtocol prot = new ModbusRTUProtocol();     
             //null packet
             Byte[] packetNull = null;
-            err = prot.CheckPacket(packetNull, 0x01, 0x03, 7);
-            Assert.AreEqual(ModbusErrorCode.codeInvalidPacketLength, err);            
-            
+            ModbusErrorCode err = prot.CheckPacket(packetNull, 0x01, 0x03, 7);
+            Assert.AreEqual(ModbusErrorCode.codeInvalidPacketLength, err);
+        }
+
+        public void CheckPacketShouldReturncodeInvalidFunctionOnInvalidFuncCode()
+        {
+            ModbusRTUProtocol prot = new ModbusRTUProtocol();          
+            Byte[] packetRecieve = {0x01, 0x03, 0x02, 0x00, 0x00, 0xB8, 0x44};
             //invalid function code
-            err = prot.CheckPacket(packetRecieve, 0x01, 0x02,7);
+            ModbusErrorCode err = prot.CheckPacket(packetRecieve, 0x01, 0x02, 7);
             Assert.AreEqual(ModbusErrorCode.codeInvalidFunction, err);
+        }
 
+        public void CheckPacketShouldReturncodeInvalidSlaveAddressOnInvalidSlaveAddress()
+        {
+            ModbusRTUProtocol prot = new ModbusRTUProtocol();   
+            Byte[] packetRecieve = {0x01, 0x03, 0x02, 0x00, 0x00, 0xB8, 0x44};
             //invalid slave address
-            err = prot.CheckPacket(packetRecieve, 0x02, 0x03,7);
+            ModbusErrorCode err = prot.CheckPacket(packetRecieve, 0x02, 0x03, 7);
             Assert.AreEqual(ModbusErrorCode.codeInvalidSlaveAddress, err);
-
+        }
+        public void CheckPacketShouldReturncodeInvalidPacketLengthInApropriateConditionsOnInvalidPacketLength()
+        {
+            ModbusRTUProtocol prot = new ModbusRTUProtocol();
+            Byte[] packetRecieve = { 0x01, 0x03, 0x02, 0x00, 0x00, 0xB8, 0x44 };
             //invalid length packet
             Array.Resize<byte>(ref packetRecieve,6);
-            err = prot.CheckPacket(packetRecieve, 0x01, 0x03,7);
+            ModbusErrorCode err = prot.CheckPacket(packetRecieve, 0x01, 0x03, 7);
             Assert.AreEqual(ModbusErrorCode.codeInvalidPacketLength, err);
         }
         [Test]
@@ -468,23 +492,39 @@ namespace Modbus.UnitTests
             packetSend = prot.MakePacket(slaveAddr, funcCode, startAddress, quantity);
             Assert.AreEqual(packetSendCompare, packetSend);
         }
-        /*[Test]
+        [Test]
         public void ProcessData_ShouldProcessRawPacketBytesToApropriateValuesOfApropriateTypeIntoOutputArrayAndReturnTrueOnSuccess()
         {
-            ModbusRTUProtocol prot = new ModbusRTUProtocol();
-            Byte[] packetRawData = { 0xFF, 0xFF, //-1
-                                     0x01, 0xF4, //500
-                                     0x00, 0x00, //0
-                                     0x49, 0x96, 0x02, 0xD2, //1234567890
-                                     };
-            object[] rtuData = { new Int16(), new ModbusDataRegisterUInt16(), new ModbusDataRegisterUInt16(),new UInt32() };
-            bool ret = prot.ProcessData(packetRawData,ref rtuData);            
-            Assert.AreEqual(-1, rtuData[0]);
-            Assert.AreEqual(500, ((ModbusDataRegisterUInt16)rtuData[1]).value);
-            Assert.AreEqual(0, ((ModbusDataRegisterUInt16)rtuData[2]).value);
-            Assert.AreEqual(1234567890, rtuData[3]);
+            ModbusRTUProtocol prot = new ModbusRTUProtocol();                                            
+           
+            Byte[] packetRawData = {   0x20, //32
+                                       0xFE, //-2
+                                       0xFF, 0xFF, //-1
+                                       0x01, 0xF4, //500                                    
+                                       0x49, 0x96, 0x02, 0xD2, //1234567890
+                                       0xF8, 0xA4, 0x32, 0xEB, //-123456789
+                                       0x42, 0xF6, 0xE6, 0x66, //123.45       
+                                       0x11,0x22,0x10,0xF4,0xB2,0xD2,0x30,0xA2,//1234567891011121314
+                                       0xEE,0xDD,0xEF,0x0B,0x4D,0x2D,0xCF,0x5E,//-1234567891011121314
+                                       0x40,0xc8,0x1c,0xd6,0xe6,0x85,0xdb,0x77,//12345.67891     
+                                       0x0, 0x9, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x11, 0x22, 0x10, 0xF4, 0x7D, 0xE9, 0x81, 0x15//1234567890.123456789
+                                    };
+            object[] arrayValues = { (Byte)0, (SByte)0, new ModbusDataRegisterUInt16(), (UInt16)0, (UInt32)0, new ModbusDataRegisterInt32(), (Single)0.0, (UInt64)0, (Int64)0, (Double)0.0, (Decimal)0m };
+            bool ret = prot.ProcessData(packetRawData, ref arrayValues);
+
             Assert.AreEqual(true, ret);
-        }*/
+            Assert.AreEqual(32, arrayValues[0]);
+            Assert.AreEqual(-2, arrayValues[1]);
+            Assert.AreEqual(-1, ((ModbusDataRegisterUInt16)arrayValues[2]).value);
+            Assert.AreEqual(500, arrayValues[3]);
+            Assert.AreEqual(1234567890, arrayValues[4]);
+            Assert.AreEqual(-123456789, ((ModbusDataRegisterInt32)arrayValues[5]).value);
+            Assert.AreEqual(123.45f, (Single)arrayValues[6], 0.001f);
+            Assert.AreEqual(1234567891011121314, arrayValues[7]);
+            Assert.AreEqual(-1234567891011121314, arrayValues[8]);
+            Assert.AreEqual(12345.67891, (Double)arrayValues[9]);
+            Assert.AreEqual(1234567890.123456789m, arrayValues[10]);
+        }
         [Test]
         [ExpectedException(typeof(ArgumentException))]
         public void ProcessData_ShouldThrowIfNotValueTypeElementsAreRequestedInOutputArray()
@@ -520,20 +560,27 @@ namespace Modbus.UnitTests
             prot.ProcessData(packetRawData, ref rtuData);
         }
     }
-    class ModbusDataMappingHelperTest
+
+    class SizeofHelperTest
     {
         [Test]
         public void SizeOfPublicPropertiesOfClass_ShouldReturnValidSize()
         {
             MyClassWithPrivateProperty cl = new MyClassWithPrivateProperty();
-            UInt32 size = ModbusDataMappingHelper.SizeOfPublicProperties(cl);
+            UInt32 size = SizeofHelper.SizeOfPublicProperties(cl);
             Assert.AreEqual(16, size);
-        }        
+        }
+
+        [Test]
         [ExpectedException(typeof(ArgumentNullException))]
         public void SizeOfPublicPropertiesOfClass_ShouldThrowOnNullArgument()
         {            
-            UInt32 size = ModbusDataMappingHelper.SizeOfPublicProperties(null);            
+            UInt32 size = SizeofHelper.SizeOfPublicProperties(null);            
         }
+    }
+
+    class ModbusDataMappingHelperTest
+    {        
         [Test]
         public void GetObjectPropertiesTypesArray_ShouldReturnArrayOfValidSizeAndValidTypes()
         {            		      
@@ -614,7 +661,7 @@ namespace Modbus.UnitTests
         {
             MyClass cl = new MyClass();
             object tmp = (object)cl;
-            ValueType[] arrayValues = { (Int16)(-12345), (Int32)(-123456), (Single)123.456f, (Double)1234567890.0 };
+            object[] arrayValues = { (Int16)(-12345), (Int32)(-123456), (Single)123.456f, (Double)1234567890.0 };
             bool ret = ModbusDataMappingHelper.SetObjectPropertiesValuesFromArray(ref tmp, arrayValues);
             Assert.AreEqual(true, ret);
             Assert.AreEqual(arrayValues[0], cl.a);
@@ -627,7 +674,7 @@ namespace Modbus.UnitTests
         {
             MyClassWithPrivateProperty cl = new MyClassWithPrivateProperty();
             object tmp = (object)cl;
-            ValueType[] arrayValues = { (Int32)(-123456), (Single)123.456f, (Double)1234567890.0 };
+            object[] arrayValues = { (Int32)(-123456), (Single)123.456f, (Double)1234567890.0 };
             bool ret = ModbusDataMappingHelper.SetObjectPropertiesValuesFromArray(ref tmp, arrayValues);
             Assert.AreEqual(true, ret);
             Assert.AreEqual(arrayValues[0], cl.b);
@@ -639,10 +686,112 @@ namespace Modbus.UnitTests
         {
             MyClass cl = new MyClass();
             object tmp = (object)cl;
-            ValueType[] arrayValues = { (Int32)(-12345), (Int32)(-123456), (Single)123.456f, (Double)1234567890.0 };
+            object[] arrayValues = { (Int32)(-12345), (Int32)(-123456), (Single)123.456f, (Double)1234567890.0 };
             bool ret = ModbusDataMappingHelper.SetObjectPropertiesValuesFromArray(ref tmp, arrayValues);
             Assert.AreEqual(false, ret);          
-        } 
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentException))]
+        public void ExtractValueFromArrayByType_ShouldThrowOnNonNumericTypeArgument()
+        {
+            Byte[] packetRawData = { 0xFF, 0xFF, //-1
+                                    0x01, 0xF4, //500
+                                    0x00, 0x00, //0
+                                    0x49, 0x96, 0x02, 0xD2, //1234567890
+                                    };
+            int packetCurrentPositionIndex = 6;
+            object[] arrayValues = { (Int32)(-12345), (UInt32)(123456), (Single)123.456f, (Double)1234567890.0 ,"aaa"};
+            ModbusDataMappingHelper.ExtractValueFromArrayByType(packetRawData, ref  packetCurrentPositionIndex, ref arrayValues[4]);
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void ExtractValueFromArrayByType_ShouldThrowOnNullTypeArgument()
+        {
+            int packetCurrentPositionIndex = 6;
+            object[] arrayValues = { (Int32)(-12345), (UInt32)(123456), (Single)123.456f, (Double)1234567890.0 };
+            ModbusDataMappingHelper.ExtractValueFromArrayByType(null, ref  packetCurrentPositionIndex, ref arrayValues[1]);
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void ExtractValueFromArrayByType_ShouldThrowOnNegativeIndexArgument()
+        {
+            Byte[] packetRawData = { 0xFF, 0xFF, //-1
+                                    0x01, 0xF4, //500
+                                    0x00, 0x00, //0
+                                    0x49, 0x96, 0x02, 0xD2, //1234567890
+                                    };
+            object[] arrayValues = { (Int32)(-12345), (UInt32)(123456), (Single)123.456f, (Double)1234567890.0};
+            int packetCurrentPositionIndex = -6;
+            ModbusDataMappingHelper.ExtractValueFromArrayByType(packetRawData, ref  packetCurrentPositionIndex, ref arrayValues[1]);
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void ExtractValueFromArrayByType_ShouldThrowOnOutboundingIndexArgument()
+        {
+            Byte[] packetRawData = { 0xFF, 0xFF, //-1
+                                    0x01, 0xF4, //500
+                                    0x00, 0x00, //0
+                                    0x49, 0x96, 0x02, 0xD2, //1234567890
+                                    };
+            object[] arrayValues = { (Int32)(-12345), (UInt32)(123456), (Single)123.456f, (Double)1234567890.0 };
+            int packetCurrentPositionIndex = 7;
+            ModbusDataMappingHelper.ExtractValueFromArrayByType(packetRawData, ref  packetCurrentPositionIndex, ref arrayValues[1]);
+        }
+
+        [Test]
+        public void ExtractValueFromArrayByType_ShouldIncrementStartPosition()
+        {
+            Byte[] packetRawData = {   0x20, //32
+                                       0xFE, //-2
+                                       0xFF, 0xFF, //-1
+                                       0x01, 0xF4, //500                                    
+                                       0x49, 0x96, 0x02, 0xD2, //1234567890
+                                    };
+            object[] arrayValues = { (Byte)0, (SByte)0,(Int16)0, (UInt16)0, (UInt32)0, (Single)0.0 };
+            
+            int packetCurrentPositionIndex = 2;
+            
+            ModbusDataMappingHelper.ExtractValueFromArrayByType(packetRawData, ref packetCurrentPositionIndex,ref arrayValues[2]);
+            Assert.AreEqual(4, packetCurrentPositionIndex);            
+        }
+
+        [Test]       
+        public void ExtractValueFromArrayByType_ShouldSetApropriateValueFromInputArrayToOutputArgument()
+        {
+            Byte[] packetRawData = {   0x20, //32
+                                       0xFE, //-2
+                                       0xFF, 0xFF, //-1
+                                       0x01, 0xF4, //500                                    
+                                       0x49, 0x96, 0x02, 0xD2, //1234567890
+                                       0xF8, 0xA4, 0x32, 0xEB, //-123456789
+                                       0x42, 0xF6, 0xE6, 0x66, //123.45       
+                                       0x11,0x22,0x10,0xF4,0xB2,0xD2,0x30,0xA2,//1234567891011121314
+                                       0xEE,0xDD,0xEF,0x0B,0x4D,0x2D,0xCF,0x5E,//-1234567891011121314
+                                       0x40,0xc8,0x1c,0xd6,0xe6,0x85,0xdb,0x77,//12345.67891     
+                                       0x0, 0x9, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x11, 0x22, 0x10, 0xF4, 0x7D, 0xE9, 0x81, 0x15//1234567890.123456789
+                                    };
+            object[] arrayValues = { (Byte)0, (SByte)0, (Int16)0, (UInt16)0, (UInt32)0, (Int32)0, (Single)0.0, (UInt64)0, (Int64)0, (Double)0.0,(Decimal)0m };
+            int packetCurrentPositionIndex = 0;
+            for (int i = 0; i < arrayValues.Length; i++)
+            {
+                ModbusDataMappingHelper.ExtractValueFromArrayByType(packetRawData, ref packetCurrentPositionIndex, ref arrayValues[i]);                 
+            }            
+            Assert.AreEqual(32, arrayValues[0]);
+            Assert.AreEqual(-2, arrayValues[1]);
+            Assert.AreEqual(-1, arrayValues[2]);
+            Assert.AreEqual(500, arrayValues[3]);
+            Assert.AreEqual(1234567890, arrayValues[4]);
+            Assert.AreEqual(-123456789, arrayValues[5]);
+            Assert.AreEqual(123.45f, (Single)arrayValues[6],0.001f);
+            Assert.AreEqual(1234567891011121314, arrayValues[7]);
+            Assert.AreEqual(-1234567891011121314, arrayValues[8]);
+            Assert.AreEqual(12345.67891, (Double)arrayValues[9]);
+            Assert.AreEqual(1234567890.123456789m, arrayValues[10]);
+        }
     }
     class ConversionHelperTest
     {
@@ -664,12 +813,64 @@ namespace Modbus.UnitTests
         [Test]       
         public void ConvertBytesToFloat_ShouldReturnValidFloationgNumber()
         {
-            Byte[] packetRecieve = { 0x3F, 0x80, 0x00, 0x00 };
-            float value = ConversionHelper.ConvertBytesToFloat(packetRecieve, 0,false);
-            float value1 = 1.0f;
-            Byte[] packetRecieve2 = { 0x00, 0x00, 0x80, 0x3F };
-            value = ConversionHelper.ConvertBytesToFloat(packetRecieve, 0, true);
-            Assert.AreEqual(value1, value);
+            Byte[] packetRecieve = { 0x00, 0x00, 0x80, 0x3F };
+            float value1 = ConversionHelper.ConvertBytesToFloat(packetRecieve, 0,false);            
+            Byte[] packetRecieve2 = { 0x3F, 0x80, 0x00, 0x00 };
+            float value2 = ConversionHelper.ConvertBytesToFloat(packetRecieve2, 0, true);
+            Assert.AreEqual(value1, value2);
+            Assert.AreEqual(1.0f, value2,0.1);
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void ConvertBytesToDouble_ShouldThrowOnInvalidArgument()
+        {
+            Byte[] packetRecieve = { 0x01, 0x03, 0x02, 0x00, 0x00, 0xB8, 0x44 };
+            Double value = ConversionHelper.ConvertBytesToDouble(packetRecieve, 4, false);
+        }
+
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void ConvertBytesToDouble_ShouldThrowOnNullArgument()
+        {
+            Byte[] packetRecieve = null;
+            Double value = ConversionHelper.ConvertBytesToDouble(packetRecieve, 4, false);
+        }
+
+        [Test]
+        public void ConvertBytesToDouble_ShouldReturnValidFloationgNumber()
+        {
+            Byte[] packetRecieve =  { 0x77, 0xdb, 0x85, 0xe6, 0xd6, 0x1c, 0xc8, 0x40 };
+            Double value1 = ConversionHelper.ConvertBytesToDouble(packetRecieve, 0, false);            
+            Byte[] packetRecieve2 = { 0x40, 0xc8, 0x1c, 0xd6, 0xe6, 0x85, 0xdb, 0x77 };//12345.67891
+            Double value2 = ConversionHelper.ConvertBytesToDouble(packetRecieve2, 0, true);
+            Assert.AreEqual(value1, value2,Double.Epsilon);
+            Assert.AreEqual(12345.67891, value1, Double.Epsilon);
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void ConvertBytesToDecimal_ShouldThrowOnInvalidArgument()
+        {
+            Byte[] packetRecieve = { 0x01, 0x03, 0x02, 0x00, 0x00, 0xB8, 0x44 };
+            Decimal value = ConversionHelper.ConvertBytesToDecimal(packetRecieve, 4, false);
+        }
+
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void ConvertBytesToDecimal_ShouldThrowOnNullArgument()
+        {
+            Byte[] packetRecieve = null;
+            Decimal value = ConversionHelper.ConvertBytesToDecimal(packetRecieve, 4, false);
+        }
+
+        [Test]
+        public void ConvertBytesToDecimal_ShouldReturnValidFloationgNumber()
+        {
+            Byte[] packetRecieve = { 0x15, 0x81, 0xE9, 0x7D, 0xF4, 0x10, 0x22, 0x11, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x9, 0x0 };//1234567890.123456789
+            Decimal value1 = ConversionHelper.ConvertBytesToDecimal(packetRecieve, 0, false);
+            Byte[] packetRecieve2 = { 0x0, 0x9, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x11, 0x22, 0x10, 0xF4, 0x7D, 0xE9, 0x81, 0x15 };//1234567890.123456789
+            Decimal value2 = ConversionHelper.ConvertBytesToDecimal(packetRecieve2, 0, true);
+            Assert.AreEqual(value1, value2);
+            Assert.AreEqual(1234567890.123456789, value1);
         }
         
     }

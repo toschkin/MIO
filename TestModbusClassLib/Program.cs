@@ -20,7 +20,7 @@ namespace TestModbusClassLib
         {
             a = 0;
             b = 0;
-            c = 0.0f;
+            c = 123.45f;
             d = 0.0;
         }        
         public Int16 a{get;set;}
@@ -183,7 +183,7 @@ namespace TestModbusClassLib
             {
                 if (element.GetType().IsValueType)//here we will process simple (only numeric) types
                 {
-                    if (ModbusDataMappingHelper.IsNumericType(element.GetType()))
+                    if (GetTypeHelper.IsNumericType(element.GetType()))
                     {
                         totalLengthInBytesOfRequestedData += Marshal.SizeOf(element);
                         Console.WriteLine("{0}\t{1}", element.GetType().Name, Marshal.SizeOf(element));
@@ -209,7 +209,27 @@ namespace TestModbusClassLib
             {
                 Console.WriteLine(item3.ToString());
             }
-
+            
+            Byte[] arr = BitConverterEx.GetBytes(1234567890.123456789m);
+            Byte[] arr2 = BitConverterEx.GetBytes(1234567890.123456789m);     
+            Array.Reverse(arr);
+            StringBuilder stbBuilder= new StringBuilder();
+            StringBuilder stbBuilder2= new StringBuilder();
+            foreach (var by in arr)
+            {
+                stbBuilder.Append("0x");
+                stbBuilder.AppendFormat("{0}", by.ToString("X"));
+                stbBuilder.Append(", ");
+                                
+            }
+            foreach (var by2 in arr2)
+            {
+                stbBuilder2.Append("0x");
+                stbBuilder2.AppendFormat("{0}", by2.ToString("X"));
+                stbBuilder2.Append(", ");
+            }
+            string strtemp = stbBuilder.ToString();
+            string strtemp2 = stbBuilder2.ToString();
             Console.ReadLine();
             /*ModbusRTUProtocol protM = new ModbusRTUProtocol();
             protM.Connect("COM8", timeout: 1500);
@@ -219,7 +239,8 @@ namespace TestModbusClassLib
 
             protM.Disconnect();          
             Console.ReadLine();*/
-
-        }
+           
+        }      
+        
     }
 }
