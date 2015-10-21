@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,6 +27,27 @@ namespace Modbus.Core
                 if (field.PropertyType.IsPublic)	
                     totalLengthInBytes += (UInt32)Marshal.SizeOf(field.PropertyType);                
             }
+            return totalLengthInBytes;
+        }
+        /// <summary>
+        /// Calculates total size in bytes of all public properties of an array of objects
+        /// </summary>
+        /// <param name="array">array which total element's properties sizes should be calculated</param>
+        /// <returns>size in bytes of all public properties of an object's in array</returns>
+        public static UInt32 SizeOfPublicProperties(object[] array)
+        {
+            if (array == null)
+                throw new ArgumentNullException();
+            
+            UInt32 totalLengthInBytes = 0;
+            foreach (var element in array)
+            {
+                foreach (var field in element.GetType().GetProperties())
+                {
+                    if (field.PropertyType.IsPublic)
+                        totalLengthInBytes += (UInt32)Marshal.SizeOf(field.PropertyType);
+                }
+            }            
             return totalLengthInBytes;
         }
     }
@@ -109,10 +131,10 @@ namespace Modbus.Core
             return lstTypesOfClassMembers.ToArray<Type>();
         }
         /// <summary>
-        /// Sets all public properties of the object obj to values from arrayValues
+        /// Sets all public properties of the object array to values from arrayValues
         /// </summary>
         /// <param name="obj">Destination object</param>
-        /// <param name="arrayValues">Values to which this function sets properties of the object obj</param>
+        /// <param name="arrayValues">Values to which this function sets properties of the object array</param>
         /// <returns>true on success, false otherwise</returns>
         /// <remarks>Values in arrayValues should be placed sequentionaly in the same order with object's properties definitions</remarks>
         public static bool SetObjectPropertiesValuesFromArray(ref object obj, object[] arrayValues)
@@ -145,17 +167,17 @@ namespace Modbus.Core
                     i++;
                 }
                 return true;
-            }
-            else
-                return false;
+            }            
+            return false;
         }
         /// <summary>
         /// Converts raw Modbus packet data to numeric type value
         /// </summary>
-        /// <param name="packetRawData"></param>
-        /// <param name="currentCursorPosition"></param>
-        /// <param name="value"></param>
-        public static void ExtractValueFromArrayByType(byte[] packetRawData, ref int currentCursorPosition, ref object value)
+        /// <param name="packetRawData">raw data array from Modbus packet</param>
+        /// <param name="currentCursorPosition">current position in data array (will be incremented by size of object inside the method call)</param>
+        /// <param name="value">numeric object to which extract value from data array</param>
+        /// <param name="reverseOrder">if true modbus registers are processed to 32bit(or higher) value in reverse order: first register - high 16bit, second - low 16bit</param>
+        public static void ExtractValueFromArrayByType(byte[] packetRawData, ref int currentCursorPosition, ref object value, bool reverseOrder)
         {
             if (!GetTypeHelper.IsNumericType(value.GetType())) 
                 throw  new ArgumentException();
@@ -188,12 +210,18 @@ namespace Modbus.Core
                 }
                 case "UInt32":
                 {
-                    value = ConversionHelper.ReverseBytes(BitConverter.ToUInt32(packetRawData, currentCursorPosition));                        
+                    if(reverseOrder)
+                        value = ConversionHelper.ReverseBytes(BitConverter.ToUInt32(packetRawData, currentCursorPosition));
+                    else                                            
+                        value = (UInt32)(((UInt16)BitConverter.ToUInt16(packetRawData, currentCursorPosition)) | (UInt32)(BitConverter.ToUInt16(packetRawData, currentCursorPosition + 2) << 16));                    
                     break;
                 }
                 case "Int32":
                 {
-                    value = ConversionHelper.ReverseBytes(BitConverter.ToInt32(packetRawData, currentCursorPosition));
+                    if (reverseOrder)
+                        value = ConversionHelper.ReverseBytes(BitConverter.ToInt32(packetRawData, currentCursorPosition));
+                    else
+                        value = (Int32)(((UInt16)BitConverter.ToUInt16(packetRawData, currentCursorPosition)) | (UInt32)(BitConverter.ToUInt16(packetRawData, currentCursorPosition + 2) << 16));
                     break;
                 }
                 case "UInt64":
@@ -223,6 +251,48 @@ namespace Modbus.Core
                 }
             }
             currentCursorPosition += valueSize;
+        }
+        /// <summary>
+        /// Creates an array of objects given by their types (only numeric types accepted)
+        /// </summary>
+        /// <param name="arrayOfTypes">Array of types from which will be created returned array</param>
+        /// <returns>Array of created objects</returns>
+        /// <remarks>Objects in output array are intialized each to its type default value</remarks>
+        public static object[] CreateValuesArrayFromTypesArray(Type[] arrayOfTypes)
+        {
+            if (arrayOfTypes == null)
+                throw new ArgumentNullException();
+
+            List<object> listOfElem = new List<object>();
+            for (int i = 0; i < arrayOfTypes.Length; i++)
+            {
+                if (!GetTypeHelper.IsNumericType(arrayOfTypes[i]))
+                    throw new ArgumentException();
+
+                if (arrayOfTypes[i].Name == "Byte")
+                    listOfElem.Add(new Byte());
+                if (arrayOfTypes[i].Name == "SByte")
+                    listOfElem.Add(new SByte());
+                if (arrayOfTypes[i].Name == "Int16")
+                    listOfElem.Add(new Int16());
+                if (arrayOfTypes[i].Name == "UInt16")
+                    listOfElem.Add(new UInt16());
+                if (arrayOfTypes[i].Name == "Int32")
+                    listOfElem.Add(new Int32());
+                if (arrayOfTypes[i].Name == "UInt32")
+                    listOfElem.Add(new UInt32());
+                if (arrayOfTypes[i].Name == "Int64")
+                    listOfElem.Add(new Int64());
+                if (arrayOfTypes[i].Name == "UInt64")
+                    listOfElem.Add(new UInt64());
+                if (arrayOfTypes[i].Name == "Single")
+                    listOfElem.Add(new Single());
+                if (arrayOfTypes[i].Name == "Double")
+                    listOfElem.Add(new Double());
+                if (arrayOfTypes[i].Name == "Decimal")
+                    listOfElem.Add(new Decimal()); 
+            }
+            return listOfElem.ToArray<object>();
         }
     }    
 }
