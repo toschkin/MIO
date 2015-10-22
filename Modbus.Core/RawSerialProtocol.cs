@@ -19,7 +19,7 @@ namespace Modbus.Core
         public String StatusString { get; private set; }
         public SerialPortPin TangentaPin { get; set; }
         public bool SaveExceptionsToLog { get; set; }                
-        public String LogsPath 
+        public String ExceptionLogsPath 
         {
             get
             {
@@ -106,7 +106,7 @@ namespace Modbus.Core
         private SerialPort comPort;
         private int silentInterval;
         private int tangentaSetPinTimePeriodMsec;
-        private ModbusLogger logger;
+        protected ModbusLogger logger;
         #endregion
 
         #region Ctors

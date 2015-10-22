@@ -51,6 +51,7 @@
     <Compile Include="ConversionHelper.cs" />
     <Compile Include="IModbus.cs" />
     <Compile Include="ModbusDataMappingHelper.cs" />
+    <Compile Include="ModbusDataPoint.cs" />
     <Compile Include="ModbusErrorCode.cs" />
     <Compile Include="ModbusLogger.cs" />
     <Compile Include="RawSerialProtocol.cs" />

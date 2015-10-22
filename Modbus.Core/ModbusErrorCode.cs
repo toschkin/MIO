@@ -13,8 +13,8 @@ namespace Modbus.Core
         codeCRCError = 0x0003,
         codeInvalidSlaveAddress = 0x0004,
         codeInvalidFunction = 0x0005,
-        codeInvalidRegsSize = 0x0006,
-        codeInvalidPacketLength = 0x0007,
+        codeInvalidRequestedSize = 0x0006,
+        codeInvalidPacketLength = 0x0007,        
         codeIllegalFunction = 0x8001,
         codeIllegalDataAddress = 0x8002,
         codeIllegalDataValue = 0x8003,
@@ -24,7 +24,6 @@ namespace Modbus.Core
         codeNACK = 0x8007,
         codeMemoryParityError = 0x8008,
         codeGatewayPathUnavailable = 0x800A,
-        codeGatewayTargetDeviceFailedToRespond = 0x800B,
-        
+        codeGatewayTargetDeviceFailedToRespond = 0x800B,        
     }
 }
