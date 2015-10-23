@@ -91,7 +91,7 @@ namespace Modbus.Core
         /// <param name="index">index of element of array from which to start convertion</param>
         /// <param name="reverseOrder">if true, elements from array will be took in reverse order</param>
         /// <returns>converted single floating point number</returns>
-        public static Single ConvertBytesToFloat(byte[] array, int index, bool reverseOrder) 
+        public static Single ConvertBytesToFloat(byte[] array, int index, bool reverseOrder = false) 
         {            
             if (index > array.Length - 4)
                 throw new ArgumentOutOfRangeException();
@@ -109,7 +109,7 @@ namespace Modbus.Core
             return floatValue;
         }
 
-        public static Double ConvertBytesToDouble(byte[] array, int index, bool reverseOrder)
+        public static Double ConvertBytesToDouble(byte[] array, int index, bool reverseOrder = false)
         {
             if (index > array.Length - 8)
                 throw new ArgumentOutOfRangeException();
@@ -127,7 +127,7 @@ namespace Modbus.Core
             return doubleValue;
         }
 
-        public static Decimal ConvertBytesToDecimal(byte[] array, int index, bool reverseOrder)
+        public static Decimal ConvertBytesToDecimal(byte[] array, int index, bool reverseOrder = false)
         {
             if (index > array.Length - 16)
                 throw new ArgumentOutOfRangeException();

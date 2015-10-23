@@ -63,7 +63,7 @@ namespace Modbus.UnitTests
 
         public static void TestLogFileOutput(RawSerialProtocol prot, String testedMethod)
         {
-            prot.ExceptionLogsPath = @"c:\";
+            prot.ExceptionLogsPath = @"d:\aaaa\";
             prot.SaveExceptionsToLog = true;
             FileInfo logFileInfo = new FileInfo(prot.ExceptionLogsPath + "ModbusCoreExceptions.txt");
             if (logFileInfo.Exists)
@@ -600,15 +600,15 @@ namespace Modbus.UnitTests
                                        0xFF, 0xFF, //-1
                                        0x01, 0xF4, //500                                    
                                        0x02, 0xD2, 0x49, 0x96, //1234567890
-                                       0x32, 0xEB, 0xF8, 0xA4 /*, //-123456789
-                                       0x42, 0xF6, 0xE6, 0x66, //123.45       
-                                       0x11,0x22,0x10,0xF4,0xB2,0xD2,0x30,0xA2,//1234567891011121314
-                                       0xEE,0xDD,0xEF,0x0B,0x4D,0x2D,0xCF,0x5E,//-1234567891011121314
-                                       0x40,0xc8,0x1c,0xd6,0xe6,0x85,0xdb,0x77,//12345.67891     
-                                       0x0, 0x9, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x11, 0x22, 0x10, 0xF4, 0x7D, 0xE9, 0x81, 0x15//1234567890.123456789*/
+                                       0x32, 0xEB, 0xF8, 0xA4 , //-123456789
+                                       0xE6, 0x66, 0x42, 0xF6, //123.45       
+                                       0x30,0xA2,0xB2,0xD2,0x10,0xF4,0x11,0x22,//1234567891011121314
+                                       0xCF,0x5E,0x4D,0x2D,0xEF,0x0B,0xEE,0xDD,//-1234567891011121314                                       
+                                       0xdb,0x77,0xe6,0x85,0x1c,0xd6,0x40,0xc8,//12345.67891     
+                                       0x81, 0x15, 0x7D, 0xE9, 0x10, 0xF4, 0x11, 0x22, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x9//1234567890.123456789
                                     };
             //object[] arrayValues = { (Byte)0, (SByte)0, new ModbusDataRegisterUInt16(), (UInt16)0, (UInt32)0, new ModbusDataRegisterInt32(), (Single)0.0, (UInt64)0, (Int64)0, (Double)0.0, (Decimal)0m };
-            object[] arrayValues = { (Byte)0, (SByte)0, (Int16)0, (UInt16)0, (UInt32)0, (Int32)0/*, (Single)0.0, (UInt64)0, (Int64)0, (Double)0.0, (Decimal)0m */};
+            object[] arrayValues = { (Byte)0, (SByte)0, (Int16)0, (UInt16)0, (UInt32)0, (Int32)0, (Single)0.0, (UInt64)0, (Int64)0, (Double)0.0, (Decimal)0m };
             prot.ProcessData(packetRawData, ref arrayValues);
 
             Assert.AreEqual(32, arrayValues[0]);
@@ -617,11 +617,11 @@ namespace Modbus.UnitTests
             Assert.AreEqual(500, arrayValues[3]);
             Assert.AreEqual(1234567890, arrayValues[4]);
             Assert.AreEqual(-123456789, arrayValues[5]);
-            /*Assert.AreEqual(123.45f, (Single)arrayValues[6], 0.001f);
+            Assert.AreEqual(123.45f, (Single)arrayValues[6], 0.001f);
             Assert.AreEqual(1234567891011121314, arrayValues[7]);
             Assert.AreEqual(-1234567891011121314, arrayValues[8]);
             Assert.AreEqual(12345.67891, (Double)arrayValues[9]);
-            Assert.AreEqual(1234567890.123456789m, arrayValues[10]);*/
+            Assert.AreEqual(1234567890.123456789m, arrayValues[10]);
         }
         [Test]
         public void ProcessData_ShouldProcessRawPacketDataToApropriateValuesOfApropriateTypeIntoOutputArrayOfComplexObjectsAndReturnTrueOnSuccess_ReverseOrderOfRegisters()
@@ -961,7 +961,7 @@ namespace Modbus.UnitTests
         }
 
         [Test]       
-        public void ExtractValueFromArrayByType_ShouldSetApropriateValueFromInputArrayToOutputArgument()
+        public void ExtractValueFromArrayByType_ShouldSetApropriateValueFromInputArrayToOutputArgument_ReverseRegsOrder()
         {
             Byte[] packetRawData = {   0x20, //32
                                        0xFE, //-2
@@ -979,7 +979,7 @@ namespace Modbus.UnitTests
             int packetCurrentPositionIndex = 0;
             for (int i = 0; i < arrayValues.Length; i++)
             {
-                ModbusDataMappingHelper.ExtractValueFromArrayByType(packetRawData, ref packetCurrentPositionIndex, ref arrayValues[i]);                 
+                ModbusDataMappingHelper.ExtractValueFromArrayByType(packetRawData, ref packetCurrentPositionIndex, ref arrayValues[i],true);                 
             }            
             Assert.AreEqual(32, arrayValues[0]);
             Assert.AreEqual(-2, arrayValues[1]);
@@ -988,6 +988,40 @@ namespace Modbus.UnitTests
             Assert.AreEqual(1234567890, arrayValues[4]);
             Assert.AreEqual(-123456789, arrayValues[5]);
             Assert.AreEqual(123.45f, (Single)arrayValues[6],0.001f);
+            Assert.AreEqual(1234567891011121314, arrayValues[7]);
+            Assert.AreEqual(-1234567891011121314, arrayValues[8]);
+            Assert.AreEqual(12345.67891, (Double)arrayValues[9]);
+            Assert.AreEqual(1234567890.123456789m, arrayValues[10]);
+        }
+
+        [Test]
+        public void ExtractValueFromArrayByType_ShouldSetApropriateValueFromInputArrayToOutputArgument_StraightRegsOrder()
+        {
+            Byte[] packetRawData = {   0x20, //32
+                                       0xFE, //-2
+                                       0xFF, 0xFF, //-1
+                                       0x01, 0xF4, //500                                    
+                                       0x02, 0xD2, 0x49, 0x96, //1234567890
+                                       0x32, 0xEB, 0xF8, 0xA4 , //-123456789
+                                       0xE6, 0x66, 0x42, 0xF6, //123.45       
+                                       0x30,0xA2,0xB2,0xD2,0x10,0xF4,0x11,0x22,//1234567891011121314
+                                       0xCF,0x5E,0x4D,0x2D,0xEF,0x0B,0xEE,0xDD,//-1234567891011121314                                       
+                                       0xdb,0x77,0xe6,0x85,0x1c,0xd6,0x40,0xc8,//12345.67891     
+                                       0x81, 0x15, 0x7D, 0xE9, 0x10, 0xF4, 0x11, 0x22, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x9//1234567890.123456789
+                                    };
+            object[] arrayValues = { (Byte)0, (SByte)0, (Int16)0, (UInt16)0, (UInt32)0, (Int32)0, (Single)0.0, (UInt64)0, (Int64)0, (Double)0.0, (Decimal)0m};
+            int packetCurrentPositionIndex = 0;
+            for (int i = 0; i < arrayValues.Length; i++)
+            {
+                ModbusDataMappingHelper.ExtractValueFromArrayByType(packetRawData, ref packetCurrentPositionIndex, ref arrayValues[i], false);
+            }
+            Assert.AreEqual(32, arrayValues[0]);
+            Assert.AreEqual(-2, arrayValues[1]);
+            Assert.AreEqual(-1, arrayValues[2]);
+            Assert.AreEqual(500, arrayValues[3]);
+            Assert.AreEqual(1234567890, arrayValues[4]);
+            Assert.AreEqual(-123456789, arrayValues[5]);
+            Assert.AreEqual(123.45f, (Single)arrayValues[6], 0.001f);
             Assert.AreEqual(1234567891011121314, arrayValues[7]);
             Assert.AreEqual(-1234567891011121314, arrayValues[8]);
             Assert.AreEqual(12345.67891, (Double)arrayValues[9]);
@@ -1083,38 +1117,39 @@ namespace Modbus.UnitTests
             ModbusLogger log = new ModbusLogger();
             Assert.AreEqual(@"${basedir}\", log.ExceptionLogDir);            
         }
-        
+
+        [Test]
+        public void ExceptionLogDir_ShouldChangeExceptionLogFilePath()
+        {
+            ModbusLogger log = new ModbusLogger();
+            log.ExceptionLogDir = @"d:\aaaa\";
+            Assert.AreEqual(@"d:\aaaa\ModbusCoreExceptions.txt", log.ExceptionLogFilePath);
+        }
         [Test]
         public void ShouldSaveExceptionsToProperFile()
         {
-            ModbusLogger log = new ModbusLogger();
-            RawSerialProtocol prot = new RawSerialProtocol();
-            try
+            ModbusLogger log = new ModbusLogger();            
+                        
+            ArgumentNullException exception = new ArgumentNullException();
+                            
+            log.ExceptionLogDir = @"d:\aaaa\";                
+            FileInfo logFileInfo = new FileInfo(log.ExceptionLogFilePath);
+            if (logFileInfo.Exists)
             {
-                prot.TangentaSetPinTimePeriodMsec = -10;
+                long lengthBeforeAddException = logFileInfo.Length;
+                log.SaveException(exception);
+                logFileInfo.Refresh();
+                if (lengthBeforeAddException >= logFileInfo.Length)
+                    Assert.Fail();
             }
-            catch (Exception exception)
-            {                
-                log.ExceptionLogDir = @"c:\";
-                Assert.AreEqual(@"c:\", log.ExceptionLogDir);
-                Assert.AreEqual(@"c:\ModbusCoreExceptions.txt", log.ExceptionLogFilePath);
-                FileInfo logFileInfo = new FileInfo(log.ExceptionLogFilePath);
-                if (logFileInfo.Exists)
-                {
-                    long lengthBeforeAddException = logFileInfo.Length;
-                    log.SaveException(exception);
-                    logFileInfo.Refresh();
-                    if (lengthBeforeAddException >= logFileInfo.Length)
-                        Assert.Fail();
-                }
-                else
-                {
-                    log.SaveException(exception);
-                    FileInfo logFileInfo2 = new FileInfo(log.ExceptionLogFilePath);
-                    if (!logFileInfo2.Exists)
-                        Assert.Fail();
-                }                
-            }            
+            else
+            {
+                log.SaveException(exception);
+                FileInfo logFileInfo2 = new FileInfo(log.ExceptionLogFilePath);
+                if (!logFileInfo2.Exists)
+                    Assert.Fail();
+            }                
+                        
         }
     }
 }

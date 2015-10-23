@@ -48,7 +48,8 @@ namespace Modbus.Core
                 config.LoggingRules.Add(rule);
                 // Step 5. Activate the configuration
                 LogManager.Configuration = config;
-                // Example usage                
+                // Example usage               
+                LogManager.ReconfigExistingLoggers();
                 logger = LogManager.GetLogger("ModbusLogger");
             }
         }
@@ -59,7 +60,7 @@ namespace Modbus.Core
         {
             exceptionLogFilePath = @"${basedir}\ModbusCoreExceptions.txt";
             // Step 1. Create configuration object 
-            LoggingConfiguration config = new LoggingConfiguration();
+            LoggingConfiguration config = new LoggingConfiguration();            
             // Step 2. Create targets and add them to the configuration            
             FileTarget fileTarget = new FileTarget();
             config.AddTarget("ExceptionsFile", fileTarget);
@@ -73,8 +74,8 @@ namespace Modbus.Core
             LogManager.Configuration = config;
             // Example usage
             LogManager.ThrowExceptions = true;
+            LogManager.ReconfigExistingLoggers();
             logger = LogManager.GetLogger("ModbusLogger");
-
         }
         #endregion
 

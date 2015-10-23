@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 namespace Modbus.Core
 {
     public class ModbusDataPoint<T>         
-        where T : new ()
+       where T : struct 
     {
         public ModbusDataPoint()
         {            
-            Value = new T();
+            Value = default(T);
         }        
         public T Value { get; set; }       
     }

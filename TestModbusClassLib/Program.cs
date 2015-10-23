@@ -230,6 +230,8 @@ namespace TestModbusClassLib
             }
             string strtemp = stbBuilder.ToString();
             string strtemp2 = stbBuilder2.ToString();
+
+           
             Console.ReadLine();
             /*ModbusRTUProtocol protM = new ModbusRTUProtocol();
             protM.Connect("COM8", timeout: 1500);

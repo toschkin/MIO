@@ -80,7 +80,7 @@ namespace Modbus.Core
             }
         }
     }
-
+    
     public static class ModbusDataMappingHelper
     {
         /// <summary>
@@ -176,8 +176,8 @@ namespace Modbus.Core
         /// <param name="packetRawData">raw data array from Modbus packet</param>
         /// <param name="currentCursorPosition">current position in data array (will be incremented by size of object inside the method call)</param>
         /// <param name="value">numeric object to which extract value from data array</param>
-        /// <param name="reverseOrder">if true modbus registers are processed to 32bit(or higher) value in reverse order: first register - high 16bit, second - low 16bit</param>
-        public static void ExtractValueFromArrayByType(byte[] packetRawData, ref int currentCursorPosition, ref object value, bool reverseOrder)
+        /// <param name="bigEndianOrder">if true modbus registers are processed to 32bit(or higher) value in big endian order: first register - high 16bit, second - low 16bit</param>
+        public static void ExtractValueFromArrayByType(Byte[] packetRawData, ref Int32 currentCursorPosition, ref object value, bool bigEndianOrder = false)
         {
             if (!GetTypeHelper.IsNumericType(value.GetType())) 
                 throw  new ArgumentException();
@@ -206,47 +206,77 @@ namespace Modbus.Core
                 case "Int16":
                 {
                     value = ConversionHelper.ReverseBytes(BitConverter.ToInt16(packetRawData, currentCursorPosition));
-                        break;
+                    break;
                 }
                 case "UInt32":
-                {
-                    if(reverseOrder)
-                        value = ConversionHelper.ReverseBytes(BitConverter.ToUInt32(packetRawData, currentCursorPosition));
-                    else                                            
-                        value = (UInt32)(((UInt16)BitConverter.ToUInt16(packetRawData, currentCursorPosition)) | (UInt32)(BitConverter.ToUInt16(packetRawData, currentCursorPosition + 2) << 16));                    
+                {                    
+                    value = ConversionHelper.ReverseBytes(BitConverter.ToUInt32(packetRawData, currentCursorPosition));
+                    if (!bigEndianOrder)                   
+                        value = (UInt32)((BitConverter.ToUInt16( BitConverter.GetBytes((UInt32)value) , 0) << 16) + BitConverter.ToUInt16(BitConverter.GetBytes((UInt32)value), 2));
                     break;
                 }
                 case "Int32":
-                {
-                    if (reverseOrder)
-                        value = ConversionHelper.ReverseBytes(BitConverter.ToInt32(packetRawData, currentCursorPosition));
-                    else
-                        value = (Int32)(((UInt16)BitConverter.ToUInt16(packetRawData, currentCursorPosition)) | (UInt32)(BitConverter.ToUInt16(packetRawData, currentCursorPosition + 2) << 16));
+                {                   
+                    value = ConversionHelper.ReverseBytes(BitConverter.ToInt32(packetRawData, currentCursorPosition));
+                        
+                    if (!bigEndianOrder)
+                        value = (Int32)((BitConverter.ToUInt16(BitConverter.GetBytes((Int32)value), 0) << 16) + BitConverter.ToUInt16(BitConverter.GetBytes((Int32)value), 2));
                     break;
                 }
                 case "UInt64":
                 {
                     value = ConversionHelper.ReverseBytes(BitConverter.ToUInt64(packetRawData, currentCursorPosition));
+                    if (!bigEndianOrder)                    
+                        value = ((UInt64)BitConverter.ToUInt16(BitConverter.GetBytes((UInt64)value), 0) << 48) | ((UInt64)BitConverter.ToUInt16(BitConverter.GetBytes((UInt64)value), 2) << 32) | ((UInt64)BitConverter.ToUInt16(BitConverter.GetBytes((UInt64)value), 4) << 16) | (UInt64)BitConverter.ToUInt16(BitConverter.GetBytes((UInt64)value), 6);                    
                     break;
                 }
                 case "Int64":
                 {
                     value = ConversionHelper.ReverseBytes(BitConverter.ToInt64(packetRawData, currentCursorPosition));
+                    if (!bigEndianOrder)
+                        value = (Int64)(((UInt64)BitConverter.ToUInt16(BitConverter.GetBytes((Int64)value), 0) << 48) | ((UInt64)BitConverter.ToUInt16(BitConverter.GetBytes((Int64)value), 2) << 32) | ((UInt64)BitConverter.ToUInt16(BitConverter.GetBytes((Int64)value), 4) << 16) | (UInt64)BitConverter.ToUInt16(BitConverter.GetBytes((Int64)value), 6));                    
                     break;
                 }
                 case "Single":
                 {
                     value = ConversionHelper.ConvertBytesToFloat(packetRawData, currentCursorPosition, true);
+                    if (!bigEndianOrder)
+                        value = ConversionHelper.ConvertBytesToFloat(BitConverter.GetBytes((BitConverter.ToUInt16(BitConverter.GetBytes((Single)value), 0) << 16) + BitConverter.ToUInt16(BitConverter.GetBytes((Single)value), 2)), 0);
                     break;
                 }
                 case "Double":
                 {
                     value = ConversionHelper.ConvertBytesToDouble(packetRawData, currentCursorPosition, true);
+                    if (!bigEndianOrder)                        
+                        value =
+                            ConversionHelper.ConvertBytesToDouble(
+                                BitConverter.GetBytes(
+                                    ((UInt64) BitConverter.ToUInt16(BitConverter.GetBytes((Double) value), 0) << 48) |
+                                    ((UInt64) BitConverter.ToUInt16(BitConverter.GetBytes((Double) value), 2) << 32) |
+                                    ((UInt64) BitConverter.ToUInt16(BitConverter.GetBytes((Double) value), 4) << 16) |
+                                    (UInt64) BitConverter.ToUInt16(BitConverter.GetBytes((Double) value), 6)), 0);
                     break;
                 }
                 case "Decimal":
-                {
-                    value = ConversionHelper.ConvertBytesToDecimal(packetRawData, currentCursorPosition, true);
+                {                                        
+                    if (!bigEndianOrder)
+                    {
+                        //0x81, 0x15, 0x7D, 0xE9, 0x10, 0xF4, 0x11, 0x22, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x9
+                        // HI    LO                                                                      HI  LO
+                        //    LS                                                                           MS                        
+                        for (int i = currentCursorPosition; i < currentCursorPosition+16; i+=2)
+                        {
+                            Byte tmp = packetRawData[i];
+                            packetRawData[i] = packetRawData[i + 1];
+                            packetRawData[i + 1] = tmp;
+                        }
+                        value = ConversionHelper.ConvertBytesToDecimal(packetRawData, currentCursorPosition);
+                    }
+                    else
+                    {
+                        value = ConversionHelper.ConvertBytesToDecimal(packetRawData, currentCursorPosition, true);
+                    }
+
                     break;
                 }
             }

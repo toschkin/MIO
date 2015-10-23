@@ -69,7 +69,7 @@ namespace Modbus.Core
                         if (registerValues is UInt16[])
                         {
                             UInt16 valUI16 = 0;
-                            if (reverseOrder)
+                            if (bigEndianOrder)
                                 valUI16 = BitConverter.ToUInt16(recievedPacket, 3 + i * 2);
                             else
                                 valUI16 = ConversionHelper.ReverseBytes(BitConverter.ToUInt16(recievedPacket, 3 + i * 2));
@@ -191,14 +191,14 @@ namespace Modbus.Core
         /// </summary>
         /// <param name="rawPacketData">raw data extracted from modbus packet</param>
         /// <param name="outputValues">array of objects to fill</param>
-        /// <param name="reverseOrder">if true modbus registers are processed to 32bit(or higher) values in reverse order: first register - high 16bit, second - low 16bit</param>
+        /// <param name="bigEndianOrder">if true modbus registers are processed to 32bit(or higher) values in big endian order: first register - high 16bit, second - low 16bit</param>
         /// <returns>true on success, false otherwise</returns>
         /// <exception cref="System.ArgumentNullException"></exception>
         /// <exception cref="System.ArgumentOutOfRangeException"></exception>
         /// <exception cref="System.ArgumentException"></exception>
         /// <exception cref="System.NullReferenceException"></exception>
         /// <remarks>outputValues can contain numeric types and classes or structs with public numeric properties</remarks>
-        public void ProcessData(Byte[] rawPacketData, ref object[] outputValues, bool reverseOrder = false)
+        public void ProcessData(Byte[] rawPacketData, ref object[] outputValues, bool bigEndianOrder = false)
         {
             if(rawPacketData == null)
                 throw new ArgumentNullException();
@@ -219,7 +219,7 @@ namespace Modbus.Core
                         if (totalLengthInBytesOfRequestedData > rawPacketData.Length)
                             throw new ArgumentOutOfRangeException();                  
                         ModbusDataMappingHelper.ExtractValueFromArrayByType(rawPacketData,
-                            ref currentIndexInPacketData, ref outputValues[currentIndexInOutputValues], reverseOrder);                        
+                            ref currentIndexInPacketData, ref outputValues[currentIndexInOutputValues], bigEndianOrder);                        
                     }
                 }
                 else//here we will process properties (only numeric) from complex (class) types 
@@ -235,7 +235,7 @@ namespace Modbus.Core
                     for (int i = 0; i < arrayOfValuesForObject.Length; i++)
                     {
                         ModbusDataMappingHelper.ExtractValueFromArrayByType(rawPacketData,
-                            ref currentIndexInPacketData, ref arrayOfValuesForObject[i], reverseOrder);
+                            ref currentIndexInPacketData, ref arrayOfValuesForObject[i], bigEndianOrder);
                     }
                     ModbusDataMappingHelper.SetObjectPropertiesValuesFromArray(
                         ref outputValues[currentIndexInOutputValues], arrayOfValuesForObject);                                     
@@ -294,7 +294,7 @@ namespace Modbus.Core
                         Byte[] packetData = new Byte[recievedPacket.Length - 5];
                         Array.Copy(recievedPacket, 3, packetData, 0, packetData.Length);
 
-                        //ProcessData(packetData, registerValues, reverseOrder);
+                        //ProcessData(packetData, registerValues, bigEndianOrder);
 
 
 
