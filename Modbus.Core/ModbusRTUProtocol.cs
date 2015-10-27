@@ -267,7 +267,7 @@ namespace Modbus.Core
             return sendPacket;
         }
 
-        public ModbusErrorCode ReadRegisters(Byte functionNumber, Byte rtuAddress, UInt16 startAddress, ref object[] registerValues, bool reverseOrder = false)
+        public ModbusErrorCode ReadRegisters(Byte functionNumber, Byte rtuAddress, UInt16 startAddress, ref object[] registerValues, bool bigEndianOrder = false)
         {            
             if (!IsConnected)
                 return ModbusErrorCode.codeNotConnected;
@@ -294,23 +294,28 @@ namespace Modbus.Core
                         Byte[] packetData = new Byte[recievedPacket.Length - 5];
                         Array.Copy(recievedPacket, 3, packetData, 0, packetData.Length);
 
-                        //ProcessData(packetData, registerValues, bigEndianOrder);
-
-
-
-                        //here we need to log the StatusString
+                        try
+                        {
+                            ProcessData(packetData, ref registerValues, bigEndianOrder);
+                        }
+                        catch (Exception ex)
+                        {
+                            logger.SaveException(ex);
+                            return ModbusErrorCode.codeInvalidOutputArray;
+                        }
+                        //TODO here we need to log the StatusString
+                        return ModbusErrorCode.codeOK;                        
                     }
                     else
                     {
-                        //here we need to log the StatusString
+                        //TODO here we need to log the StatusString
                         return errorCode;
                     }
                         
                 }
                 else
                 {
-                    //here we need to log the StatusString
-
+                    //TODO here we need to log the StatusString
                     if (StatusString.Contains("Timeout"))
                         return ModbusErrorCode.codeTimeout;
                 }

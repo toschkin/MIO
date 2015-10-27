@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Permissions;
 using System.Text;
 using NLog;
 using NLog.Config;
@@ -33,17 +34,16 @@ namespace Modbus.Core
                 String temp = value;
                 char[] slashes = { '\\', '/' };
                 temp = temp.TrimEnd(slashes);
-                temp += '\\';
-                exceptionLogFilePath = temp + "ModbusCoreExceptions.txt";
-
-                LoggingConfiguration config = LogManager.Configuration;
+                temp += @"\";
+                exceptionLogFilePath = temp + "ModbusCoreExceptions.txt";                
+                LoggingConfiguration config = LogManager.Configuration;                                
                 config.RemoveTarget("ExceptionsFile");
                 FileTarget fileTarget = new FileTarget();
                 config.AddTarget("ExceptionsFile", fileTarget);
                 // Step 3. Set target properties             
                 fileTarget.FileName = exceptionLogFilePath;
                 fileTarget.Layout = "${longdate} ${message} ${exception:format=ToString}";
-                // Step 4. Define rules            
+                
                 LoggingRule rule = new LoggingRule("*", LogLevel.Error, fileTarget);
                 config.LoggingRules.Add(rule);
                 // Step 5. Activate the configuration

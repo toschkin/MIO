@@ -350,7 +350,7 @@ namespace Modbus.UnitTests
     class ModbusRTUProtocolTest
     {
         const String portNameForTest = "COM6";               
-        /*[Test]
+        [Test]
         public void ReadRegisters_ShouldReturnOKcodeOnSuccess()
         {         
             ModbusRTUProtocol prot = new ModbusRTUProtocol();
@@ -366,10 +366,10 @@ namespace Modbus.UnitTests
                                      new ModbusDataPoint<Int64>(),  
                                      new ModbusDataPoint<Double>(), 
                                      new ModbusDataPoint<Decimal>()};
-            ModbusErrorCode code = prot.ReadRegisters(3, 1, 0, (ushort)(SizeofHelper.SizeOfPublicProperties(modbusTestMap)/2), ref modbusTestMap);
+            ModbusErrorCode code = prot.ReadRegisters(3, 1, 0, ref modbusTestMap);
             Assert.AreEqual(ModbusErrorCode.codeOK, code);
             prot.Disconnect();            
-        }*/
+        }
         [Test]
         public void ReadRegisters_ShouldReturnModbusErrorCode_codeNotConnectedIfDisconnected()
         {
@@ -1122,8 +1122,8 @@ namespace Modbus.UnitTests
         public void ExceptionLogDir_ShouldChangeExceptionLogFilePath()
         {
             ModbusLogger log = new ModbusLogger();
-            log.ExceptionLogDir = @"d:\aaaa\";
-            Assert.AreEqual(@"d:\aaaa\ModbusCoreExceptions.txt", log.ExceptionLogFilePath);
+            log.ExceptionLogDir = @"d:\";
+            Assert.AreEqual(@"d:\ModbusCoreExceptions.txt", log.ExceptionLogFilePath);
         }
         [Test]
         public void ShouldSaveExceptionsToProperFile()
@@ -1132,7 +1132,7 @@ namespace Modbus.UnitTests
                         
             ArgumentNullException exception = new ArgumentNullException();
                             
-            log.ExceptionLogDir = @"d:\aaaa\";                
+            log.ExceptionLogDir = @"d:\aaaa\";            
             FileInfo logFileInfo = new FileInfo(log.ExceptionLogFilePath);
             if (logFileInfo.Exists)
             {
