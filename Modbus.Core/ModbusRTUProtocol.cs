@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,77 +19,75 @@ namespace Modbus.Core
             : base()
         {
 
-        } 
+        }
+
+        public ModbusErrorCode ReadCoilStatus(Byte rtuAddress, UInt16 startAddress, ref bool[] statusesValues)
+        {
+            return ReadStatuses(1, rtuAddress, startAddress, ref statusesValues);
+        }
+
+        public ModbusErrorCode ReadInputStatus(Byte rtuAddress, UInt16 startAddress, ref bool[] statusesValues)
+        {
+            return ReadStatuses(2, rtuAddress, startAddress, ref statusesValues);
+        }
+       
         /// <summary>
         /// Reads 16bit holding registers from Modbus device and convert them to array of values of appropriate type
-        /// </summary>
-        /// <typeparam name="T">Possible types are: UInt16,Int16,UInt32,Int32</typeparam>       
+        /// </summary>        
         /// <param name="rtuAddress">address of Modbus device (1..247)</param>
-        /// <param name="startAddress">start address from which registers will be read (0..65535)</param>
-        /// <param name="registersCount">count of registers to be read (1..125)</param>
-        /// <param name="registerValues">array of returned values converted to type T</param>
-        /// <param name="reverseOrder">reorders bytes or registers in values</param>
+        /// <param name="startAddress">start address from which registers will be read (0..65535)</param>      
+        /// <param name="registerValues">array of returned values</param>
+        /// <param name="bigEndianOrder">reorders registers in 32bit (or higher) values</param>
         /// <example>
-        /// <para>Reads 20 16-bit registers from modbus slave 1 starting at address 0 and converts them to UInt32 array of size 10. Value of the first 16-bit register will be placed into high word of first 32-bit array element,value of second - into low word and so on.</para>
+        /// <para>Reads registers from modbus slave 1 starting at address 0 and converts them to array of objects of mixed type in .</para>
         /// <code>
         /// ModbusRTUProtocol prot = new ModbusRTUProtocol();
         /// prot.Connect("COM1",9600);
-        /// UInt32[] regs= null;
-        /// prot.ReadHoldingRegisters&lt;UInt32&gt;(1, 0, 20, ref regs,true);
+        /// object[] arrayMixedTypeRegisters = { (Byte)0, (SByte)0, (Int16)0, (UInt16)0, (UInt32)0, (Int32)0, (Single)0.0, (UInt64)0, (Int64)0, (Double)0.0, (Decimal)0m };
+        /// prot.ReadHoldingRegisters&lt;UInt32&gt;(1, 0, ref arrayMixedTypeRegisters,true);
         /// </code>
         /// </example>
         /// <returns> ModbusErrorCode.codeOK on success (<see cref=Modbus.Core.ModbusErrorCode/> enum for details)</returns>
-        public ModbusErrorCode ReadHoldingRegisters<T>(Byte rtuAddress, UInt16 startAddress, UInt16 registersCount, ref T[] registerValues, bool reverseOrder = false)
-        {     
-            Type typeOfArray = typeof(T);    
-            if (!typeOfArray.IsValueType)
-                throw new ArgumentException();
-
-            if (!IsConnected)
-                return ModbusErrorCode.codeNotConnected;
-            if ((rtuAddress > 247) || (rtuAddress < 1))
-                return ModbusErrorCode.codeInvalidSlaveAddress;
-            if ((registersCount > 125)||(registersCount < 1))
-                return ModbusErrorCode.codeInvalidRequestedSize;
-
-            Byte[] recievedPacket = null;
-            
-            Byte[] sendPacket = MakePacket(rtuAddress, 0x03, startAddress, registersCount);
-
-            ushort expectedRecievedPacketSize = (ushort)(5 + registersCount*2);
-
-            if (TxRxMessage(sendPacket, ref recievedPacket,expectedRecievedPacketSize))
-            {
-                ModbusErrorCode code = CheckPacket(recievedPacket, sendPacket[0], sendPacket[1], expectedRecievedPacketSize);
-                if (code == ModbusErrorCode.codeOK)
-                {       
-                    /*Array.Resize<T>(ref registerValues, recievedPacket[2]/Marshal.SizeOf(typeOfArray));
-
-                    for (int i = 0; i < registerValues.Length; i++)
-                    {                             
-                        if (registerValues is UInt16[])
-                        {
-                            UInt16 valUI16 = 0;
-                            if (bigEndianOrder)
-                                valUI16 = BitConverter.ToUInt16(recievedPacket, 3 + i * 2);
-                            else
-                                valUI16 = ConversionHelper.ReverseBytes(BitConverter.ToUInt16(recievedPacket, 3 + i * 2));
-                            registerValues.SetValue(valUI16,i);
-                        }
-                    }*/
-                    return ModbusErrorCode.codeOK;                    
-                }
-                else
-                    return code;
-            }
-            else
-            { 
-                if(StatusString.Contains("Timeout"))
-                    return ModbusErrorCode.codeTimeout;
-            }
-           
-            throw new ArgumentException();
+        public ModbusErrorCode ReadHoldingRegisters(Byte rtuAddress, UInt16 startAddress, ref object[] registerValues, bool bigEndianOrder=false)
+        {
+            return ReadRegisters(3, rtuAddress, startAddress, ref registerValues, bigEndianOrder);
         }
+         /// <summary>
+        /// Reads 16bit input registers from Modbus device and convert them to array of values of appropriate type
+        /// </summary>        
+        /// <param name="rtuAddress">address of Modbus device (1..247)</param>
+        /// <param name="startAddress">start address from which registers will be read (0..65535)</param>      
+        /// <param name="registerValues">array of returned values</param>
+        /// <param name="bigEndianOrder">reorders registers in 32bit (or higher) values</param>
+        /// <example>
+        /// <para>Reads registers from modbus slave 1 starting at address 0 and converts them to array of objects of mixed type in .</para>
+        /// <code>
+        /// ModbusRTUProtocol prot = new ModbusRTUProtocol();
+        /// prot.Connect("COM1",9600);
+        /// object[] arrayMixedTypeRegisters = { (Byte)0, (SByte)0, (Int16)0, (UInt16)0, (UInt32)0, (Int32)0, (Single)0.0, (UInt64)0, (Int64)0, (Double)0.0, (Decimal)0m };
+        /// prot.ReadInputRegisters&lt;UInt32&gt;(1, 0, ref arrayMixedTypeRegisters,true);
+        /// </code>
+        /// </example>
+        /// <returns> ModbusErrorCode.codeOK on success (<see cref=Modbus.Core.ModbusErrorCode/> enum for details)</returns>
+        public ModbusErrorCode ReadInputRegisters(Byte rtuAddress, UInt16 startAddress, ref object[] registerValues, bool bigEndianOrder=false)
+        {
+            return ReadRegisters(4, rtuAddress, startAddress, ref registerValues, bigEndianOrder);
+        }
+
+        public ModbusErrorCode ForceSingleCoil(Byte rtuAddress, UInt16 forceAddress, bool setOn)
+        {
+            return ForceSingle(5, rtuAddress, forceAddress, setOn);
+        }
+
+        public ModbusErrorCode PresetSingleRegister(Byte rtuAddress, UInt16 forceAddress, UInt16 setValue)
+        {
+            return ForceSingle(6, rtuAddress, forceAddress, setValue);
+        }
+        public ModbusErrorCode PresetSingleRegister(Byte rtuAddress, UInt16 forceAddress, Int16 setValue)
+        {
+            return ForceSingle(6, rtuAddress, forceAddress, setValue);
+        }
+
         /// <summary>
         /// Adds two bytes of CRC16 to array representing Modbus protocol data packet passed in argument
         /// </summary>
@@ -198,7 +197,7 @@ namespace Modbus.Core
         /// <exception cref="System.ArgumentException"></exception>
         /// <exception cref="System.NullReferenceException"></exception>
         /// <remarks>outputValues can contain numeric types and classes or structs with public numeric properties</remarks>
-        public void ProcessData(Byte[] rawPacketData, ref object[] outputValues, bool bigEndianOrder = false)
+        public void ProcessAnalogData(Byte[] rawPacketData, ref object[] outputValues, bool bigEndianOrder = false)
         {
             if(rawPacketData == null)
                 throw new ArgumentNullException();
@@ -244,27 +243,122 @@ namespace Modbus.Core
             }                    
         }
         /// <summary>
+        /// Fills array of bool values from modbus packet
+        /// </summary>
+        /// <param name="rawPacketData">raw data extracted from modbus packet</param>
+        /// <param name="outputValues">array of boolean values to fill</param>        
+        /// <returns>true on success, false otherwise</returns>
+        /// <exception cref="System.ArgumentNullException"></exception>
+        /// <exception cref="System.ArgumentOutOfRangeException"></exception>        
+        /// <remarks>outputValues can contain numeric types and classes or structs with public numeric properties</remarks>
+        public void ProcessDiscreetData(Byte[] rawPacketData, ref bool[] outputValues)
+        {
+            if (rawPacketData == null)
+                throw new ArgumentNullException();
+            
+            if (outputValues.Length > rawPacketData.Length*8)
+                throw new ArgumentOutOfRangeException();
+            
+            int deltaResize = rawPacketData.Length*8 - outputValues.Length;
+
+            Array.Resize<bool>(ref outputValues, rawPacketData.Length * 8);
+            BitArray bitsOfRawPacketData = new BitArray(rawPacketData);
+            bitsOfRawPacketData.CopyTo(outputValues,0);
+
+            Array.Resize<bool>(ref outputValues, outputValues.Length - deltaResize);
+            
+
+            /*UInt32 totalLengthInBytesOfRequestedData = 0;
+            int currentIndexInPacketData = 0;
+            int currentIndexInOutputValues = 0;
+            foreach (var value in outputValues)
+            {                
+                if (value.GetType().IsValueType)//here we will process simple (only numeric) types
+                {
+                    if (GetTypeHelper.IsNumericType(value.GetType()))
+                    {
+                        totalLengthInBytesOfRequestedData += (UInt32)Marshal.SizeOf(value);
+                        if (totalLengthInBytesOfRequestedData > rawPacketData.Length)
+                            throw new ArgumentOutOfRangeException();
+                        ModbusDataMappingHelper.ExtractValueFromArrayByType(rawPacketData,
+                            ref currentIndexInPacketData, ref outputValues[currentIndexInOutputValues], bigEndianOrder);
+                    }
+                }
+                else//here we will process properties (only numeric) from complex (class) types 
+                {
+
+                    Type[] arrayOfOutputTypes = ModbusDataMappingHelper.GetObjectPropertiesTypeArray(value);
+                    totalLengthInBytesOfRequestedData += SizeofHelper.SizeOfPublicProperties(value);
+                    if (totalLengthInBytesOfRequestedData > rawPacketData.Length)
+                        throw new ArgumentOutOfRangeException();
+                    object[] arrayOfValuesForObject =
+                        ModbusDataMappingHelper.CreateValuesArrayFromTypesArray(arrayOfOutputTypes);
+
+                    for (int i = 0; i < arrayOfValuesForObject.Length; i++)
+                    {
+                        ModbusDataMappingHelper.ExtractValueFromArrayByType(rawPacketData,
+                            ref currentIndexInPacketData, ref arrayOfValuesForObject[i], bigEndianOrder);
+                    }
+                    ModbusDataMappingHelper.SetObjectPropertiesValuesFromArray(
+                        ref outputValues[currentIndexInOutputValues], arrayOfValuesForObject);
+                }
+                currentIndexInOutputValues++;
+            }*/
+        }
+        /// <summary>
         /// Creates Modbus packet
         /// </summary>
         /// <param name="slaveAddress">address of Modbus device (1..247)</param>
         /// <param name="functionCode">Modbus function code</param>
-        /// <param name="startAddress">start address from which registers will be read (0..65535)</param>
-        /// <param name="quantity">count of registers/coils to be read for functionCode: 1,2,3,4</param>
+        /// <param name="startAddress">start address from which registers will be read/forced (0..65535)</param>
+        /// <param name="quantity">count of registers/coils to be read (functionCode: 1,2,3,4) or forced (functionCode: 15,16)</param>
+        /// <param name="forcedValues">array of converted values which are need to be written (functionCode: 5,6,15,16)</param>
         /// <returns>created packed</returns>                
-        public Byte[] MakePacket(Byte slaveAddress, Byte functionCode, UInt16 startAddress, UInt16 quantity)
+        public Byte[] MakePacket(Byte slaveAddress, Byte functionCode, UInt16 startAddress, UInt16 quantity, UInt16[] forcedValues=null)
         {
-            List<Byte> sendPacketList = new List<Byte>
+            List<Byte> sendPacketList = new List<Byte>();
+            sendPacketList.Add(slaveAddress);
+            sendPacketList.Add(functionCode);
+            sendPacketList.Add(BitConverter.GetBytes(startAddress).ElementAt<Byte>(1));
+            sendPacketList.Add(BitConverter.GetBytes(startAddress).ElementAt<Byte>(0));
+            if (forcedValues == null)
             {
-                slaveAddress,
-                functionCode,
-                BitConverter.GetBytes(startAddress).ElementAt<Byte>(1),
-                BitConverter.GetBytes(startAddress).ElementAt<Byte>(0),
-                BitConverter.GetBytes(quantity).ElementAt<Byte>(1),
-                BitConverter.GetBytes(quantity).ElementAt<Byte>(0)
-            };
+                sendPacketList.Add(BitConverter.GetBytes(quantity).ElementAt<Byte>(1));
+                sendPacketList.Add(BitConverter.GetBytes(quantity).ElementAt<Byte>(0));
+            }
+            else
+            {
+                if (forcedValues.Length > 1)
+                {
+                    sendPacketList.Add(BitConverter.GetBytes(quantity).ElementAt<Byte>(1));
+                    sendPacketList.Add(BitConverter.GetBytes(quantity).ElementAt<Byte>(0));
+                    sendPacketList.Add((Byte)(forcedValues.Length * sizeof(UInt16)));    
+                }
+                foreach (var value in forcedValues)
+                {
+                    sendPacketList.Add(BitConverter.GetBytes(value).ElementAt<Byte>(1));
+                    sendPacketList.Add(BitConverter.GetBytes(value).ElementAt<Byte>(0));
+                }
+            }                                                  
             Byte[] sendPacket = sendPacketList.ToArray();
             AddCRC(ref sendPacket);
             return sendPacket;
+        }
+
+        public ModbusErrorCode ParseExceptionCode(Byte functionNumber, Byte rtuAddress, Byte[] recievedPacket)
+        {
+            if (recievedPacket.Length == 5)
+            {
+                if (rtuAddress != recievedPacket[0])
+                    return ModbusErrorCode.codeInvalidSlaveAddress;
+                if (functionNumber + 0x80 != recievedPacket[1])
+                    return ModbusErrorCode.codeInvalidFunction;                
+                if (CheckCRC(recievedPacket) == false)
+                    return ModbusErrorCode.codeCRCError;
+                return (ModbusErrorCode)(recievedPacket[2] + 0x8000);
+            }
+            else
+                return ModbusErrorCode.codeInvalidPacketLength;
         }
 
         public ModbusErrorCode ReadRegisters(Byte functionNumber, Byte rtuAddress, UInt16 startAddress, ref object[] registerValues, bool bigEndianOrder = false)
@@ -283,7 +377,7 @@ namespace Modbus.Core
                
                 Byte[] recievedPacket = null;
 
-                Byte[] sendPacket = MakePacket(rtuAddress, 0x03, startAddress, (UInt16)registersCount);
+                Byte[] sendPacket = MakePacket(rtuAddress, functionNumber, startAddress, (UInt16)registersCount);
 
                 ushort expectedRecievedPacketSize = (ushort)(5 + registersCount * 2);
                 if (TxRxMessage(sendPacket, ref recievedPacket, expectedRecievedPacketSize))
@@ -296,7 +390,7 @@ namespace Modbus.Core
 
                         try
                         {
-                            ProcessData(packetData, ref registerValues, bigEndianOrder);
+                            ProcessAnalogData(packetData, ref registerValues, bigEndianOrder);
                         }
                         catch (Exception ex)
                         {
@@ -318,6 +412,11 @@ namespace Modbus.Core
                     //TODO here we need to log the StatusString
                     if (StatusString.Contains("Timeout"))
                         return ModbusErrorCode.codeTimeout;
+                    else if (StatusString.Contains("Error: Invalid response length"))
+                    {
+                        return ParseExceptionCode(functionNumber, rtuAddress, recievedPacket);
+                    }
+                    return ModbusErrorCode.codeErrorSendingPacket;
                 }
             }
             catch (Exception ex)
@@ -326,6 +425,143 @@ namespace Modbus.Core
                 throw;                
             }
                                     
+            return ModbusErrorCode.codeOK;
+        }
+
+        public ModbusErrorCode ReadStatuses(Byte functionNumber, Byte rtuAddress, UInt16 startAddress, ref bool[] statusesValues)
+        {
+            if (!IsConnected)
+                return ModbusErrorCode.codeNotConnected;
+            if ((rtuAddress > 247) || (rtuAddress < 1))
+                return ModbusErrorCode.codeInvalidSlaveAddress;
+
+            try
+            {
+
+                if ((statusesValues.Length > 2000) || (statusesValues.Length < 1) || (startAddress + statusesValues.Length > UInt16.MaxValue))
+                    return ModbusErrorCode.codeInvalidRequestedSize;
+
+                Byte[] recievedPacket = null;
+
+                Byte[] sendPacket = MakePacket(rtuAddress, functionNumber, startAddress, (UInt16)statusesValues.Length);
+
+                ushort expectedRecievedPacketSize = (ushort)(5 + statusesValues.Length / 8 + ((statusesValues.Length % 8 > 0)?1:0));
+
+                if (TxRxMessage(sendPacket, ref recievedPacket, expectedRecievedPacketSize))
+                {
+                    ModbusErrorCode errorCode = CheckPacket(recievedPacket, sendPacket[0], sendPacket[1], expectedRecievedPacketSize);
+                    if (errorCode == ModbusErrorCode.codeOK)
+                    {
+                        Byte[] packetData = new Byte[recievedPacket.Length - 5];
+                        Array.Copy(recievedPacket, 3, packetData, 0, packetData.Length);
+
+                        try
+                        {
+                            ProcessDiscreetData(packetData, ref statusesValues);                            
+                        }
+                        catch (Exception ex)
+                        {
+                            logger.SaveException(ex);
+                            return ModbusErrorCode.codeInvalidOutputArray;
+                        }
+                        //TODO here we need to log the StatusString
+                        return ModbusErrorCode.codeOK;
+                    }
+                    else
+                    {
+                        //TODO here we need to log the StatusString
+                        return errorCode;
+                    }
+
+                }
+                else
+                {
+                    //TODO here we need to log the StatusString
+                    if (StatusString.Contains("Timeout"))
+                        return ModbusErrorCode.codeTimeout;
+                    else if (StatusString.Contains("Error: Invalid response length"))
+                    {
+                        return ParseExceptionCode(functionNumber, rtuAddress, recievedPacket);
+                    }
+                    return ModbusErrorCode.codeErrorSendingPacket;
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.SaveException(ex);
+                throw;
+            }
+
+            return ModbusErrorCode.codeOK;
+        }
+
+        public ModbusErrorCode ForceSingle(Byte functionNumber, Byte rtuAddress, UInt16 forceAddress, object value)
+        {
+            if (!IsConnected)
+                return ModbusErrorCode.codeNotConnected;
+            if ((rtuAddress > 247) || (rtuAddress < 1))
+                return ModbusErrorCode.codeInvalidSlaveAddress;
+            if ((value.GetType() != typeof(Int16))&&(value.GetType() != typeof(UInt16))&&(value.GetType() != typeof(bool)))
+                return ModbusErrorCode.codeInvalidInputArgument;
+
+            try
+            {                
+                Byte[] recievedPacket = null;
+
+                UInt16[] forcedValue = new ushort[1]{0};
+                if (value.GetType() == typeof (bool))
+                {
+                    if((bool)value)
+                        forcedValue[0] = 0xFF00;                    
+                }
+                else if (value.GetType() == typeof (Int16))
+                {
+                    forcedValue[0] = BitConverter.ToUInt16(BitConverter.GetBytes((Int16) value), 0);
+                }
+                else
+                    forcedValue[0] = (UInt16) value;
+
+                Byte[] sendPacket = MakePacket(rtuAddress, functionNumber, forceAddress, 1, forcedValue);
+
+                ushort expectedRecievedPacketSize = 8;
+
+                if (TxRxMessage(sendPacket, ref recievedPacket, expectedRecievedPacketSize))
+                {
+                    ModbusErrorCode errorCode = CheckPacket(recievedPacket, sendPacket[0], sendPacket[1], expectedRecievedPacketSize);
+                    if (errorCode == ModbusErrorCode.codeOK)
+                    {
+                        if (recievedPacket.SequenceEqual(sendPacket))
+                        {
+                            //TODO here we need to log the StatusString
+                            return ModbusErrorCode.codeOK;
+                        }
+                        return ParseExceptionCode(functionNumber, rtuAddress, recievedPacket);
+                    }
+                    else
+                    {
+                        //TODO here we need to log the StatusString
+                        return errorCode;
+                    }
+
+                }
+                else
+                {
+                    //TODO here we need to log the StatusString
+                    if (StatusString.Contains("Timeout"))
+                        return ModbusErrorCode.codeTimeout;
+                    else if (StatusString.Contains("Error: Invalid response length"))
+                    {
+                        return ParseExceptionCode(functionNumber, rtuAddress, recievedPacket);
+                    }
+                    return ModbusErrorCode.codeErrorSendingPacket;
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.SaveException(ex);
+                throw;
+            }
+
             return ModbusErrorCode.codeOK;
         }
     }   

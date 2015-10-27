@@ -51,6 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConversionHelper.cs" />
+    <Compile Include="EnumExtension.cs" />
     <Compile Include="IModbus.cs" />
     <Compile Include="ModbusDataMappingHelper.cs" />
     <Compile Include="ModbusDataPoint.cs" />

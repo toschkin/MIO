@@ -9,6 +9,8 @@ using Tech.CodeGeneration;
 using System.Security.Permissions;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Diagnostics;
+using EnumExtension;
 
 #pragma warning disable 1591
 
@@ -147,69 +149,7 @@ namespace TestModbusClassLib
             return listOfElem.ToArray < ValueType >();
         }
         static void Main(string[] args)
-        {                      
-            MyClass cl = new MyClass();
-            ValueType[] arrOutput = CreateArrayByTypes(GetObjectPropertiesTypesArray(cl));
-
-            Console.WriteLine("Array for MyClass:");
-            for (int i = 0; i < arrOutput.Length; i++)
-            {
-                Console.WriteLine(arrOutput[i]);
-            }
-
-            MyClass2 cl2 = new MyClass2();
-            ValueType[] arrOutput2 = CreateArrayByTypes(GetObjectPropertiesTypesArray(cl2));
-
-            Console.WriteLine("Array for MyClass2:");
-            for (int i = 0; i < arrOutput2.Length; i++)
-            {
-                Console.WriteLine(arrOutput2[i]);
-            }
-                      
-            object tmp = (object)cl;            
-            Console.WriteLine("InitObjectFromArray for MyClass:");
-            SetObjectPropertiesFromArray(ref tmp, arrOutput);
-            cl.Print();
-
-            tmp = (object)cl2;    
-            Console.WriteLine("InitObjectFromArray for MyClass2:");
-            SetObjectPropertiesFromArray(ref tmp, arrOutput2);
-            cl2.Print();
-
-            object[] rtuData = { new Int16(),  new UInt32(), new Double(), cl, cl2};
-            
-            int totalLengthInBytesOfRequestedData = 0;
-            foreach (var element in rtuData)
-            {
-                if (element.GetType().IsValueType)//here we will process simple (only numeric) types
-                {
-                    if (GetTypeHelper.IsNumericType(element.GetType()))
-                    {
-                        totalLengthInBytesOfRequestedData += Marshal.SizeOf(element);
-                        Console.WriteLine("{0}\t{1}", element.GetType().Name, Marshal.SizeOf(element));
-                    }
-                }
-                else//here we will process properties (only numeric) from complex (class) types 
-                {
-                    foreach (var field in element.GetType().GetProperties())
-                    {
-                        totalLengthInBytesOfRequestedData += Marshal.SizeOf(field.PropertyType);
-                    }                                                                                 
-                    //Type[] arrayOfOutputTypes = ModbusDataMappingHelper.GetObjectPropertiesTypeArray(outputValues);
-                   // Console.WriteLine("{0}\t{1}", item.GetType().Name, Marshal.SizeOf(item));
-                }
-            }
-            Console.WriteLine(totalLengthInBytesOfRequestedData);
-
-            Console.WriteLine("MyClass3------------------");
-            MyClass3 cl3 = new MyClass3();
-            tmp = (object)cl3;
-            Type[] arrOutput3 = GetObjectPropertiesTypesArray(tmp);
-            foreach (var item3 in arrOutput3)
-            {
-                Console.WriteLine(item3.ToString());
-            }
-            
+        {                                             
             Byte[] arr = BitConverterEx.GetBytes(1234567890.123456789m);
             Byte[] arr2 = BitConverterEx.GetBytes(1234567890.123456789m);     
             Array.Reverse(arr);
@@ -232,16 +172,103 @@ namespace TestModbusClassLib
             string strtemp2 = stbBuilder2.ToString();
 
            
-            Console.ReadLine();
-            /*ModbusRTUProtocol protM = new ModbusRTUProtocol();
-            protM.Connect("COM8", timeout: 1500);
 
-            Byte[] packet = { 0x01, 0x03, 0x00, 0x64, 0x00, 0x01 };
-            bool bRetCode = protM.AddCRC(ref packet);
+            while (true)
+            {
+                var watch = Stopwatch.StartNew();
+                ModbusRTUProtocol prot = new ModbusRTUProtocol();
+                watch.Stop();
+                Console.WriteLine("new ModbusRTUProtocol(): {0}",watch.ElapsedMilliseconds);
 
-            protM.Disconnect();          
-            Console.ReadLine();*/
-           
+                watch = Stopwatch.StartNew();                
+                prot.Connect("COM6");
+                watch.Stop();
+                Console.WriteLine("Connect: {0}", watch.ElapsedMilliseconds);
+
+                /* object[] modbusTestMap = { new ModbusDataPoint<Byte>(), 
+                                              new ModbusDataPoint<SByte>(), 
+                                              new ModbusDataPoint<Int16>(),                                      
+                                              new ModbusDataPoint<UInt16>(), 
+                                              new ModbusDataPoint<UInt32>(), 
+                                              new ModbusDataPoint<Int32>(), 
+                                              new ModbusDataPoint<Single>(), 
+                                              new ModbusDataPoint<UInt64>(), 
+                                              new ModbusDataPoint<Int64>(),  
+                                              new ModbusDataPoint<Double>(), 
+                                              new ModbusDataPoint<Decimal>()};
+                
+                 watch = Stopwatch.StartNew();
+                 ModbusErrorCode code = prot.ReadHoldingRegisters(1, 0, ref modbusTestMap);
+                 watch.Stop();
+                 Console.WriteLine("ReadHoldingRegisters: {0}", watch.ElapsedMilliseconds);
+                 
+                 Console.WriteLine(((ModbusDataPoint<Byte>)modbusTestMap[0]).Value);
+                 Console.WriteLine(((ModbusDataPoint<SByte>)modbusTestMap[1]).Value);
+                 Console.WriteLine(((ModbusDataPoint<Int16>)modbusTestMap[2]).Value);
+                 Console.WriteLine(((ModbusDataPoint<UInt16>)modbusTestMap[3]).Value);
+                 Console.WriteLine(((ModbusDataPoint<UInt32>)modbusTestMap[4]).Value);
+                 Console.WriteLine(((ModbusDataPoint<Int32>)modbusTestMap[5]).Value);
+                 Console.WriteLine(((ModbusDataPoint<Single>)modbusTestMap[6]).Value);
+                 Console.WriteLine(((ModbusDataPoint<UInt64>)modbusTestMap[7]).Value);
+                 Console.WriteLine(((ModbusDataPoint<Int64>)modbusTestMap[8]).Value);
+                 Console.WriteLine(((ModbusDataPoint<Double>)modbusTestMap[9]).Value);
+                 Console.WriteLine(((ModbusDataPoint<Decimal>)modbusTestMap[10]).Value);
+                 Console.WriteLine(code.GetDescription());
+
+                 /*Console.ReadLine();
+
+                 watch = Stopwatch.StartNew();
+                 code = prot.ReadInputRegisters(1, 0, ref modbusTestMap);
+                 watch.Stop();
+                 Console.WriteLine("ReadInputRegisters: {0}", watch.ElapsedMilliseconds);
+
+                 Console.WriteLine(((ModbusDataPoint<Byte>)modbusTestMap[0]).Value);
+                 Console.WriteLine(((ModbusDataPoint<SByte>)modbusTestMap[1]).Value);
+                 Console.WriteLine(((ModbusDataPoint<Int16>)modbusTestMap[2]).Value);
+                 Console.WriteLine(((ModbusDataPoint<UInt16>)modbusTestMap[3]).Value);
+                 Console.WriteLine(((ModbusDataPoint<UInt32>)modbusTestMap[4]).Value);
+                 Console.WriteLine(((ModbusDataPoint<Int32>)modbusTestMap[5]).Value);
+                 Console.WriteLine(((ModbusDataPoint<Single>)modbusTestMap[6]).Value);
+                 Console.WriteLine(((ModbusDataPoint<UInt64>)modbusTestMap[7]).Value);
+                 Console.WriteLine(((ModbusDataPoint<Int64>)modbusTestMap[8]).Value);
+                 Console.WriteLine(((ModbusDataPoint<Double>)modbusTestMap[9]).Value);
+                 Console.WriteLine(((ModbusDataPoint<Decimal>)modbusTestMap[10]).Value);
+                 Console.WriteLine(code.GetDescription());
+                 
+
+                bool[] modbusTestMap = new bool[14];
+                watch = Stopwatch.StartNew();
+                ModbusErrorCode code = prot.ReadCoilStatus(1, 0, ref modbusTestMap);
+                watch.Stop();
+                Console.WriteLine("ReadCoilStatus: {0}", watch.ElapsedMilliseconds);
+                foreach (var item in modbusTestMap)
+                {
+                    Console.WriteLine(item);
+                }
+                Console.WriteLine(code.GetDescription());
+                Console.WriteLine(modbusTestMap.Length);*/
+
+                watch = Stopwatch.StartNew();
+                ModbusErrorCode code = prot.ForceSingleCoil(1, 4, true);
+                watch.Stop();
+                Console.WriteLine("ForceSingleCoil: {0}", watch.ElapsedMilliseconds);
+                Console.WriteLine(code.GetDescription());
+
+                watch = Stopwatch.StartNew();
+                code = prot.PresetSingleRegister(1, 14, 37000);
+                watch.Stop();
+                Console.WriteLine("PresetSingleRegister: {0}", watch.ElapsedMilliseconds);
+                Console.WriteLine(code.GetDescription());
+
+                watch = Stopwatch.StartNew();
+                code = prot.PresetSingleRegister(1, 15, -1);
+                watch.Stop();
+                Console.WriteLine("PresetSingleRegister: {0}", watch.ElapsedMilliseconds);
+                Console.WriteLine(code.GetDescription());
+
+                prot.Disconnect();
+                Console.ReadLine();
+            }                       
         }      
         
     }

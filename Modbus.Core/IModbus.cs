@@ -15,12 +15,19 @@ namespace Modbus.Core
     {      
         /// <summary>
         /// Implemented in inherited classes
-        /// </summary>        
-        ModbusErrorCode ReadHoldingRegisters<T>(Byte rtuAddress, UInt16 startAddress, UInt16 registersCount, ref T[] registerValues, bool reverseOrder=false);
+        /// </summary>  
+        ///       
+        ModbusErrorCode ReadCoilStatus(Byte rtuAddress, UInt16 startAddress, ref bool[] registerValues);
+        ModbusErrorCode ReadInputStatus(Byte rtuAddress, UInt16 startAddress, ref bool[] registerValues);
+        ModbusErrorCode ReadHoldingRegisters(Byte rtuAddress, UInt16 startAddress, ref object[] registerValues, bool bigEndianOrder=false);
+        ModbusErrorCode ReadInputRegisters(Byte rtuAddress, UInt16 startAddress, ref object[] registerValues, bool bigEndianOrder = false);
+
+        ModbusErrorCode ForceSingleCoil(Byte rtuAddress, UInt16 forceAddress, bool setOn);
+
         /*void AddCRC(ref Byte[] packet);
         bool CheckCRC(Byte[] packet);
-        Byte[] MakePacket(Byte slaveAddress, Byte functionCode, UInt16 startAddress, UInt16 quantity);
+        Byte[] MakePacketForce(Byte slaveAddress, Byte functionCode, UInt16 startAddress, UInt16 quantity);
         ModbusErrorCode CheckPacket(Byte[] packetRecieved, Byte slaveAddress, Byte functionCode, Int32 expectedPacketLength);
-        bool ProcessData(Byte[] rawPacketData, ref object[] outputValues);*/
+        bool ProcessAnalogData(Byte[] rawPacketData, ref object[] outputValues);*/
     }
 }

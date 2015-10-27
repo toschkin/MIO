@@ -14,6 +14,7 @@ namespace Modbus.Core
 {
     public class RawSerialProtocol
     {
+
         #region Properties        
         public bool IsConnected { get; private set; }
         public String StatusString { get; private set; }
@@ -121,7 +122,7 @@ namespace Modbus.Core
             Retries = 1;
             SaveExceptionsToLog = false;            
             logger = new ModbusLogger();                        
-            logger.ExceptionLogDir = AppDomain.CurrentDomain.BaseDirectory;
+            logger.ExceptionLogDir = AppDomain.CurrentDomain.BaseDirectory;            
         }
         #endregion
 
@@ -300,7 +301,7 @@ namespace Modbus.Core
                 }
                 catch (TimeoutException)
                 {
-                    if (retry + 1 == Retries)
+                    if ((retry + 1 == Retries)&&(recievedPacket.Length == 0))
                     {
                         StatusString = "Error: Timeout";
                         if (Retries > 1)
@@ -308,8 +309,8 @@ namespace Modbus.Core
                         return false;
                     }
                 }              
-            }
-            StatusString = "Error: ???";
+            }            
+            StatusString = "Error: Invalid response length";
             return false;
         }
         #endregion                 

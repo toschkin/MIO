@@ -367,7 +367,7 @@ namespace Modbus.UnitTests
                                      new ModbusDataPoint<Double>(), 
                                      new ModbusDataPoint<Decimal>()};
             ModbusErrorCode code = prot.ReadRegisters(3, 1, 0, ref modbusTestMap);
-            Assert.AreEqual(ModbusErrorCode.codeOK, code);
+            Assert.AreEqual(ModbusErrorCode.codeOK, code);            
             prot.Disconnect();            
         }
         [Test]
@@ -576,7 +576,7 @@ namespace Modbus.UnitTests
                                     };
             //object[] arrayValues = { (Byte)0, (SByte)0, new ModbusDataRegisterUInt16(), (UInt16)0, (UInt32)0, new ModbusDataRegisterInt32(), (Single)0.0, (UInt64)0, (Int64)0, (Double)0.0, (Decimal)0m };
             object[] arrayValues = { (Byte)0, (SByte)0, (Int16)0, (UInt16)0, (UInt32)0, (Int32)0, (Single)0.0, (UInt64)0, (Int64)0, (Double)0.0, (Decimal)0m };
-            prot.ProcessData(packetRawData, ref arrayValues, true);
+            prot.ProcessAnalogData(packetRawData, ref arrayValues, true);
             
             Assert.AreEqual(32, arrayValues[0]);
             Assert.AreEqual(-2, arrayValues[1]);
@@ -599,9 +599,9 @@ namespace Modbus.UnitTests
                                        0xFE, //-2
                                        0xFF, 0xFF, //-1
                                        0x01, 0xF4, //500                                    
-                                       0x02, 0xD2, 0x49, 0x96, //1234567890
+                                       0x02, 0xD2, 0x49, 0x96,  // 1234567890
                                        0x32, 0xEB, 0xF8, 0xA4 , //-123456789
-                                       0xE6, 0x66, 0x42, 0xF6, //123.45       
+                                       0xE6, 0x66, 0x42, 0xF6,  // 123.45       
                                        0x30,0xA2,0xB2,0xD2,0x10,0xF4,0x11,0x22,//1234567891011121314
                                        0xCF,0x5E,0x4D,0x2D,0xEF,0x0B,0xEE,0xDD,//-1234567891011121314                                       
                                        0xdb,0x77,0xe6,0x85,0x1c,0xd6,0x40,0xc8,//12345.67891     
@@ -609,7 +609,7 @@ namespace Modbus.UnitTests
                                     };
             //object[] arrayValues = { (Byte)0, (SByte)0, new ModbusDataRegisterUInt16(), (UInt16)0, (UInt32)0, new ModbusDataRegisterInt32(), (Single)0.0, (UInt64)0, (Int64)0, (Double)0.0, (Decimal)0m };
             object[] arrayValues = { (Byte)0, (SByte)0, (Int16)0, (UInt16)0, (UInt32)0, (Int32)0, (Single)0.0, (UInt64)0, (Int64)0, (Double)0.0, (Decimal)0m };
-            prot.ProcessData(packetRawData, ref arrayValues);
+            prot.ProcessAnalogData(packetRawData, ref arrayValues);
 
             Assert.AreEqual(32, arrayValues[0]);
             Assert.AreEqual(-2, arrayValues[1]);
@@ -652,7 +652,7 @@ namespace Modbus.UnitTests
                                      new ModbusDataPoint<Double>(), 
                                      new ModbusDataPoint<Decimal>()};
             
-            prot.ProcessData(packetRawData, ref arrayValues, true);
+            prot.ProcessAnalogData(packetRawData, ref arrayValues, true);
             
             Assert.AreEqual(32, ((ModbusDataPoint<Byte>)arrayValues[0]).Value);
             Assert.AreEqual(-2, ((ModbusDataPoint<SByte>)arrayValues[1]).Value);
@@ -677,7 +677,7 @@ namespace Modbus.UnitTests
                                      0x49, 0x96, 0x02, 0xD2, //1234567890
                                      };
             object[] rtuData = { (String)"aaa", new ModbusDataPoint<UInt16>(), new ModbusDataPoint<UInt16>(), new UInt32() };
-            prot.ProcessData(packetRawData, ref rtuData);                   
+            prot.ProcessAnalogData(packetRawData, ref rtuData);                   
         }
         [Test]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
@@ -690,7 +690,7 @@ namespace Modbus.UnitTests
                                      0x49, 0x96, 0x02, 0xD2, //1234567890
                                      };
             object[] rtuData = { new ModbusDataPoint<UInt16>(), new ModbusDataPoint<UInt16>(), new UInt32(), new UInt32(), new UInt32() };
-            prot.ProcessData(packetRawData, ref rtuData);           
+            prot.ProcessAnalogData(packetRawData, ref rtuData);           
         }
         [Test]
         public void ProcessData_ShouldNotThrowTrueIfAmmountOfInfoRequestedInOutputArrayLessThanCapacityOfRawDataArray()
@@ -702,7 +702,7 @@ namespace Modbus.UnitTests
                                      0x49, 0x96, 0x02, 0xD2, //1234567890
                                      };
             object[] rtuData = { new ModbusDataPoint<UInt16>(), new ModbusDataPoint<UInt16>() };
-            prot.ProcessData(packetRawData, ref rtuData);            
+            prot.ProcessAnalogData(packetRawData, ref rtuData);            
         }
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
@@ -710,7 +710,7 @@ namespace Modbus.UnitTests
         {
             ModbusRTUProtocol prot = new ModbusRTUProtocol();
             object[] rtuData = { new Int16(), new ModbusDataPoint<UInt16>(), new ModbusDataPoint<UInt16>(), new UInt32() };
-            prot.ProcessData(null, ref rtuData);     
+            prot.ProcessAnalogData(null, ref rtuData);     
         }
         [Test]
         [ExpectedException(typeof(NullReferenceException))]
@@ -723,7 +723,7 @@ namespace Modbus.UnitTests
                                      0x49, 0x96, 0x02, 0xD2, //1234567890
                                      };
             object[] rtuData = new object[2];
-            prot.ProcessData(packetRawData, ref rtuData);
+            prot.ProcessAnalogData(packetRawData, ref rtuData);
         }
     }
 
