@@ -89,7 +89,7 @@ namespace Modbus.Core
             return ForceSingle(6, rtuAddress, forceAddress, setValue);
         }
 
-        public ModbusErrorCode ForceMultipleCoils(Byte functionNumber, Byte rtuAddress, UInt16 forceAddress, bool[] values)
+        public ModbusErrorCode ForceMultipleCoils(Byte rtuAddress, UInt16 forceAddress, bool[] values)
         {
             return ForceMultiple(15, rtuAddress, forceAddress, Array.ConvertAll(values, b => (object) b));
         }
@@ -102,8 +102,7 @@ namespace Modbus.Core
         public ModbusErrorCode PresetMultipleRegisters(Byte rtuAddress, UInt16 forceAddress, Int16[] values)
         {
             return ForceMultiple(16, rtuAddress, forceAddress, Array.ConvertAll(values, b => (object)b));
-        }
-        
+        }        
 
         /// <summary>
         /// Adds two bytes of CRC16 to array representing Modbus protocol data packet passed in argument
@@ -331,7 +330,7 @@ namespace Modbus.Core
         /// <param name="quantity">count of registers/coils to be read (functionCode: 1,2,3,4) or forced (functionCode: 15,16)</param>
         /// <param name="forcedValues">array of converted values which are need to be written (functionCode: 5,6,15,16)</param>
         /// <returns>created packed</returns>                
-        public Byte[] MakePacket(Byte slaveAddress, Byte functionCode, UInt16 startAddress, UInt16 quantity, UInt16[] forcedValues=null)
+        public Byte[] MakePacket(Byte slaveAddress, Byte functionCode, UInt16 startAddress, UInt16 quantity, UInt16[] forcedValues=null, bool forceMultiple = false,bool forceCoils=false)
         {
             List<Byte> sendPacketList = new List<Byte>();
             sendPacketList.Add(slaveAddress);
@@ -345,16 +344,33 @@ namespace Modbus.Core
             }
             else
             {
-                if (forcedValues.Length > 1)
+                if (forceMultiple)
                 {
                     sendPacketList.Add(BitConverter.GetBytes(quantity).ElementAt<Byte>(1));
                     sendPacketList.Add(BitConverter.GetBytes(quantity).ElementAt<Byte>(0));
-                    sendPacketList.Add((Byte)(forcedValues.Length * sizeof(UInt16)));    
+                    if (forceCoils)
+                        sendPacketList.Add((Byte)((quantity+7)/8));  
+                    else
+                        sendPacketList.Add((Byte)(forcedValues.Length * sizeof(UInt16)));    
                 }
+                int added = 0;
                 foreach (var value in forcedValues)
                 {
-                    sendPacketList.Add(BitConverter.GetBytes(value).ElementAt<Byte>(1));
-                    sendPacketList.Add(BitConverter.GetBytes(value).ElementAt<Byte>(0));
+                    if (forceCoils && forceMultiple)
+                    {
+                        sendPacketList.Add(BitConverter.GetBytes(value).ElementAt<Byte>(0));
+                        added++;
+                        if (((quantity + 7)/8) > added)
+                        {
+                            sendPacketList.Add(BitConverter.GetBytes(value).ElementAt<Byte>(1));
+                            added++;
+                        }                                                    
+                    }
+                    else
+                    {
+                        sendPacketList.Add(BitConverter.GetBytes(value).ElementAt<Byte>(1));
+                        sendPacketList.Add(BitConverter.GetBytes(value).ElementAt<Byte>(0));
+                    }
                 }
             }                                                  
             Byte[] sendPacket = sendPacketList.ToArray();
@@ -373,9 +389,8 @@ namespace Modbus.Core
                 if (CheckCRC(recievedPacket) == false)
                     return ModbusErrorCode.codeCRCError;
                 return (ModbusErrorCode)(recievedPacket[2] + 0x8000);
-            }
-            else
-                return ModbusErrorCode.codeInvalidPacketLength;
+            }            
+            return ModbusErrorCode.codeInvalidPacketLength;
         }
 
         public ModbusErrorCode ReadRegisters(Byte functionNumber, Byte rtuAddress, UInt16 startAddress, ref object[] registerValues, bool bigEndianOrder = false)
@@ -404,7 +419,6 @@ namespace Modbus.Core
                     {
                         Byte[] packetData = new Byte[recievedPacket.Length - 5];
                         Array.Copy(recievedPacket, 3, packetData, 0, packetData.Length);
-
                         try
                         {
                             ProcessAnalogData(packetData, ref registerValues, bigEndianOrder);
@@ -416,33 +430,24 @@ namespace Modbus.Core
                         }
                         //TODO here we need to log the StatusString
                         return ModbusErrorCode.codeOK;                        
-                    }
-                    else
-                    {
-                        //TODO here we need to log the StatusString
-                        return errorCode;
-                    }
-                        
-                }
-                else
-                {
+                    }                   
                     //TODO here we need to log the StatusString
-                    if (StatusString.Contains("Timeout"))
-                        return ModbusErrorCode.codeTimeout;
-                    else if (StatusString.Contains("Error: Invalid response length"))
-                    {
-                        return ParseExceptionCode(functionNumber, rtuAddress, recievedPacket);
-                    }
-                    return ModbusErrorCode.codeErrorSendingPacket;
+                    return errorCode;                                           
+                }                
+                //TODO here we need to log the StatusString
+                if (StatusString.Contains("Timeout"))
+                    return ModbusErrorCode.codeTimeout;
+                if (StatusString.Contains("Error: Invalid response length"))
+                {
+                    return ParseExceptionCode(functionNumber, rtuAddress, recievedPacket);
                 }
+                return ModbusErrorCode.codeErrorSendingPacket;                
             }
             catch (Exception ex)
             {
                 logger.SaveException(ex);
                 throw;                
-            }
-                                    
-            return ModbusErrorCode.codeOK;
+            }            
         }
 
         public ModbusErrorCode ReadStatuses(Byte functionNumber, Byte rtuAddress, UInt16 startAddress, ref bool[] statusesValues)
@@ -457,7 +462,7 @@ namespace Modbus.Core
 
             Byte[] recievedPacket = null;
 
-            ushort expectedRecievedPacketSize = (ushort)(5 + statusesValues.Length / 8 + ((statusesValues.Length % 8 > 0) ? 1 : 0));
+            ushort expectedRecievedPacketSize = (ushort)(5 + (statusesValues.Length + 7) / 8);
             
             try
             {
@@ -483,32 +488,24 @@ namespace Modbus.Core
                         //TODO here we need to log the StatusString
                         return ModbusErrorCode.codeOK;
                     }
-                    else
-                    {
-                        //TODO here we need to log the StatusString
-                        return errorCode;
-                    }
-
-                }
-                else
-                {
+                    
                     //TODO here we need to log the StatusString
-                    if (StatusString.Contains("Timeout"))
-                        return ModbusErrorCode.codeTimeout;
-                    else if (StatusString.Contains("Error: Invalid response length"))
-                    {
-                        return ParseExceptionCode(functionNumber, rtuAddress, recievedPacket);
-                    }
-                    return ModbusErrorCode.codeErrorSendingPacket;
+                    return errorCode;
+                }                
+                //TODO here we need to log the StatusString
+                if (StatusString.Contains("Timeout"))
+                    return ModbusErrorCode.codeTimeout;
+                if (StatusString.Contains("Error: Invalid response length"))
+                {
+                    return ParseExceptionCode(functionNumber, rtuAddress, recievedPacket);
                 }
+                return ModbusErrorCode.codeErrorSendingPacket;               
             }
             catch (Exception ex)
             {
                 logger.SaveException(ex);
                 throw;
-            }
-
-            return ModbusErrorCode.codeOK;
+            }            
         }
 
         public ModbusErrorCode ForceSingle(Byte functionNumber, Byte rtuAddress, UInt16 forceAddress, object value)
@@ -550,33 +547,24 @@ namespace Modbus.Core
                             return ModbusErrorCode.codeOK;
                         }
                         return ParseExceptionCode(functionNumber, rtuAddress, recievedPacket);
-                    }
-                    else
-                    {
-                        //TODO here we need to log the StatusString
-                        return errorCode;
-                    }
-
-                }
-                else
-                {
+                    }                   
                     //TODO here we need to log the StatusString
-                    if (StatusString.Contains("Timeout"))
-                        return ModbusErrorCode.codeTimeout;
-                    if (StatusString.Contains("Error: Invalid response length"))
-                    {
-                        return ParseExceptionCode(functionNumber, rtuAddress, recievedPacket);
-                    }
-                    return ModbusErrorCode.codeErrorSendingPacket;
+                    return errorCode;                    
+                }               
+                //TODO here we need to log the StatusString
+                if (StatusString.Contains("Timeout"))
+                    return ModbusErrorCode.codeTimeout;
+                if (StatusString.Contains("Error: Invalid response length"))
+                {
+                    return ParseExceptionCode(functionNumber, rtuAddress, recievedPacket);
                 }
+                return ModbusErrorCode.codeErrorSendingPacket;                
             }
             catch (Exception ex)
             {
                 logger.SaveException(ex);
                 throw;
-            }
-
-            return ModbusErrorCode.codeOK;
+            }            
         }
         
         public ModbusErrorCode ForceMultiple(Byte functionNumber, Byte rtuAddress, UInt16 forceAddress, object[] values)
@@ -589,15 +577,13 @@ namespace Modbus.Core
             if(values.Length <= 0)
                 return ModbusErrorCode.codeInvalidInputArgument;
 
-            bool[]   boolValues   = new bool[values.Length];
-            UInt16[] uint16Values = new UInt16[values.Length];            
-            
+            bool[]   boolValues   = new bool[values.Length];                       
 
             Type arrayType = values[0].GetType();
 
             UInt16[] forcedValues = new UInt16[values.Length];
             if (arrayType == typeof(bool))            
-                Array.Resize(ref forcedValues,values.Length/8 + ((values.Length % 8 > 0) ? 1 : 0));//[(theBoolArray.Length + 31) / 32]);
+                Array.Resize(ref forcedValues,(values.Length + 15)/16);
 
             int i = 0;
             foreach (var value in values)
@@ -614,52 +600,53 @@ namespace Modbus.Core
             }
 
             if (arrayType == typeof(bool))
-                new BitArray(boolValues).CopyTo(forcedValues, 0);      
+            {
+                Byte[] temp = new Byte[forcedValues.Length*2];
+                new BitArray(boolValues).CopyTo(temp, 0);                
+                Buffer.BlockCopy(temp, 0, forcedValues, 0, temp.Length);
+            }            
 
             Byte[] recievedPacket = null;           
 
             try
             {
-                Byte[] sendPacket = MakePacket(rtuAddress, functionNumber, forceAddress, (UInt16)values.Length, forcedValues);
+                Byte[] sendPacket = MakePacket(rtuAddress, functionNumber, forceAddress, (UInt16)values.Length, forcedValues, true, arrayType == typeof(bool));
                 
                 if (TxRxMessage(sendPacket, ref recievedPacket, 8))
                 {
                     ModbusErrorCode errorCode = CheckPacket(recievedPacket, sendPacket[0], sendPacket[1], 8);
                     if (errorCode == ModbusErrorCode.codeOK)
                     {
-                        if ((BitConverter.ToUInt16(recievedPacket, 4) == values.Length)&&(BitConverter.ToUInt16(recievedPacket, 2) == forceAddress))
-                        {
-                            //TODO here we need to log the StatusString
-                            return ModbusErrorCode.codeOK;
-                        }
-                        return ParseExceptionCode(functionNumber, rtuAddress, recievedPacket);
-                    }
-                    else
-                    {
+                        Byte[] tmp = BitConverter.GetBytes((UInt16)values.Length);
+                        Array.Reverse(tmp); 
+                        if (BitConverter.ToUInt16(recievedPacket, 4) != BitConverter.ToUInt16(tmp, 0))
+                            return ModbusErrorCode.codeInvalidResponse;
+                        tmp = BitConverter.GetBytes(forceAddress);
+                        Array.Reverse(tmp);
+                        if (BitConverter.ToUInt16(recievedPacket, 2) != BitConverter.ToUInt16(tmp, 0))
+                            return ModbusErrorCode.codeInvalidResponse;                                                      
                         //TODO here we need to log the StatusString
-                        return errorCode;
+                        return ModbusErrorCode.codeOK;
                     }
-
-                }
-                else
-                {
+                    
                     //TODO here we need to log the StatusString
-                    if (StatusString.Contains("Timeout"))
-                        return ModbusErrorCode.codeTimeout;
-                    else if (StatusString.Contains("Error: Invalid response length"))
-                    {
-                        return ParseExceptionCode(functionNumber, rtuAddress, recievedPacket);
-                    }
-                    return ModbusErrorCode.codeErrorSendingPacket;
+                    return errorCode;                    
                 }
+                
+                //TODO here we need to log the StatusString
+                if (StatusString.Contains("Timeout"))
+                    return ModbusErrorCode.codeTimeout;
+                    
+                if (StatusString.Contains("Error: Invalid response length"))
+                    return ParseExceptionCode(functionNumber, rtuAddress, recievedPacket);
+                
+                return ModbusErrorCode.codeErrorSendingPacket;                
             }
             catch (Exception ex)
             {
                 logger.SaveException(ex);
                 throw;
-            }
-
-            return ModbusErrorCode.codeOK;
+            }            
         }        
     }   
 }

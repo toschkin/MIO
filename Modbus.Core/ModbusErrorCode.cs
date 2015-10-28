@@ -32,6 +32,8 @@ namespace Modbus.Core
         codeErrorSendingPacket = 0x0009,
         [EnumDescription("Invalid input argument")]
         codeInvalidInputArgument = 0x000A,
+        [EnumDescription("Invalid response from slave")]
+        codeInvalidResponse = 0x000B,        
         [EnumDescription("Exception code: Illegal Function")]
         codeIllegalFunction = 0x8001,
         [EnumDescription("Exception code: Illegal Data Address")]

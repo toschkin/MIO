@@ -27,7 +27,7 @@ namespace Modbus.Core
         ModbusErrorCode PresetSingleRegister(Byte rtuAddress, UInt16 forceAddress, UInt16 setValue);
         ModbusErrorCode PresetSingleRegister(Byte rtuAddress, UInt16 forceAddress, Int16 setValue);
 
-        ModbusErrorCode ForceMultipleCoils(Byte functionNumber, Byte rtuAddress, UInt16 forceAddress, bool[] values);
+        ModbusErrorCode ForceMultipleCoils(Byte rtuAddress, UInt16 forceAddress, bool[] values);
 
         ModbusErrorCode PresetMultipleRegisters(Byte rtuAddress, UInt16 forceAddress, UInt16[] values);
         ModbusErrorCode PresetMultipleRegisters(Byte rtuAddress, UInt16 forceAddress, Int16[] values);

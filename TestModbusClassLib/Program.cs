@@ -249,21 +249,24 @@ namespace TestModbusClassLib
                 Console.WriteLine(modbusTestMap.Length);*/
 
                 watch = Stopwatch.StartNew();
-                ModbusErrorCode code = prot.ForceSingleCoil(1, 4, true);
+                bool[] arrVals = new[] {true, true, true, true};
+                ModbusErrorCode code = prot.ForceMultipleCoils(1, 4, arrVals);
                 watch.Stop();
-                Console.WriteLine("ForceSingleCoil: {0}", watch.ElapsedMilliseconds);
+                Console.WriteLine("ForceMultipleCoils: {0}", watch.ElapsedMilliseconds);
                 Console.WriteLine(code.GetDescription());
 
+                UInt16[] arrVals16 = new UInt16[4] { 1, 2, 3, 65000 };
                 watch = Stopwatch.StartNew();
-                code = prot.PresetSingleRegister(1, 14, 37000);
+                code = prot.PresetMultipleRegisters(1, 20, arrVals16);
                 watch.Stop();
-                Console.WriteLine("PresetSingleRegister: {0}", watch.ElapsedMilliseconds);
+                Console.WriteLine("PresetMultipleRegisters: {0}", watch.ElapsedMilliseconds);
                 Console.WriteLine(code.GetDescription());
 
+                Int16[] arrValsi16 = new Int16[3] { -1, -2, -3 };
                 watch = Stopwatch.StartNew();
-                code = prot.PresetSingleRegister(1, 15, -1);
+                code = prot.PresetMultipleRegisters(1, 30, arrValsi16);
                 watch.Stop();
-                Console.WriteLine("PresetSingleRegister: {0}", watch.ElapsedMilliseconds);
+                Console.WriteLine("PresetMultipleRegisters: {0}", watch.ElapsedMilliseconds);
                 Console.WriteLine(code.GetDescription());
 
                 prot.Disconnect();
