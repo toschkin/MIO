@@ -23,6 +23,14 @@ namespace Modbus.Core
         ModbusErrorCode ReadInputRegisters(Byte rtuAddress, UInt16 startAddress, ref object[] registerValues, bool bigEndianOrder = false);
 
         ModbusErrorCode ForceSingleCoil(Byte rtuAddress, UInt16 forceAddress, bool setOn);
+        
+        ModbusErrorCode PresetSingleRegister(Byte rtuAddress, UInt16 forceAddress, UInt16 setValue);
+        ModbusErrorCode PresetSingleRegister(Byte rtuAddress, UInt16 forceAddress, Int16 setValue);
+
+        ModbusErrorCode ForceMultipleCoils(Byte functionNumber, Byte rtuAddress, UInt16 forceAddress, bool[] values);
+
+        ModbusErrorCode PresetMultipleRegisters(Byte rtuAddress, UInt16 forceAddress, UInt16[] values);
+        ModbusErrorCode PresetMultipleRegisters(Byte rtuAddress, UInt16 forceAddress, Int16[] values);
 
         /*void AddCRC(ref Byte[] packet);
         bool CheckCRC(Byte[] packet);
