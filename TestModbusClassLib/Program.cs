@@ -148,6 +148,10 @@ namespace TestModbusClassLib
             }
             return listOfElem.ToArray < ValueType >();
         }
+        public static void ShowException(Exception exception)
+        {
+            Console.WriteLine(exception.ToString()+"\t"+exception.StackTrace);
+        }
         static void Main(string[] args)
         {                                             
             Byte[] arr = BitConverterEx.GetBytes(1234567890.123456789m);
@@ -180,12 +184,17 @@ namespace TestModbusClassLib
                 watch.Stop();
                 Console.WriteLine("new ModbusRTUProtocol(): {0}",watch.ElapsedMilliseconds);
 
-                watch = Stopwatch.StartNew();                
+                prot.AddExceptionsLogger(ShowException);
+
+                prot.Connect("COM6");         
+                
+
+                /*watch = Stopwatch.StartNew();                
                 prot.Connect("COM6");
                 watch.Stop();
                 Console.WriteLine("Connect: {0}", watch.ElapsedMilliseconds);
 
-                /* object[] modbusTestMap = { new ModbusDataPoint<Byte>(), 
+                 object[] modbusTestMap = { new ModbusDataPoint<Byte>(), 
                                               new ModbusDataPoint<SByte>(), 
                                               new ModbusDataPoint<Int16>(),                                      
                                               new ModbusDataPoint<UInt16>(), 
@@ -246,7 +255,7 @@ namespace TestModbusClassLib
                     Console.WriteLine(item);
                 }
                 Console.WriteLine(code.GetDescription());
-                Console.WriteLine(modbusTestMap.Length);*/
+                Console.WriteLine(modbusTestMap.Length);
 
                 watch = Stopwatch.StartNew();
                 bool[] arrVals = new[] {true, true, true, true};
@@ -268,7 +277,7 @@ namespace TestModbusClassLib
                 watch.Stop();
                 Console.WriteLine("PresetMultipleRegisters: {0}", watch.ElapsedMilliseconds);
                 Console.WriteLine(code.GetDescription());
-
+                */
                 prot.Disconnect();
                 Console.ReadLine();
             }                       

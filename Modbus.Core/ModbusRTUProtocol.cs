@@ -15,10 +15,32 @@ namespace Modbus.Core
         /// <summary>
         /// Default ctor
         /// </summary>
-        public ModbusRTUProtocol()
-            : base()
+        public ModbusRTUProtocol()            
         {
 
+        }
+
+        /// <summary>
+        /// Exception saving
+        /// </summary>
+        private SaveException _logExceptionModbusRTU;
+        /// <summary>
+        /// Adds logger to list of exceptions saving handlers
+        /// </summary>
+        /// <param name="logger">delegate of form: void SaveException(Exception message);</param>
+        public void AddExceptionsLogger(SaveException logger)
+        {
+            _logExceptionModbusRTU += logger;
+            LogExceptionRsp += logger;
+        }
+        /// <summary>
+        /// Removes logger from current list of exceptions saving handlers
+        /// </summary>
+        /// <param name="logger">delegate of form: void SaveException(Exception message);</param>
+        public void RemoveExceptionsLogger(SaveException logger)
+        {
+            _logExceptionModbusRTU += logger;
+            LogExceptionRsp -= logger;
         }
 
         public ModbusErrorCode ReadCoilStatus(Byte rtuAddress, UInt16 startAddress, ref bool[] statusesValues)
@@ -110,7 +132,7 @@ namespace Modbus.Core
         /// <param name="packet">data packet to which we need to add CRC16</param>
         ///  <exception cref="System.ArgumentNullException">Thrown if packet is null</exception>
         ///  <exception cref="System.ArgumentOutOfRangeException">Thrown if argument length &lt; 2 or &gt; 254</exception>
-        public void AddCRC(ref Byte[] packet)
+        protected void AddCRC(ref Byte[] packet)
         {
             if (packet == null)
                 throw new ArgumentNullException();
@@ -141,13 +163,12 @@ namespace Modbus.Core
             Array.Resize(ref packet, listCRC.Count);
             listCRC.ToArray().CopyTo(packet, 0);                                             
         }
-
         /// <summary>
         /// Checks CRC16 of Modbus protocol data packet passed in argument
         /// </summary>
         /// <param name="packet"> packet, which CRC we need to verify</param>
         /// <returns>true on success, otherwise false</returns>            
-        public bool CheckCRC(Byte[] packet)
+        protected bool CheckCRC(Byte[] packet)
         {
             if (packet == null)
                 return false;
@@ -175,10 +196,9 @@ namespace Modbus.Core
             if((packet[packet.Length-2] == BitConverter.GetBytes(crc).ElementAt<Byte>(0))
                 &&(packet[packet.Length-1] == BitConverter.GetBytes(crc).ElementAt<Byte>(1)))
                 return true;
-            else
-                return false;
+            
+            return false;
         }
-        
         /// <summary>
         /// Validates recieved packet
         /// </summary>
@@ -188,7 +208,7 @@ namespace Modbus.Core
         /// <param name="expectedPacketLength">Expected length of the recieved packet</param>
         /// <exception cref="ArgumentNullException"></exception>
         /// <returns>ModbusErrorCode.codeOK on success, error code otherwise</returns>
-        public ModbusErrorCode CheckPacket(Byte[] packetRecieved, Byte slaveAddress, Byte functionCode, Int32 expectedPacketLength)
+        protected ModbusErrorCode CheckPacket(Byte[] packetRecieved, Byte slaveAddress, Byte functionCode, Int32 expectedPacketLength)
         {
             if ((packetRecieved == null)||(packetRecieved.Length != expectedPacketLength))
                 return ModbusErrorCode.codeInvalidPacketLength;
@@ -213,7 +233,7 @@ namespace Modbus.Core
         /// <exception cref="System.ArgumentException"></exception>
         /// <exception cref="System.NullReferenceException"></exception>
         /// <remarks>outputValues can contain numeric types and classes or structs with public numeric properties</remarks>
-        public void ProcessAnalogData(Byte[] rawPacketData, ref object[] outputValues, bool bigEndianOrder = false)
+        protected void ProcessAnalogData(Byte[] rawPacketData, ref object[] outputValues, bool bigEndianOrder = false)
         {
             if(rawPacketData == null)
                 throw new ArgumentNullException();
@@ -267,7 +287,7 @@ namespace Modbus.Core
         /// <exception cref="System.ArgumentNullException"></exception>
         /// <exception cref="System.ArgumentOutOfRangeException"></exception>        
         /// <remarks>outputValues can contain numeric types and classes or structs with public numeric properties</remarks>
-        public void ProcessDiscreetData(Byte[] rawPacketData, ref bool[] outputValues)
+        protected void ProcessDiscreetData(Byte[] rawPacketData, ref bool[] outputValues)
         {
             if (rawPacketData == null)
                 throw new ArgumentNullException();
@@ -330,7 +350,7 @@ namespace Modbus.Core
         /// <param name="quantity">count of registers/coils to be read (functionCode: 1,2,3,4) or forced (functionCode: 15,16)</param>
         /// <param name="forcedValues">array of converted values which are need to be written (functionCode: 5,6,15,16)</param>
         /// <returns>created packed</returns>                
-        public Byte[] MakePacket(Byte slaveAddress, Byte functionCode, UInt16 startAddress, UInt16 quantity, UInt16[] forcedValues=null, bool forceMultiple = false,bool forceCoils=false)
+        protected Byte[] MakePacket(Byte slaveAddress, Byte functionCode, UInt16 startAddress, UInt16 quantity, UInt16[] forcedValues = null, bool forceMultiple = false, bool forceCoils = false)
         {
             List<Byte> sendPacketList = new List<Byte>();
             sendPacketList.Add(slaveAddress);
@@ -378,7 +398,7 @@ namespace Modbus.Core
             return sendPacket;
         }
 
-        public ModbusErrorCode ParseExceptionCode(Byte functionNumber, Byte rtuAddress, Byte[] recievedPacket)
+        protected ModbusErrorCode ParseExceptionCode(Byte functionNumber, Byte rtuAddress, Byte[] recievedPacket)
         {
             if (recievedPacket.Length == 5)
             {
@@ -393,28 +413,31 @@ namespace Modbus.Core
             return ModbusErrorCode.codeInvalidPacketLength;
         }
 
-        public ModbusErrorCode ReadRegisters(Byte functionNumber, Byte rtuAddress, UInt16 startAddress, ref object[] registerValues, bool bigEndianOrder = false)
+        protected ModbusErrorCode ReadRegisters(Byte functionNumber, Byte rtuAddress, UInt16 startAddress, ref object[] registerValues, bool bigEndianOrder = false)
         {            
             if (!IsConnected)
                 return ModbusErrorCode.codeNotConnected;
             if ((rtuAddress > 247) || (rtuAddress < 1))
                 return ModbusErrorCode.codeInvalidSlaveAddress;
-            
+
             try
             {
                 UInt32 registersCount = 0;
-                registersCount = (SizeofHelper.SizeOfPublicProperties(registerValues) % 2)>0 ? SizeofHelper.SizeOfPublicProperties(registerValues) / 2 : (SizeofHelper.SizeOfPublicProperties(registerValues) / 2)+1;
+                registersCount = (SizeofHelper.SizeOfPublicProperties(registerValues)%2) > 0
+                    ? SizeofHelper.SizeOfPublicProperties(registerValues)/2
+                    : (SizeofHelper.SizeOfPublicProperties(registerValues)/2) + 1;
                 if ((registersCount > 125) || (registersCount < 1) || (startAddress + registersCount > UInt16.MaxValue))
                     return ModbusErrorCode.codeInvalidRequestedSize;
-               
+
                 Byte[] recievedPacket = null;
 
-                Byte[] sendPacket = MakePacket(rtuAddress, functionNumber, startAddress, (UInt16)registersCount);
+                Byte[] sendPacket = MakePacket(rtuAddress, functionNumber, startAddress, (UInt16) registersCount);
 
-                ushort expectedRecievedPacketSize = (ushort)(5 + registersCount * 2);
+                ushort expectedRecievedPacketSize = (ushort) (5 + registersCount*2);
                 if (TxRxMessage(sendPacket, ref recievedPacket, expectedRecievedPacketSize))
                 {
-                    ModbusErrorCode errorCode = CheckPacket(recievedPacket, sendPacket[0], sendPacket[1], expectedRecievedPacketSize);
+                    ModbusErrorCode errorCode = CheckPacket(recievedPacket, sendPacket[0], sendPacket[1],
+                        expectedRecievedPacketSize);
                     if (errorCode == ModbusErrorCode.codeOK)
                     {
                         Byte[] packetData = new Byte[recievedPacket.Length - 5];
@@ -425,32 +448,35 @@ namespace Modbus.Core
                         }
                         catch (Exception ex)
                         {
-                            logger.SaveException(ex);
-                            return ModbusErrorCode.codeInvalidOutputArray;
+                            if (_logExceptionModbusRTU != null)
+                                _logExceptionModbusRTU(ex);
+                            return ModbusErrorCode.codeExceptionInCodeOccured;
                         }
                         //TODO here we need to log the StatusString
-                        return ModbusErrorCode.codeOK;                        
-                    }                   
+                        return ModbusErrorCode.codeOK;
+                    }
                     //TODO here we need to log the StatusString
-                    return errorCode;                                           
-                }                
+                    return errorCode;
+                }
+                
                 //TODO here we need to log the StatusString
                 if (StatusString.Contains("Timeout"))
                     return ModbusErrorCode.codeTimeout;
-                if (StatusString.Contains("Error: Invalid response length"))
-                {
+
+                if (StatusString.Contains("Error: Invalid response length"))                
                     return ParseExceptionCode(functionNumber, rtuAddress, recievedPacket);
-                }
-                return ModbusErrorCode.codeErrorSendingPacket;                
-            }
+                
+                return ModbusErrorCode.codeErrorSendingPacket;
+            }            
             catch (Exception ex)
             {
-                logger.SaveException(ex);
-                throw;                
-            }            
+                if (_logExceptionModbusRTU != null)
+                    _logExceptionModbusRTU(ex);
+                return ModbusErrorCode.codeExceptionInCodeOccured;
+            }
         }
 
-        public ModbusErrorCode ReadStatuses(Byte functionNumber, Byte rtuAddress, UInt16 startAddress, ref bool[] statusesValues)
+        protected ModbusErrorCode ReadStatuses(Byte functionNumber, Byte rtuAddress, UInt16 startAddress, ref bool[] statusesValues)
         {
             if (!IsConnected)
                 return ModbusErrorCode.codeNotConnected;
@@ -482,8 +508,9 @@ namespace Modbus.Core
                         }
                         catch (Exception ex)
                         {
-                            logger.SaveException(ex);
-                            return ModbusErrorCode.codeInvalidOutputArray;
+                            if (_logExceptionModbusRTU != null)
+                                _logExceptionModbusRTU(ex);
+                            return ModbusErrorCode.codeExceptionInCodeOccured;
                         }
                         //TODO here we need to log the StatusString
                         return ModbusErrorCode.codeOK;
@@ -503,12 +530,13 @@ namespace Modbus.Core
             }
             catch (Exception ex)
             {
-                logger.SaveException(ex);
-                throw;
+                if (_logExceptionModbusRTU != null)
+                    _logExceptionModbusRTU(ex);
+                return ModbusErrorCode.codeExceptionInCodeOccured;
             }            
         }
 
-        public ModbusErrorCode ForceSingle(Byte functionNumber, Byte rtuAddress, UInt16 forceAddress, object value)
+        protected ModbusErrorCode ForceSingle(Byte functionNumber, Byte rtuAddress, UInt16 forceAddress, object value)
         {
             if (!IsConnected)
                 return ModbusErrorCode.codeNotConnected;
@@ -554,20 +582,20 @@ namespace Modbus.Core
                 //TODO here we need to log the StatusString
                 if (StatusString.Contains("Timeout"))
                     return ModbusErrorCode.codeTimeout;
-                if (StatusString.Contains("Error: Invalid response length"))
-                {
+                if (StatusString.Contains("Error: Invalid response length"))                
                     return ParseExceptionCode(functionNumber, rtuAddress, recievedPacket);
-                }
+                
                 return ModbusErrorCode.codeErrorSendingPacket;                
             }
             catch (Exception ex)
             {
-                logger.SaveException(ex);
-                throw;
+                if (_logExceptionModbusRTU != null)
+                    _logExceptionModbusRTU(ex);
+                return ModbusErrorCode.codeExceptionInCodeOccured;        
             }            
         }
-        
-        public ModbusErrorCode ForceMultiple(Byte functionNumber, Byte rtuAddress, UInt16 forceAddress, object[] values)
+
+        protected ModbusErrorCode ForceMultiple(Byte functionNumber, Byte rtuAddress, UInt16 forceAddress, object[] values)
         {
             if (!IsConnected)
                 return ModbusErrorCode.codeNotConnected;
@@ -644,8 +672,9 @@ namespace Modbus.Core
             }
             catch (Exception ex)
             {
-                logger.SaveException(ex);
-                throw;
+                if (_logExceptionModbusRTU != null)
+                    _logExceptionModbusRTU(ex);
+                return ModbusErrorCode.codeExceptionInCodeOccured;
             }            
         }        
     }   

@@ -50,6 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DelegatesDef.cs" />
     <Compile Include="ConversionHelper.cs" />
     <Compile Include="EnumExtension.cs" />
     <Compile Include="IModbus.cs" />

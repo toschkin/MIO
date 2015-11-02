@@ -11,16 +11,18 @@ using System.Text.RegularExpressions;
 using System.IO;
 
 namespace Modbus.Core
-{
+{       
     public class RawSerialProtocol
     {
+        //exceptions saving        
+        protected event SaveException LogExceptionRsp;       
 
         #region Properties        
         public bool IsConnected { get; private set; }
         public String StatusString { get; private set; }
         public SerialPortPin TangentaPin { get; set; }
-        public bool SaveExceptionsToLog { get; set; }                
-        public String ExceptionLogsPath 
+        //public bool SaveExceptionsToLog { get; set; }                
+        /*public String ExceptionLogsPath 
         {
             get
             {
@@ -48,7 +50,7 @@ namespace Modbus.Core
                 }               
                 logger.ExceptionLogDir = value;
             }
-        }
+        }*/
         public int SilentInterval 
         { 
             get 
@@ -62,9 +64,8 @@ namespace Modbus.Core
                     silentInterval = 1;
                     ArgumentOutOfRangeException ex = new ArgumentOutOfRangeException();
                     throw (ex);
-                }
-                else
-                    silentInterval = value;
+                }                
+                silentInterval = value;
             } 
         }       
         public int TangentaSetPinTimePeriodMsec
@@ -80,9 +81,8 @@ namespace Modbus.Core
                     tangentaSetPinTimePeriodMsec = 0;
                     ArgumentOutOfRangeException ex = new ArgumentOutOfRangeException();
                     throw (ex);
-                }
-                else
-                    tangentaSetPinTimePeriodMsec = value;
+                }                
+                tangentaSetPinTimePeriodMsec = value;
             }
         }
         public int Retries
@@ -96,8 +96,7 @@ namespace Modbus.Core
                     ArgumentOutOfRangeException ex = new ArgumentOutOfRangeException();
                     throw (ex);
                 }
-                else
-                    retries = value;
+                retries = value;
             }
         }
         #endregion
@@ -107,7 +106,7 @@ namespace Modbus.Core
         private SerialPort comPort;
         private int silentInterval;
         private int tangentaSetPinTimePeriodMsec;
-        protected ModbusLogger logger;
+        //protected ModbusLogger logger;
         #endregion
 
         #region Ctors
@@ -120,9 +119,9 @@ namespace Modbus.Core
             TangentaPin = SerialPortPin.None;
             TangentaSetPinTimePeriodMsec = 100;
             Retries = 1;
-            SaveExceptionsToLog = false;            
-            logger = new ModbusLogger();                        
-            logger.ExceptionLogDir = AppDomain.CurrentDomain.BaseDirectory;            
+            //SaveExceptionsToLog = false;            
+            //logger = new ModbusLogger();                        
+            //logger.ExceptionLogDir = AppDomain.CurrentDomain.BaseDirectory;            
         }
         #endregion
 
@@ -146,8 +145,8 @@ namespace Modbus.Core
             catch (Exception error)
             {
                 StatusString = "Error in Connect: " + error.Message;
-                if (SaveExceptionsToLog)
-                    logger.SaveException(error);
+                if (LogExceptionRsp != null)
+                    LogExceptionRsp(error);
                 return false;
             }
             StatusString = "Connected";
@@ -216,13 +215,12 @@ namespace Modbus.Core
             }
             catch (Exception error)
             {
-                if (SaveExceptionsToLog)
-                    logger.SaveException(error);
+                if (LogExceptionRsp != null)
+                    LogExceptionRsp(error);
                 return false;
             }            
         }
         
-
         public bool SendPacket(byte[] packet)
         {            
             if (comPort.IsOpen == false)
@@ -271,8 +269,8 @@ namespace Modbus.Core
             catch (Exception error)
             {
                 StatusString = "Error in SendPacket: " + error.Message;
-                if (SaveExceptionsToLog)
-                    logger.SaveException(error);
+                if (LogExceptionRsp != null)
+                    LogExceptionRsp(error);
                 return false;
             }
             StatusString = "OK";

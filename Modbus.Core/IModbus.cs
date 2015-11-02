@@ -30,12 +30,6 @@ namespace Modbus.Core
         ModbusErrorCode ForceMultipleCoils(Byte rtuAddress, UInt16 forceAddress, bool[] values);
 
         ModbusErrorCode PresetMultipleRegisters(Byte rtuAddress, UInt16 forceAddress, UInt16[] values);
-        ModbusErrorCode PresetMultipleRegisters(Byte rtuAddress, UInt16 forceAddress, Int16[] values);
-
-        /*void AddCRC(ref Byte[] packet);
-        bool CheckCRC(Byte[] packet);
-        Byte[] MakePacketForce(Byte slaveAddress, Byte functionCode, UInt16 startAddress, UInt16 quantity);
-        ModbusErrorCode CheckPacket(Byte[] packetRecieved, Byte slaveAddress, Byte functionCode, Int32 expectedPacketLength);
-        bool ProcessAnalogData(Byte[] rawPacketData, ref object[] outputValues);*/
+        ModbusErrorCode PresetMultipleRegisters(Byte rtuAddress, UInt16 forceAddress, Int16[] values);       
     }
 }

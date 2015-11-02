@@ -42,6 +42,7 @@ namespace Modbus.UnitTests
         public Single c { get; set; }
         public Double d { get; set; }
     }
+    
     public static class TestHelper
     {
         public static void TestPropertySettingItsValueTo1IfParamIsLessThan1(RawSerialProtocol prot, string propertyName,int testValue)
@@ -61,7 +62,7 @@ namespace Modbus.UnitTests
             Assert.AreEqual(1, getForAnyRawSerialProtocolIntProp(prot));
         }
 
-        public static void TestLogFileOutput(RawSerialProtocol prot, String testedMethod)
+        /*public static void TestLogFileOutput(RawSerialProtocol prot, String testedMethod)
         {
             prot.ExceptionLogsPath = @"d:\aaaa\";
             prot.SaveExceptionsToLog = true;
@@ -90,14 +91,15 @@ namespace Modbus.UnitTests
                 if (!logFileInfo2.Exists)
                     Assert.Fail();
             }
-        }
+        }*/
     }
+    
     class RawSerialProtocolTest
     {
-        const String portNameForTest = "COM6";
+        /*const String portNameForTest = "COM6";
         const String loopPortNameModsim = "COM8";
         const String loopPortNameM = "COM6";
-        const String loopPortNameS = "COM7";
+        const String loopPortNameS = "COM7";*/
        
         [Test]
         public void DefaultCtorShouldSetProperties()
@@ -108,14 +110,14 @@ namespace Modbus.UnitTests
             Assert.That(prot.StatusString, Is.EqualTo("Not connected"));            
             Assert.AreEqual(SerialPortPin.None, prot.TangentaPin);
             Assert.AreEqual(100, prot.TangentaSetPinTimePeriodMsec);            
-            Assert.AreEqual(false, prot.SaveExceptionsToLog);
-            Assert.AreEqual(AppDomain.CurrentDomain.BaseDirectory, prot.ExceptionLogsPath);
+            //Assert.AreEqual(false, prot.SaveExceptionsToLog);
+            //Assert.AreEqual(AppDomain.CurrentDomain.BaseDirectory, prot.ExceptionLogsPath);
             Assert.AreEqual(1, prot.Retries);
         }        
 
         #region Properties Tests
         
-        [Test]
+        /*[Test]
         [ExpectedException()]
         [TestCase(@"C::\")]
         [TestCase(null)]
@@ -124,7 +126,7 @@ namespace Modbus.UnitTests
         {
             RawSerialProtocol prot = new RawSerialProtocol();
             prot.ExceptionLogsPath = path;
-        }
+        }*/
 
         [Test]
         [TestCase(null)]
@@ -141,13 +143,13 @@ namespace Modbus.UnitTests
         #endregion
 
         #region Connect Tests
-        [Test]
+        /*[Test]
         public void Connect_ShouldReturnTrueOnSuccess()
         {           
             RawSerialProtocol prot = new RawSerialProtocol();
             Assert.AreEqual(true, prot.Connect(portNameForTest, 19200, 7, StopBits.One, Parity.Even, 2000,Handshake.None));           
             prot.Disconnect();
-        }
+        }*/
 
         [Test]
         [TestCase("COM255")]
@@ -161,7 +163,7 @@ namespace Modbus.UnitTests
             prot.Disconnect();
         }
 
-        [Test]
+        /*[Test]
         public void Connect_ShouldSaveErrorToLog()
         {           
             RawSerialProtocol prot = new RawSerialProtocol();
@@ -175,7 +177,7 @@ namespace Modbus.UnitTests
             TestHelper.TestLogFileOutput(prot, "prot.Connect(\"" + portNameForTest + "\",9600,8,System.IO.Ports.StopBits.Two,System.IO.Ports.Parity.None,System.Int32.MinValue,System.IO.Ports.Handshake.None);");            
             prot.Disconnect();
             
-        }               
+        } */              
 
         /*[Test]
         public void Connect_ShouldOpenPort()
@@ -347,9 +349,10 @@ namespace Modbus.UnitTests
         } */      
         #endregion
     }
-    class ModbusRTUProtocolTest
+
+    class ModbusRTUProtocolTest : ModbusRTUProtocol
     {
-        const String portNameForTest = "COM6";               
+        /*const String portNameForTest = "COM6";               
         [Test]
         public void ReadRegisters_ShouldReturnOKcodeOnSuccess()
         {         
@@ -437,14 +440,15 @@ namespace Modbus.UnitTests
             object[] modbusTestMap = listDataPoints.ToArray();
             ModbusErrorCode code = prot.ReadRegisters(3, 1, 0, ref modbusTestMap);            
             prot.Disconnect();
-        }
+        }*/
         [Test]              
         public void AddCRC_ShouldAddCRCToPaccket()
         {
-            ModbusRTUProtocol prot = new ModbusRTUProtocol();
+            //ModbusRTUProtocol prot = new ModbusRTUProtocol();
             //valid packet
             Byte[] packet = { 0x01, 0x03, 0x00, 0x64, 0x00, 0x01 };
-            prot.AddCRC(ref packet);
+            //prot.AddCRC(ref packet);
+            AddCRC(ref packet);
             Byte[] packetCompare = { 0x01, 0x03, 0x00, 0x64, 0x00, 0x01, 0xC5, 0xD5 };
             Assert.AreEqual(8, packet.Length);
             Assert.AreEqual(packetCompare, packet);                        
@@ -453,114 +457,114 @@ namespace Modbus.UnitTests
         [ExpectedException(typeof(ArgumentNullException))]     
         public void AddCRC_ShouldThrowOnNullArgument()
         {
-            ModbusRTUProtocol prot = new ModbusRTUProtocol();
+            //ModbusRTUProtocol prot = new ModbusRTUProtocol();
             //valid packet
             Byte[] packetNull = null;
-            prot.AddCRC(ref packetNull);                                   
+            AddCRC(ref packetNull);                                   
         }
         [Test] 
         [ExpectedException(typeof(ArgumentOutOfRangeException))]     
         public void AddCRC_ShouldThrowOnGreaterThanMaxSizePacket()
         {
-            ModbusRTUProtocol prot = new ModbusRTUProtocol();
+            //ModbusRTUProtocol prot = new ModbusRTUProtocol();
             //invalid length packet (exceeds max length)
             Byte[] packet = { 0x01, 0x03, 0x00, 0x64, 0x00, 0x01 };
             Array.Resize<Byte>(ref packet, 255);
-            prot.AddCRC(ref packet);                            
+            AddCRC(ref packet);                            
         }
         [Test] 
         [ExpectedException(typeof(ArgumentOutOfRangeException))]     
         public void AddCRC_ShouldThrowOnLessThanMinSizePacket()
         {
-            ModbusRTUProtocol prot = new ModbusRTUProtocol();
+            //ModbusRTUProtocol prot = new ModbusRTUProtocol();
             //invalid length packet (less than min length)
             Byte[] packet = { 0x01, 0x03, 0x00, 0x64, 0x00, 0x01 };
             Array.Resize<Byte>(ref packet, 2);
-            prot.AddCRC(ref packet);                            
+            AddCRC(ref packet);                            
         }                              
         [Test]
         public void CheckCRC_ShouldWorkProperlyOnVariousTypesOfPacket()
         {
-            ModbusRTUProtocol prot = new ModbusRTUProtocol();
+            //ModbusRTUProtocol prot = new ModbusRTUProtocol();
             //valid packet            
             Byte[] packet = { 0x01, 0x03, 0x00, 0x64, 0x00, 0x01, 0xC5, 0xD5 };
-            bool bRetCode = prot.CheckCRC(packet);            
+            bool bRetCode = CheckCRC(packet);            
             Assert.AreEqual(true, bRetCode);                      
             //null packet
             Byte[] packetNull = null;
-            bRetCode = prot.CheckCRC(packetNull);
+            bRetCode = CheckCRC(packetNull);
             Assert.AreEqual(false, bRetCode);
             //invalid length packet (exceeds max length)
             Array.Resize<Byte>(ref packet, 270);
-            bRetCode = prot.CheckCRC(packet);
+            bRetCode = CheckCRC(packet);
             Assert.AreEqual(false, bRetCode);           
             //invalid length packet (less than min length)
             Array.Resize<Byte>(ref packet, 2);
-            bRetCode = prot.CheckCRC(packet);
+            bRetCode = CheckCRC(packet);
             Assert.AreEqual(false, bRetCode);           
         }
         [Test]
         public void CheckPacket_ShouldReturnOKCodeOnValidPacket()
         {
-            ModbusRTUProtocol prot = new ModbusRTUProtocol();
+            //ModbusRTUProtocol prot = new ModbusRTUProtocol();
             //valid packet                      
             Byte[] packetRecieve = {0x01, 0x03, 0x02, 0x00, 0x00, 0xB8, 0x44};
-            ModbusErrorCode err = prot.CheckPacket(packetRecieve, 0x01, 0x03, 7);
+            ModbusErrorCode err = CheckPacket(packetRecieve, 0x01, 0x03, 7);
             Assert.AreEqual(ModbusErrorCode.codeOK, err);
         }
         [Test]
         public void CheckPacket_ShouldReturncodeInvalidPacketLengthOnNullPacket()
         {
-            ModbusRTUProtocol prot = new ModbusRTUProtocol();     
+            //ModbusRTUProtocol prot = new ModbusRTUProtocol();     
             //null packet            
-            ModbusErrorCode err = prot.CheckPacket(null, 0x01, 0x03, 7);
+            ModbusErrorCode err = CheckPacket(null, 0x01, 0x03, 7);
             Assert.AreEqual(ModbusErrorCode.codeInvalidPacketLength, err);
         }
         [Test]
         public void CheckPacket_ShouldReturncodeInvalidFunctionOnInvalidFuncCode()
         {
-            ModbusRTUProtocol prot = new ModbusRTUProtocol();          
+            //ModbusRTUProtocol prot = new ModbusRTUProtocol();          
             Byte[] packetRecieve = {0x01, 0x03, 0x02, 0x00, 0x00, 0xB8, 0x44};
             //invalid function code
-            ModbusErrorCode err = prot.CheckPacket(packetRecieve, 0x01, 0x02, 7);
+            ModbusErrorCode err = CheckPacket(packetRecieve, 0x01, 0x02, 7);
             Assert.AreEqual(ModbusErrorCode.codeInvalidFunction, err);
         }
         [Test]
         public void CheckPacket_ShouldReturncodeInvalidSlaveAddressOnInvalidSlaveAddress()
         {
-            ModbusRTUProtocol prot = new ModbusRTUProtocol();   
+            //ModbusRTUProtocol prot = new ModbusRTUProtocol();   
             Byte[] packetRecieve = {0x01, 0x03, 0x02, 0x00, 0x00, 0xB8, 0x44};
             //invalid slave address
-            ModbusErrorCode err = prot.CheckPacket(packetRecieve, 0x02, 0x03, 7);
+            ModbusErrorCode err = CheckPacket(packetRecieve, 0x02, 0x03, 7);
             Assert.AreEqual(ModbusErrorCode.codeInvalidSlaveAddress, err);
         }
         [Test]
         public void CheckPacket_ShouldReturncodeInvalidPacketLengthInApropriateConditionsOnInvalidPacketLength()
         {
-            ModbusRTUProtocol prot = new ModbusRTUProtocol();
+            //ModbusRTUProtocol prot = new ModbusRTUProtocol();
             Byte[] packetRecieve = { 0x01, 0x03, 0x02, 0x00, 0x00, 0xB8, 0x44 };
             //invalid length packet
             Array.Resize<byte>(ref packetRecieve,6);
-            ModbusErrorCode err = prot.CheckPacket(packetRecieve, 0x01, 0x03, 7);
+            ModbusErrorCode err = CheckPacket(packetRecieve, 0x01, 0x03, 7);
             Assert.AreEqual(ModbusErrorCode.codeInvalidPacketLength, err);
         }
         [Test]
         public void MakePacket_ShouldCreateModbusPacketOfApropriateLengthAndContents()
         {
-            ModbusRTUProtocol prot = new ModbusRTUProtocol();
+            //ModbusRTUProtocol prot = new ModbusRTUProtocol();
             Byte[] packetSendCompare = { 0x01, 0x03, 0x00, 0x64, 0x00, 0x01, 0xC5, 0xD5 };
             Byte[] packetSend = null;
             Byte slaveAddr = 1;
             Byte funcCode = 3;
             UInt16 startAddress = 100;
             UInt16 quantity = 1;
-            packetSend = prot.MakePacket(slaveAddr, funcCode, startAddress, quantity);
+            packetSend = MakePacket(slaveAddr, funcCode, startAddress, quantity);
             Assert.AreEqual(packetSendCompare, packetSend);
         }
         [Test]
         public void ProcessData_ShouldProcessRawPacketBytesToApropriateValuesOfApropriateTypeIntoOutputArrayOfNumericObjectsAndReturnTrueOnSuccess_ReverseOrderOfRegisters()
         {
-            ModbusRTUProtocol prot = new ModbusRTUProtocol();                                            
+            //ModbusRTUProtocol prot = new ModbusRTUProtocol();                                            
            
             Byte[] packetRawData = {   0x20, //32
                                        0xFE, //-2
@@ -576,7 +580,7 @@ namespace Modbus.UnitTests
                                     };
             //object[] arrayValues = { (Byte)0, (SByte)0, new ModbusDataRegisterUInt16(), (UInt16)0, (UInt32)0, new ModbusDataRegisterInt32(), (Single)0.0, (UInt64)0, (Int64)0, (Double)0.0, (Decimal)0m };
             object[] arrayValues = { (Byte)0, (SByte)0, (Int16)0, (UInt16)0, (UInt32)0, (Int32)0, (Single)0.0, (UInt64)0, (Int64)0, (Double)0.0, (Decimal)0m };
-            prot.ProcessAnalogData(packetRawData, ref arrayValues, true);
+            ProcessAnalogData(packetRawData, ref arrayValues, true);
             
             Assert.AreEqual(32, arrayValues[0]);
             Assert.AreEqual(-2, arrayValues[1]);
@@ -593,7 +597,7 @@ namespace Modbus.UnitTests
         [Test]
         public void ProcessData_ShouldProcessRawPacketBytesToApropriateValuesOfApropriateTypeIntoOutputArrayOfNumericObjectsAndReturnTrueOnSuccess_StraightOrderOfRegisters()
         {
-            ModbusRTUProtocol prot = new ModbusRTUProtocol();
+            //ModbusRTUProtocol prot = new ModbusRTUProtocol();
 
             Byte[] packetRawData = {   0x20, //32
                                        0xFE, //-2
@@ -609,7 +613,7 @@ namespace Modbus.UnitTests
                                     };
             //object[] arrayValues = { (Byte)0, (SByte)0, new ModbusDataRegisterUInt16(), (UInt16)0, (UInt32)0, new ModbusDataRegisterInt32(), (Single)0.0, (UInt64)0, (Int64)0, (Double)0.0, (Decimal)0m };
             object[] arrayValues = { (Byte)0, (SByte)0, (Int16)0, (UInt16)0, (UInt32)0, (Int32)0, (Single)0.0, (UInt64)0, (Int64)0, (Double)0.0, (Decimal)0m };
-            prot.ProcessAnalogData(packetRawData, ref arrayValues);
+            ProcessAnalogData(packetRawData, ref arrayValues);
 
             Assert.AreEqual(32, arrayValues[0]);
             Assert.AreEqual(-2, arrayValues[1]);
@@ -626,7 +630,7 @@ namespace Modbus.UnitTests
         [Test]
         public void ProcessData_ShouldProcessRawPacketDataToApropriateValuesOfApropriateTypeIntoOutputArrayOfComplexObjectsAndReturnTrueOnSuccess_ReverseOrderOfRegisters()
         {
-            ModbusRTUProtocol prot = new ModbusRTUProtocol();
+            //ModbusRTUProtocol prot = new ModbusRTUProtocol();
 
             Byte[] packetRawData = {   0x20, //32
                                        0xFE, //-2
@@ -652,7 +656,7 @@ namespace Modbus.UnitTests
                                      new ModbusDataPoint<Double>(), 
                                      new ModbusDataPoint<Decimal>()};
             
-            prot.ProcessAnalogData(packetRawData, ref arrayValues, true);
+            ProcessAnalogData(packetRawData, ref arrayValues, true);
             
             Assert.AreEqual(32, ((ModbusDataPoint<Byte>)arrayValues[0]).Value);
             Assert.AreEqual(-2, ((ModbusDataPoint<SByte>)arrayValues[1]).Value);
@@ -670,60 +674,60 @@ namespace Modbus.UnitTests
         [ExpectedException(typeof(ArgumentException))]
         public void ProcessData_ShouldThrowIfNotValueTypeElementsAreRequestedInOutputArray()
         {
-            ModbusRTUProtocol prot = new ModbusRTUProtocol();
+            //ModbusRTUProtocol prot = new ModbusRTUProtocol();
             Byte[] packetRawData = { 0xFF, 0xFF, //-1
                                      0x01, 0xF4, //500
                                      0x00, 0x00, //0
                                      0x49, 0x96, 0x02, 0xD2, //1234567890
                                      };
             object[] rtuData = { (String)"aaa", new ModbusDataPoint<UInt16>(), new ModbusDataPoint<UInt16>(), new UInt32() };
-            prot.ProcessAnalogData(packetRawData, ref rtuData);                   
+            ProcessAnalogData(packetRawData, ref rtuData);                   
         }
         [Test]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void ProcessData_ShouldThrowIfAmmountOfInfoRequestedInOutputArrayExceedsCapacityOfRawDataArray()
         {
-            ModbusRTUProtocol prot = new ModbusRTUProtocol();
+            //ModbusRTUProtocol prot = new ModbusRTUProtocol();
             Byte[] packetRawData = { 0xFF, 0xFF, //-1
                                      0x01, 0xF4, //500
                                      0x00, 0x00, //0
                                      0x49, 0x96, 0x02, 0xD2, //1234567890
                                      };
             object[] rtuData = { new ModbusDataPoint<UInt16>(), new ModbusDataPoint<UInt16>(), new UInt32(), new UInt32(), new UInt32() };
-            prot.ProcessAnalogData(packetRawData, ref rtuData);           
+            ProcessAnalogData(packetRawData, ref rtuData);           
         }
         [Test]
         public void ProcessData_ShouldNotThrowTrueIfAmmountOfInfoRequestedInOutputArrayLessThanCapacityOfRawDataArray()
         {
-            ModbusRTUProtocol prot = new ModbusRTUProtocol();
+            //ModbusRTUProtocol prot = new ModbusRTUProtocol();
             Byte[] packetRawData = { 0xFF, 0xFF, //-1
                                      0x01, 0xF4, //500
                                      0x00, 0x00, //0
                                      0x49, 0x96, 0x02, 0xD2, //1234567890
                                      };
             object[] rtuData = { new ModbusDataPoint<UInt16>(), new ModbusDataPoint<UInt16>() };
-            prot.ProcessAnalogData(packetRawData, ref rtuData);            
+            ProcessAnalogData(packetRawData, ref rtuData);            
         }
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
         public void ProcessData_ShouldThrowOnNullInputArgument()
         {
-            ModbusRTUProtocol prot = new ModbusRTUProtocol();
+            //ModbusRTUProtocol prot = new ModbusRTUProtocol();
             object[] rtuData = { new Int16(), new ModbusDataPoint<UInt16>(), new ModbusDataPoint<UInt16>(), new UInt32() };
-            prot.ProcessAnalogData(null, ref rtuData);     
+            ProcessAnalogData(null, ref rtuData);     
         }
         [Test]
         [ExpectedException(typeof(NullReferenceException))]
         public void ProcessData_ShouldThrowOnNullRefOutputArgument()
         {
-            ModbusRTUProtocol prot = new ModbusRTUProtocol();
+            //ModbusRTUProtocol prot = new ModbusRTUProtocol();
             Byte[] packetRawData = { 0xFF, 0xFF, //-1
                                      0x01, 0xF4, //500
                                      0x00, 0x00, //0
                                      0x49, 0x96, 0x02, 0xD2, //1234567890
                                      };
             object[] rtuData = new object[2];
-            prot.ProcessAnalogData(packetRawData, ref rtuData);
+            ProcessAnalogData(packetRawData, ref rtuData);
         }
     }
 
@@ -1028,6 +1032,7 @@ namespace Modbus.UnitTests
             Assert.AreEqual(1234567890.123456789m, arrayValues[10]);
         }
     }
+   
     class ConversionHelperTest
     {
         [Test]
@@ -1109,7 +1114,7 @@ namespace Modbus.UnitTests
         }
         
     }
-    class ModbusLoggerTest
+    /*class ModbusLoggerTest
     {
         [Test]
         public void CtorShouldSetDefaultValues()
@@ -1151,5 +1156,5 @@ namespace Modbus.UnitTests
             }                
                         
         }
-    }
+    }*/
 }
