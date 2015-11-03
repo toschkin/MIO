@@ -186,9 +186,20 @@ namespace TestModbusClassLib
 
                 prot.AddExceptionsLogger(ShowException);
 
-                prot.Connect("COM6");         
-                
+                prot.Connect("COM6");
 
+                object[] arrayValues = { Byte.MaxValue, SByte.MinValue, UInt16.MaxValue, Int16.MinValue,  UInt32.MaxValue, Int32.MinValue, Single.MaxValue, UInt64.MaxValue, Int64.MinValue, Double.MaxValue, Decimal.MaxValue };
+
+                object[] arrayValues2 = { (Byte)0, (SByte)0,  (UInt16)0, (Int16)0, (UInt32)0, (Int32)0, (Single)0.0, (UInt64)0, (Int64)0, (Double)0.0, (Decimal)0m};
+
+                ModbusErrorCode code = prot.PresetMultipleRegisters(1, 0, arrayValues);
+                code = prot.ReadHoldingRegisters(1, 0, ref arrayValues2);
+
+                Console.WriteLine(arrayValues.SequenceEqual(arrayValues2));
+                /*ModbusErrorCode code = prot.PresetSingleRegister(1, 0, (Int16)(-123));
+                code = prot.PresetSingleRegister(1, 1, (UInt16)65523);
+                code = prot.PresetSingleRegister(1, 2, arrVals);
+                */
                 /*watch = Stopwatch.StartNew();                
                 prot.Connect("COM6");
                 watch.Stop();

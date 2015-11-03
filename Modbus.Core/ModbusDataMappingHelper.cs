@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Runtime.Remoting.Messaging;
 
 namespace Modbus.Core
 {
@@ -83,6 +84,28 @@ namespace Modbus.Core
     
     public static class ModbusDataMappingHelper
     {
+        /// <summary>
+        /// Extracts values of object's public properties
+        /// </summary>
+        /// <param name="obj">object which properties values should be extracted</param>
+        /// <returns>array of public properties values</returns>
+        public static object[] GetObjectPropertiesValuesArray(object obj)
+        {
+            if (obj == null)
+                throw new ArgumentNullException();
+
+            List<object> lstTypesOfClassMembers = new List<object>();
+            PropertyInfo[] membersOfClass = obj.GetType().GetProperties();
+            foreach (var item in membersOfClass)
+            {
+                if (!GetTypeHelper.IsNumericType(item.PropertyType))
+                    throw new ArgumentException();
+                
+                if ((item.PropertyType.IsPublic) && (item.GetIndexParameters().Length == 0))
+                    lstTypesOfClassMembers.Add(item.GetValue(obj));
+            }
+            return lstTypesOfClassMembers.ToArray<object>();
+        }
         /// <summary>
         /// Extracts types of object's public properties
         /// </summary>
@@ -217,8 +240,7 @@ namespace Modbus.Core
                 }
                 case "Int32":
                 {                   
-                    value = ConversionHelper.ReverseBytes(BitConverter.ToInt32(packetRawData, currentCursorPosition));
-                        
+                    value = ConversionHelper.ReverseBytes(BitConverter.ToInt32(packetRawData, currentCursorPosition));                        
                     if (!bigEndianOrder)
                         value = (Int32)((BitConverter.ToUInt16(BitConverter.GetBytes((Int32)value), 0) << 16) + BitConverter.ToUInt16(BitConverter.GetBytes((Int32)value), 2));
                     break;
@@ -323,6 +345,130 @@ namespace Modbus.Core
                     listOfElem.Add(new Decimal()); 
             }
             return listOfElem.ToArray<object>();
+        }
+
+        public static void ConvertObjectValueAndAppendToArray(ref Byte[] arrayOfBytes, object obj, bool bigEndianOrder = false)
+        {
+            if (obj == null)
+                throw new ArgumentNullException();
+            if ((obj.GetType().IsValueType)&&(GetTypeHelper.IsNumericType(obj.GetType()))) //here we will process simple (only numeric) types
+            {
+                Array.Resize(ref arrayOfBytes, (arrayOfBytes==null?0:arrayOfBytes.Length) + Marshal.SizeOf(obj));
+
+                switch (obj.GetType().Name)
+                {
+                    case "Byte":
+                    {
+                        arrayOfBytes[arrayOfBytes.Length - Marshal.SizeOf(obj)] = (Byte) obj;
+                        break;
+                    }
+                    case "SByte":
+                    {
+                        arrayOfBytes[arrayOfBytes.Length - Marshal.SizeOf(obj)] = unchecked((Byte)((SByte)obj));
+                        break;
+                    }
+                    case "UInt16":
+                    {
+                        for (int i = arrayOfBytes.Length - Marshal.SizeOf(obj),k=0; i < arrayOfBytes.Length; i++,k++)
+                        {
+                            arrayOfBytes[i] = BitConverter.GetBytes((UInt16) obj).ElementAt<Byte>(k);
+                        }                            
+                        break;
+                    }
+                    case "Int16":
+                    {
+                        for (int i = arrayOfBytes.Length - Marshal.SizeOf(obj),k=0; i < arrayOfBytes.Length; i++,k++)
+                        {
+                            arrayOfBytes[i] = BitConverter.GetBytes((Int16) obj).ElementAt<Byte>(k);
+                        } 
+                        break;
+                    }
+                    case "UInt32":
+                        {
+                            for (int i = arrayOfBytes.Length - Marshal.SizeOf(obj), k = 0; i < arrayOfBytes.Length; i++, k++)
+                            {
+                                arrayOfBytes[i] = BitConverter.GetBytes((UInt32)obj).ElementAt<Byte>(k);
+                            }                            
+                            break;
+                        }
+                    case "Int32":
+                        {
+                            for (int i = arrayOfBytes.Length - Marshal.SizeOf(obj), k = 0; i < arrayOfBytes.Length; i++, k++)
+                            {
+                                arrayOfBytes[i] = BitConverter.GetBytes((Int32)obj).ElementAt<Byte>(k);
+                            } 
+                            break;
+                        }
+                    case "UInt64":
+                        {
+                            for (int i = arrayOfBytes.Length - Marshal.SizeOf(obj), k = 0; i < arrayOfBytes.Length; i++, k++)
+                            {
+                                arrayOfBytes[i] = BitConverter.GetBytes((UInt64)obj).ElementAt<Byte>(k);
+                            } 
+                            break;
+                        }
+                    case "Int64":
+                        {
+                            for (int i = arrayOfBytes.Length - Marshal.SizeOf(obj), k = 0; i < arrayOfBytes.Length; i++, k++)
+                            {
+                                arrayOfBytes[i] = BitConverter.GetBytes((Int64)obj).ElementAt<Byte>(k);
+                            } 
+                            break;
+                        }
+                    case "Single":
+                        {
+                            for (int i = arrayOfBytes.Length - Marshal.SizeOf(obj), k = 0; i < arrayOfBytes.Length; i++, k++)
+                            {
+                                arrayOfBytes[i] = BitConverter.GetBytes((Single)obj).ElementAt<Byte>(k);
+                            } 
+                            break;
+                        }
+                    case "Double":
+                        {
+                            for (int i = arrayOfBytes.Length - Marshal.SizeOf(obj), k = 0; i < arrayOfBytes.Length; i++, k++)
+                            {
+                                arrayOfBytes[i] = BitConverter.GetBytes((Double)obj).ElementAt<Byte>(k);
+                            } 
+                            break;
+                        }
+                    case "Decimal":
+                        {
+                            for (int i = arrayOfBytes.Length - Marshal.SizeOf(obj), k = 0; i < arrayOfBytes.Length; i++, k++)
+                            {
+                                arrayOfBytes[i] = BitConverterEx.GetBytes((Decimal)obj).ElementAt<Byte>(k);
+                            } 
+                            break;
+                        }
+                }
+                if (bigEndianOrder && Marshal.SizeOf(obj) > 2)
+                    ReverseWordsInBlocksOfByteArray(ref arrayOfBytes,
+                        arrayOfBytes.Length - Marshal.SizeOf(obj), (Byte)Marshal.SizeOf(obj), 2);
+            }
+            else            
+                throw new ArgumentException();
+            
+        }
+
+        public static void ReverseWordsInBlocksOfByteArray(ref byte[] array, int startIndex, byte blockSize, byte swapSeed)
+        {
+            if (array == null)
+                throw new ArgumentNullException();
+            if (startIndex + blockSize > array.Length)
+                throw new ArgumentException("Out of array bounds");
+
+            if (blockSize % swapSeed != 0)
+                throw new ArgumentException(String.Format("blockSize (={0}) must be divisible by {1}", blockSize, swapSeed * 2));
+
+            for (int i = startIndex, k = startIndex + blockSize - swapSeed; k>i; i += swapSeed, k -= swapSeed)
+            {
+                Byte[] tempBytes = new byte[swapSeed];
+                for (int j = 0; j < tempBytes.Length; j++)
+                {
+                    tempBytes[j] = array[i + j];
+                    array[i + j] = array[k + j];
+                    array[k + j] = tempBytes[j];
+                }
+            }
         }
     }    
 }

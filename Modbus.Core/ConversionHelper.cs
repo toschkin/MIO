@@ -143,6 +143,6 @@ namespace Modbus.Core
             decimalValue = BitConverterEx.ToDecimal(array, index);
 
             return decimalValue;
-        }        
+        }
     }
 }

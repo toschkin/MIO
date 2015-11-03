@@ -1031,6 +1031,249 @@ namespace Modbus.UnitTests
             Assert.AreEqual(12345.67891, (Double)arrayValues[9]);
             Assert.AreEqual(1234567890.123456789m, arrayValues[10]);
         }
+        [Test]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void ConvertObjectValueAndAppendToArray_ShouldThrowOnNullArgument()
+        {
+            Byte[] arrBytes = new byte[5];
+            ModbusDataMappingHelper.ConvertObjectValueAndAppendToArray(ref arrBytes,null);            
+        }        
+        [Test]
+        [ExpectedException(typeof(ArgumentException))]
+        public void ConvertObjectValueAndAppendToArray_ShouldThrowOnNotNumericTypeArgument()
+        {
+            Byte[] arrBytes = new byte[5];
+            ModbusDataMappingHelper.ConvertObjectValueAndAppendToArray(ref arrBytes, "ssss");
+        }
+        [Test]        
+        public void ConvertObjectValueAndAppendToArray_ShouldResizeArrayAndSetProperValues()
+        {
+            Byte[] arrBytes = null;
+           
+            ModbusDataMappingHelper.ConvertObjectValueAndAppendToArray(ref arrBytes, SByte.MinValue);
+            Assert.AreEqual(1, arrBytes.Length);
+            Assert.AreEqual(0x80, arrBytes[0]);
+           
+            ModbusDataMappingHelper.ConvertObjectValueAndAppendToArray(ref arrBytes, (Byte)(1));
+            Assert.AreEqual(2, arrBytes.Length);
+            Assert.AreEqual(0x01, arrBytes[1]);
+            
+            ModbusDataMappingHelper.ConvertObjectValueAndAppendToArray(ref arrBytes, (UInt16)0xAA55);
+            Assert.AreEqual(4, arrBytes.Length);
+            Assert.AreEqual(0x55, arrBytes[2]);
+            Assert.AreEqual(0xAA, arrBytes[3]);
+            
+            ModbusDataMappingHelper.ConvertObjectValueAndAppendToArray(ref arrBytes, (Int16)(-123));
+            Assert.AreEqual(6, arrBytes.Length);
+            Assert.AreEqual(0x85, arrBytes[4]);
+            Assert.AreEqual(0xFF, arrBytes[5]);
+            
+            ModbusDataMappingHelper.ConvertObjectValueAndAppendToArray(ref arrBytes, (UInt32)(123456789));
+            Assert.AreEqual(10, arrBytes.Length);
+            Assert.AreEqual(0x15, arrBytes[6]);
+            Assert.AreEqual(0xCD, arrBytes[7]);
+            Assert.AreEqual(0x5B, arrBytes[8]);
+            Assert.AreEqual(0x07, arrBytes[9]);
+            
+            ModbusDataMappingHelper.ConvertObjectValueAndAppendToArray(ref arrBytes, (Int32)(-123456789));
+            Assert.AreEqual(14, arrBytes.Length);
+            Assert.AreEqual(0xEB, arrBytes[10]);
+            Assert.AreEqual(0x32, arrBytes[11]);
+            Assert.AreEqual(0xA4, arrBytes[12]);
+            Assert.AreEqual(0xF8, arrBytes[13]);
+            
+            ModbusDataMappingHelper.ConvertObjectValueAndAppendToArray(ref arrBytes, (UInt64)(1234567891011121314));
+            Assert.AreEqual(22, arrBytes.Length);
+            Assert.AreEqual(0xA2, arrBytes[14]);
+            Assert.AreEqual(0x30, arrBytes[15]);
+            Assert.AreEqual(0xD2, arrBytes[16]);
+            Assert.AreEqual(0xB2, arrBytes[17]);
+            Assert.AreEqual(0xF4, arrBytes[18]);
+            Assert.AreEqual(0x10, arrBytes[19]);
+            Assert.AreEqual(0x22, arrBytes[20]);
+            Assert.AreEqual(0x11, arrBytes[21]);
+            
+            ModbusDataMappingHelper.ConvertObjectValueAndAppendToArray(ref arrBytes, (Int64)(-1234567891011121314));
+            Assert.AreEqual(30, arrBytes.Length);
+            Assert.AreEqual(0x5E, arrBytes[22]);
+            Assert.AreEqual(0xCF, arrBytes[23]);
+            Assert.AreEqual(0x2D, arrBytes[24]);
+            Assert.AreEqual(0x4D, arrBytes[25]);
+            Assert.AreEqual(0x0B, arrBytes[26]);
+            Assert.AreEqual(0xEF, arrBytes[27]);
+            Assert.AreEqual(0xDD, arrBytes[28]);
+            Assert.AreEqual(0xEE, arrBytes[29]);
+            
+            ModbusDataMappingHelper.ConvertObjectValueAndAppendToArray(ref arrBytes, (Single)(123.45f));
+            Assert.AreEqual(34, arrBytes.Length);
+            Assert.AreEqual(0x66, arrBytes[30]);
+            Assert.AreEqual(0xE6, arrBytes[31]);
+            Assert.AreEqual(0xF6, arrBytes[32]);
+            Assert.AreEqual(0x42, arrBytes[33]);
+           
+            ModbusDataMappingHelper.ConvertObjectValueAndAppendToArray(ref arrBytes, (Double)(12345.67891));
+            Assert.AreEqual(42, arrBytes.Length);
+            Assert.AreEqual(0x77, arrBytes[34]);
+            Assert.AreEqual(0xDB, arrBytes[35]);
+            Assert.AreEqual(0x85, arrBytes[36]);
+            Assert.AreEqual(0xE6, arrBytes[37]);
+            Assert.AreEqual(0xD6, arrBytes[38]);
+            Assert.AreEqual(0x1C, arrBytes[39]);
+            Assert.AreEqual(0xC8, arrBytes[40]);
+            Assert.AreEqual(0x40, arrBytes[41]);
+            
+            ModbusDataMappingHelper.ConvertObjectValueAndAppendToArray(ref arrBytes, 1234567890.123456789m);
+            Assert.AreEqual(58, arrBytes.Length);
+            Assert.AreEqual(0x15, arrBytes[42]);
+            Assert.AreEqual(0x81, arrBytes[43]);
+            Assert.AreEqual(0xE9, arrBytes[44]);
+            Assert.AreEqual(0x7D, arrBytes[45]);
+            Assert.AreEqual(0xF4, arrBytes[46]);
+            Assert.AreEqual(0x10, arrBytes[47]);
+            Assert.AreEqual(0x22, arrBytes[48]);
+            Assert.AreEqual(0x11, arrBytes[49]);
+            Assert.AreEqual(0x00, arrBytes[50]);
+            Assert.AreEqual(0x00, arrBytes[51]);
+            Assert.AreEqual(0x00, arrBytes[52]);
+            Assert.AreEqual(0x00, arrBytes[53]);
+            Assert.AreEqual(0x00, arrBytes[54]);
+            Assert.AreEqual(0x00, arrBytes[55]);
+            Assert.AreEqual(0x09, arrBytes[56]);
+            Assert.AreEqual(0x00, arrBytes[57]);
+        }
+        [Test]
+        public void ConvertObjectValueAndAppendToArray_ShouldResizeArrayAndSetProperValuesInBigEndianOrder()
+        {
+            Byte[] arrBytes = null;
+
+            ModbusDataMappingHelper.ConvertObjectValueAndAppendToArray(ref arrBytes, (SByte)(-1),true);
+            Assert.AreEqual(1, arrBytes.Length);
+            Assert.AreEqual(0xFF, arrBytes[0]);
+
+            ModbusDataMappingHelper.ConvertObjectValueAndAppendToArray(ref arrBytes, (Byte)(1), true);
+            Assert.AreEqual(2, arrBytes.Length);
+            Assert.AreEqual(0x01, arrBytes[1]);
+
+            ModbusDataMappingHelper.ConvertObjectValueAndAppendToArray(ref arrBytes, (UInt16)0xAA55, true);
+            Assert.AreEqual(4, arrBytes.Length);
+            Assert.AreEqual(0x55, arrBytes[2]);
+            Assert.AreEqual(0xAA, arrBytes[3]);
+
+            ModbusDataMappingHelper.ConvertObjectValueAndAppendToArray(ref arrBytes, (Int16)(-123), true);
+            Assert.AreEqual(6, arrBytes.Length);
+            Assert.AreEqual(0x85, arrBytes[4]);
+            Assert.AreEqual(0xFF, arrBytes[5]);
+
+            ModbusDataMappingHelper.ConvertObjectValueAndAppendToArray(ref arrBytes, (UInt32)(123456789), true);
+            Assert.AreEqual(10, arrBytes.Length);
+            Assert.AreEqual(0x5B, arrBytes[6]);
+            Assert.AreEqual(0x07, arrBytes[7]);
+            Assert.AreEqual(0x15, arrBytes[8]);
+            Assert.AreEqual(0xCD, arrBytes[9]);
+
+            ModbusDataMappingHelper.ConvertObjectValueAndAppendToArray(ref arrBytes, (Int32)(-123456789), true);
+            Assert.AreEqual(14, arrBytes.Length);
+            Assert.AreEqual(0xA4, arrBytes[10]);
+            Assert.AreEqual(0xF8, arrBytes[11]);
+            Assert.AreEqual(0xEB, arrBytes[12]);
+            Assert.AreEqual(0x32, arrBytes[13]);            
+
+            ModbusDataMappingHelper.ConvertObjectValueAndAppendToArray(ref arrBytes, (UInt64)(1234567891011121314), true);
+            Assert.AreEqual(22, arrBytes.Length);
+            Assert.AreEqual(0xA2, arrBytes[20]);
+            Assert.AreEqual(0x30, arrBytes[21]);
+            Assert.AreEqual(0xD2, arrBytes[18]);
+            Assert.AreEqual(0xB2, arrBytes[19]);
+            Assert.AreEqual(0xF4, arrBytes[16]);
+            Assert.AreEqual(0x10, arrBytes[17]);
+            Assert.AreEqual(0x22, arrBytes[14]);
+            Assert.AreEqual(0x11, arrBytes[15]);
+
+            ModbusDataMappingHelper.ConvertObjectValueAndAppendToArray(ref arrBytes, (Int64)(-1234567891011121314), true);
+            Assert.AreEqual(30, arrBytes.Length);
+            Assert.AreEqual(0x5E, arrBytes[28]);
+            Assert.AreEqual(0xCF, arrBytes[29]);
+            Assert.AreEqual(0x2D, arrBytes[26]);
+            Assert.AreEqual(0x4D, arrBytes[27]);
+            Assert.AreEqual(0x0B, arrBytes[24]);
+            Assert.AreEqual(0xEF, arrBytes[25]);
+            Assert.AreEqual(0xDD, arrBytes[22]);
+            Assert.AreEqual(0xEE, arrBytes[23]);
+
+            ModbusDataMappingHelper.ConvertObjectValueAndAppendToArray(ref arrBytes, (Single)(123.45f), true);
+            Assert.AreEqual(34, arrBytes.Length);
+            Assert.AreEqual(0x66, arrBytes[32]);
+            Assert.AreEqual(0xE6, arrBytes[33]);
+            Assert.AreEqual(0xF6, arrBytes[30]);
+            Assert.AreEqual(0x42, arrBytes[31]);
+
+            ModbusDataMappingHelper.ConvertObjectValueAndAppendToArray(ref arrBytes, (Double)(12345.67891), true);
+            Assert.AreEqual(42, arrBytes.Length);
+            Assert.AreEqual(0x77, arrBytes[40]);
+            Assert.AreEqual(0xDB, arrBytes[41]);
+            Assert.AreEqual(0x85, arrBytes[38]);
+            Assert.AreEqual(0xE6, arrBytes[39]);
+            Assert.AreEqual(0xD6, arrBytes[36]);
+            Assert.AreEqual(0x1C, arrBytes[37]);
+            Assert.AreEqual(0xC8, arrBytes[34]);
+            Assert.AreEqual(0x40, arrBytes[35]);
+
+            ModbusDataMappingHelper.ConvertObjectValueAndAppendToArray(ref arrBytes, 1234567890.123456789m, true);
+            Assert.AreEqual(58, arrBytes.Length);
+            Assert.AreEqual(0x15, arrBytes[56]);
+            Assert.AreEqual(0x81, arrBytes[57]);
+            Assert.AreEqual(0xE9, arrBytes[54]);
+            Assert.AreEqual(0x7D, arrBytes[55]);
+            Assert.AreEqual(0xF4, arrBytes[52]);
+            Assert.AreEqual(0x10, arrBytes[53]);
+            Assert.AreEqual(0x22, arrBytes[50]);
+            Assert.AreEqual(0x11, arrBytes[51]);
+            Assert.AreEqual(0x00, arrBytes[48]);
+            Assert.AreEqual(0x00, arrBytes[49]);
+            Assert.AreEqual(0x00, arrBytes[46]);
+            Assert.AreEqual(0x00, arrBytes[47]);
+            Assert.AreEqual(0x00, arrBytes[44]);
+            Assert.AreEqual(0x00, arrBytes[45]);
+            Assert.AreEqual(0x09, arrBytes[42]);
+            Assert.AreEqual(0x00, arrBytes[43]);
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void ReverseWordsInBlocksOfByteArray_ShouldThrowOnNullArgument()
+        {
+            Byte[] arr = null;
+            ModbusDataMappingHelper.ReverseWordsInBlocksOfByteArray(ref arr, 0, 2, 1);
+        }
+        [Test]
+        [ExpectedException(typeof(ArgumentException))]
+        public void ReverseWordsInBlocksOfByteArray_ShouldThrowOnNonDivisibleBySeedArgumentArrayLength()
+        {
+            Byte[] arr = { 33, 44, 55, 66, 77 };
+            ModbusDataMappingHelper.ReverseWordsInBlocksOfByteArray(ref arr, 0, 4, 3);
+        }
+        [Test]
+        public void ReverseWordsInBlocksOfByteArray_ShouldSwapWordsInByteArray()
+        {           
+            Byte[] arr2 = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
+            ModbusDataMappingHelper.ReverseWordsInBlocksOfByteArray(ref arr2, 1, 16, 2);
+            Assert.AreEqual(15, arr2[1]);
+            Assert.AreEqual(16, arr2[2]);
+            Assert.AreEqual(13, arr2[3]);
+            Assert.AreEqual(14, arr2[4]);
+            Assert.AreEqual(11, arr2[5]);
+            Assert.AreEqual(12, arr2[6]);
+            Assert.AreEqual(9,  arr2[7]);
+            Assert.AreEqual(10, arr2[8]);
+            Assert.AreEqual(7, arr2[9]);
+            Assert.AreEqual(8, arr2[10]);
+            Assert.AreEqual(5, arr2[11]);
+            Assert.AreEqual(6, arr2[12]);
+            Assert.AreEqual(3, arr2[13]);
+            Assert.AreEqual(4, arr2[14]);
+            Assert.AreEqual(1, arr2[15]);
+            Assert.AreEqual(2, arr2[16]);
+        }
     }
    
     class ConversionHelperTest
@@ -1111,8 +1354,7 @@ namespace Modbus.UnitTests
             Decimal value2 = ConversionHelper.ConvertBytesToDecimal(packetRecieve2, 0, true);
             Assert.AreEqual(value1, value2);
             Assert.AreEqual(1234567890.123456789, value1);
-        }
-        
+        }        
     }
     /*class ModbusLoggerTest
     {
