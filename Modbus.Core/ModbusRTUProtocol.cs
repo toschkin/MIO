@@ -753,7 +753,7 @@ namespace Modbus.Core
                     ModbusErrorCode errorCode = CheckPacket(recievedPacket, sendPacket[0], sendPacket[1], 8);
                     if (errorCode == ModbusErrorCode.codeOK)
                     {
-                        Byte[] tmp = BitConverter.GetBytes((UInt16)values.Length);
+                        Byte[] tmp = BitConverter.GetBytes((firstElementType == typeof(bool)) ? (UInt16)values.Length : (UInt16)forcedValues.Length);
                         Array.Reverse(tmp); 
                         if (BitConverter.ToUInt16(recievedPacket, 4) != BitConverter.ToUInt16(tmp, 0))
                             return ModbusErrorCode.codeInvalidResponse;

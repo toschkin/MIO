@@ -213,6 +213,7 @@ namespace Modbus.Core
             {
                 case "Byte":
                 {
+                    if ((currentCursorPosition)%2 == 0)//hi byte
                     value = packetRawData[currentCursorPosition];
                     break;
                 }
