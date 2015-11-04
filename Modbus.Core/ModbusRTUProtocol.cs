@@ -44,8 +44,9 @@ namespace Modbus.Core
             LogExceptionRsp -= logger;
         }
         #endregion
+
         /// <summary>
-        /// Reads statuses of output coils into array boolean values
+        /// Reads statuses of output coils into array of boolean values
         /// </summary>
         /// <param name="rtuAddress">address of Modbus device (1..247)</param>
         /// <param name="startAddress">start address from which registers will be read (0..65535)</param>
@@ -66,7 +67,36 @@ namespace Modbus.Core
             return ReadStatuses(1, rtuAddress, startAddress, ref statusesValues);
         }
         /// <summary>
-        /// Reads statuses of inputs into array boolean values
+        /// Reads statuses of output coils into list of boolean values
+        /// </summary>
+        /// <param name="rtuAddress">address of Modbus device (1..247)</param>
+        /// <param name="startAddress">start address from which registers will be read (0..65535)</param>
+        /// <param name="statusesValues">list of returned values</param>
+        /// <returns>ModbusErrorCode.codeOK on success (<see cref=Modbus.Core.ModbusErrorCode/> enum for details)</returns>
+        /// <example>
+        /// <para>Reads coil statuses from modbus slave 1 starting at address 0 and converts into boolean list of size 3.</para>
+        /// <code>
+        /// ModbusRTUProtocol prot = new ModbusRTUProtocol();
+        /// prot.Connect("COM1",9600);
+        /// List&lt;bool&gt; listOfCoilStatuses = new List&lt;bool&gt;();
+        /// listOfCoilStatuses.Add(false);
+        /// listOfCoilStatuses.Add(false);
+        /// listOfCoilStatuses.Add(false);
+        /// prot.ReadCoilStatus(1, 0, ref listOfCoilStatuses);
+        /// prot.Disconnect();
+        /// </code>
+        /// </example>
+        public ModbusErrorCode ReadCoilStatus(Byte rtuAddress, UInt16 startAddress, ref List<bool> statusesValues)
+        {
+            if(statusesValues.Count <=0)
+                return ModbusErrorCode.codeInvalidRequestedSize;
+            bool[] tempArray = statusesValues.ToArray();
+            ModbusErrorCode code = ReadStatuses(1, rtuAddress, startAddress, ref tempArray);
+            statusesValues = tempArray.ToList();
+            return code;
+        }
+        /// <summary>
+        /// Reads statuses of inputs into array of boolean values
         /// </summary>
         /// <param name="rtuAddress">address of Modbus device (1..247)</param>
         /// <param name="startAddress">start address from which registers will be read (0..65535)</param>
@@ -85,7 +115,36 @@ namespace Modbus.Core
         public ModbusErrorCode ReadInputStatus(Byte rtuAddress, UInt16 startAddress, ref bool[] statusesValues)
         {
             return ReadStatuses(2, rtuAddress, startAddress, ref statusesValues);
-        }       
+        }
+        /// <summary>
+        /// Reads statuses of inputs into list of boolean values
+        /// </summary>
+        /// <param name="rtuAddress">address of Modbus device (1..247)</param>
+        /// <param name="startAddress">start address from which registers will be read (0..65535)</param>
+        /// <param name="statusesValues">list of returned values</param>
+        /// <returns>ModbusErrorCode.codeOK on success (<see cref=Modbus.Core.ModbusErrorCode/> enum for details)</returns>
+        /// <example>
+        /// <para>Reads statuses of inputs from modbus slave 1 starting at address 0 and converts into boolean list of size 3.</para>
+        /// <code>
+        /// ModbusRTUProtocol prot = new ModbusRTUProtocol();
+        /// prot.Connect("COM1",9600);
+        /// List&lt;bool&gt; listOfCoilStatuses = new List&lt;bool&gt;();
+        /// listOfCoilStatuses.Add(false);
+        /// listOfCoilStatuses.Add(false);
+        /// listOfCoilStatuses.Add(false);
+        /// prot.ReadInputStatus(1, 0, ref listOfCoilStatuses);
+        /// prot.Disconnect();
+        /// </code>
+        /// </example>
+        public ModbusErrorCode ReadInputStatus(Byte rtuAddress, UInt16 startAddress, ref List<bool> statusesValues)
+        {
+            if (statusesValues.Count <= 0)
+                return ModbusErrorCode.codeInvalidRequestedSize;
+            bool[] tempArray = statusesValues.ToArray();
+            ModbusErrorCode code = ReadStatuses(2, rtuAddress, startAddress, ref tempArray);            
+            statusesValues = tempArray.ToList();
+            return code;
+        }
         /// <summary>
         /// Reads 16bit holding registers from Modbus device and convert them to array of values of numeric types
         /// </summary>        
@@ -100,7 +159,7 @@ namespace Modbus.Core
         /// ModbusRTUProtocol prot = new ModbusRTUProtocol();
         /// prot.Connect("COM1",9600);
         /// object[] arrayMixedTypeRegisters = { (Byte)0, (SByte)0, (Int16)0, (UInt16)0, (UInt32)0, (Int32)0, (Single)0.0, (UInt64)0, (Int64)0, (Double)0.0, (Decimal)0m };
-        /// prot.ReadHoldingRegisters(1, 0, ref arrayMixedTypeRegisters,true);
+        /// prot.ReadHoldingRegisters(1, 0, ref arrayMixedTypeRegisters);
         /// prot.Disconnect();
         /// </code>
         /// </example>
@@ -108,12 +167,44 @@ namespace Modbus.Core
         {
             return ReadRegisters(3, rtuAddress, startAddress, ref registerValues, bigEndianOrder);
         }
-         /// <summary>
+        /// <summary>
+        /// Reads 16bit holding registers from Modbus device and convert them into list of values of numeric types
+        /// </summary>        
+        /// <param name="rtuAddress">address of Modbus device (1..247)</param>
+        /// <param name="startAddress">start address from which registers will be read (0..65535)</param>      
+        /// <param name="registerValues">list of returned values (permitted only numeric types)</param>
+        /// <param name="bigEndianOrder">reorders registers in 32bit (or higher) values</param>       
+        /// <returns>ModbusErrorCode.codeOK on success (<see cref=Modbus.Core.ModbusErrorCode/> enum for details)</returns>
+        /// <example>
+        /// <para>Reads 16 bit holding registers from modbus slave 1 starting at address 0 and converts them to list of objects of mixed type.</para>
+        /// <code>
+        /// ModbusRTUProtocol prot = new ModbusRTUProtocol();
+        /// prot.Connect("COM1",9600);
+        /// List&lt;object&gt; listMixedTypeRegisters = new List&lt;object&gt;();
+        /// listMixedTypeRegisters.Add((Byte)0);
+        /// listMixedTypeRegisters.Add((SByte)0);
+        /// listMixedTypeRegisters.Add((Int16)0);
+        /// listMixedTypeRegisters.Add((UInt16)0);
+        /// listMixedTypeRegisters.Add((Single)0.0);        
+        /// prot.ReadHoldingRegisters(1, 0, ref listMixedTypeRegisters);
+        /// prot.Disconnect();
+        /// </code>
+        /// </example>
+        public ModbusErrorCode ReadHoldingRegisters(Byte rtuAddress, UInt16 startAddress,ref List<object> registerValues, bool bigEndianOrder = false)
+        {
+            if (registerValues.Count <= 0)
+                return ModbusErrorCode.codeInvalidRequestedSize;
+            object[] tempArray = registerValues.ToArray();
+            ModbusErrorCode code = ReadRegisters(3, rtuAddress, startAddress, ref tempArray, bigEndianOrder);
+            registerValues = tempArray.ToList(); 
+            return code;
+        }
+        /// <summary>
         /// Reads 16bit input registers from Modbus device and convert them to array of values of numeric types
         /// </summary>        
         /// <param name="rtuAddress">address of Modbus device (1..247)</param>
         /// <param name="startAddress">start address from which registers will be read (0..65535)</param>      
-        /// <param name="registerValues">array of returned values</param>
+        /// <param name="registerValues">array of returned values (permitted only numeric types)</param>
         /// <param name="bigEndianOrder">reorders registers in 32bit (or higher) values</param>        
         /// <returns>ModbusErrorCode.codeOK on success (<see cref=Modbus.Core.ModbusErrorCode/> enum for details)</returns>
         /// <example>
@@ -129,6 +220,38 @@ namespace Modbus.Core
         public ModbusErrorCode ReadInputRegisters(Byte rtuAddress, UInt16 startAddress, ref object[] registerValues, bool bigEndianOrder=false)
         {
             return ReadRegisters(4, rtuAddress, startAddress, ref registerValues, bigEndianOrder);
+        }
+        /// <summary>
+        /// Reads 16bit input registers from Modbus device and convert them into list of values of numeric types
+        /// </summary>        
+        /// <param name="rtuAddress">address of Modbus device (1..247)</param>
+        /// <param name="startAddress">start address from which registers will be read (0..65535)</param>      
+        /// <param name="registerValues">list of returned values (permitted only numeric types)</param>
+        /// <param name="bigEndianOrder">reorders registers in 32bit (or higher) values</param>       
+        /// <returns>ModbusErrorCode.codeOK on success (<see cref=Modbus.Core.ModbusErrorCode/> enum for details)</returns>
+        /// <example>
+        /// <para>Reads 16 bit input registers from modbus slave 1 starting at address 0 and converts them to list of objects of mixed type.</para>
+        /// <code>
+        /// ModbusRTUProtocol prot = new ModbusRTUProtocol();
+        /// prot.Connect("COM1",9600);
+        /// List&lt;object&gt; listMixedTypeRegisters = new List&lt;object&gt;();
+        /// listMixedTypeRegisters.Add((Byte)0);
+        /// listMixedTypeRegisters.Add((SByte)0);
+        /// listMixedTypeRegisters.Add((Int16)0);
+        /// listMixedTypeRegisters.Add((UInt16)0);
+        /// listMixedTypeRegisters.Add((Single)0.0);        
+        /// prot.ReadInputRegisters(1, 0, ref listMixedTypeRegisters);
+        /// prot.Disconnect();
+        /// </code>
+        /// </example>
+        public ModbusErrorCode ReadInputRegisters(Byte rtuAddress, UInt16 startAddress, ref List<object> registerValues,bool bigEndianOrder = false)
+        {
+            if (registerValues.Count <= 0)
+                return ModbusErrorCode.codeInvalidRequestedSize;
+            object[] tempArray = registerValues.ToArray();
+            ModbusErrorCode code = ReadRegisters(4, rtuAddress, startAddress, ref tempArray, bigEndianOrder);
+            registerValues = tempArray.ToList();            
+            return code;
         }
         /// <summary>
         /// Sets single output coil to on/off state
@@ -150,22 +273,120 @@ namespace Modbus.Core
         {
             return ForceSingle(5, rtuAddress, forceAddress, setOn);
         }
-
+        /// <summary>
+        /// Presets single 16 bit modbus register
+        /// </summary>
+        /// <param name="rtuAddress">address of Modbus device (1..247)</param>
+        /// <param name="forceAddress">address of register which will be set (0..65535)</param>
+        /// <param name="setValue">value to set (can be one of next types: UInt16, Int16, Byte[2]</param>
+        /// <returns>ModbusErrorCode.codeOK on success (<see cref=Modbus.Core.ModbusErrorCode/> enum for details)</returns>
+        /// <example>
+        /// <para>Sets register with address 0 of modbus slave 1 to value of -123 (Int16 type).</para>
+        /// <code>
+        /// ModbusRTUProtocol prot = new ModbusRTUProtocol();
+        /// prot.Connect("COM1",9600);        
+        /// ModbusErrorCode code = prot.PresetSingleRegister(1, 0, (Int16)(-123));         
+        /// prot.Disconnect();
+        /// </code>
+        /// </example>
+        ///                 
         public ModbusErrorCode PresetSingleRegister(Byte rtuAddress, UInt16 forceAddress, object setValue)
         {
             return ForceSingle(6, rtuAddress, forceAddress, setValue);
         }
-        
+        /// <summary>
+        /// Sets a number of output coils to on/off states
+        /// </summary>
+        /// <param name="rtuAddress">address of Modbus device (1..247)</param>
+        /// <param name="forceAddress">start address of coils which will be set (0..65535)</param>
+        /// <param name="values">array of boolean values to set (on - true, off - false)</param>
+        /// <returns>ModbusErrorCode.codeOK on success (<see cref=Modbus.Core.ModbusErrorCode/> enum for details)</returns>
+        /// <example>
+        /// <para>Sets 4 coils starting at address 0 of modbus slave 1 to "ON" state.</para>
+        /// <code>
+        /// ModbusRTUProtocol prot = new ModbusRTUProtocol();
+        /// prot.Connect("COM1",9600);  
+        /// bool[] arrVals = new[] {true, true, true, true};
+        /// ModbusErrorCode code = prot.ForceMultipleCoils(1, 0, arrVals);              
+        /// prot.Disconnect();
+        /// </code>
+        /// </example>
         public ModbusErrorCode ForceMultipleCoils(Byte rtuAddress, UInt16 forceAddress, bool[] values)
         {
             return ForceMultiple(15, rtuAddress, forceAddress, Array.ConvertAll(values, b => (object) b));
         }
-
+        /// <summary>
+        /// Sets a number of output coils to on/off states
+        /// </summary>
+        /// <param name="rtuAddress">address of Modbus device (1..247)</param>
+        /// <param name="forceAddress">start address of coils which will be set (0..65535)</param>
+        /// <param name="values">list of boolean values to set (on - true, off - false)</param>
+        /// <returns>ModbusErrorCode.codeOK on success (<see cref=Modbus.Core.ModbusErrorCode/> enum for details)</returns>
+        /// <example>
+        /// <para>Sets 4 coils starting at address 0 of modbus slave 1 to "ON" state.</para>
+        /// <code>
+        /// ModbusRTUProtocol prot = new ModbusRTUProtocol();
+        /// prot.Connect("COM1",9600);  
+        /// List&lt;bool&gt; lstVals = new List&lt;bool&gt; {true, true, true, true};
+        /// ModbusErrorCode code = prot.ForceMultipleCoils(1, 0, lstVals);              
+        /// prot.Disconnect();
+        /// </code>
+        /// </example>
+        public ModbusErrorCode ForceMultipleCoils(Byte rtuAddress, UInt16 forceAddress, List<bool> values)
+        {
+            if (values.Count <= 0)
+                return ModbusErrorCode.codeInvalidRequestedSize;
+            bool[] tempArray = values.ToArray();
+            return ForceMultiple(15, rtuAddress, forceAddress, Array.ConvertAll(tempArray, b => (object)b));                        
+        }
+        /// <summary>
+        /// Presets a number of 16 bit modbus registers
+        /// </summary>
+        /// <param name="rtuAddress">address of Modbus device (1..247)</param>
+        /// <param name="forceAddress">address of register which will be set (0..65535)</param>
+        /// <param name="values">array of values to set (permitted only numeric types)</param>
+        /// <param name="bigEndianOrder">reorders registers in 32bit (or higher) values</param>
+        /// <returns>ModbusErrorCode.codeOK on success (<see cref=Modbus.Core.ModbusErrorCode/> enum for details)</returns>
+        /// <example>
+        /// <para>Sets registers of modbus slave 1 starting at address 0 to sequence of values from array of objects of various numeric types.</para>
+        /// <code>
+        /// ModbusRTUProtocol prot = new ModbusRTUProtocol();
+        /// prot.Connect("COM1",9600);
+        /// object[] arrayValues = { Byte.MaxValue, UInt16.MinValue, SByte.MinValue, Int16.MinValue, UInt32.MaxValue, Int32.MinValue, Single.MaxValue, UInt64.MaxValue, Int64.MinValue, Double.MaxValue, Decimal.MaxValue };               
+        /// ModbusErrorCode code = prot.PresetMultipleRegisters(1, 0, arrayValues);               
+        /// prot.Disconnect();
+        /// </code>
+        /// </example>
         public ModbusErrorCode PresetMultipleRegisters(Byte rtuAddress, UInt16 forceAddress, object[] values, bool bigEndianOrder = false)
         {
             //it was Array.ConvertAll(values, b => (object)b)
             return ForceMultiple(16, rtuAddress, forceAddress, values, bigEndianOrder);
-        }        
+        }
+        /// <summary>
+        /// Presets a number of 16 bit modbus registers
+        /// </summary>
+        /// <param name="rtuAddress">address of Modbus device (1..247)</param>
+        /// <param name="forceAddress">address of register which will be set (0..65535)</param>
+        /// <param name="values">list of values to set (permitted only numeric types)</param>
+        /// <param name="bigEndianOrder">reorders registers in 32bit (or higher) values</param>
+        /// <returns>ModbusErrorCode.codeOK on success (<see cref=Modbus.Core.ModbusErrorCode/> enum for details)</returns>
+        /// <example>
+        /// <para>Sets registers of modbus slave 1 starting at address 0 to sequence of values from list of objects of various numeric types.</para>
+        /// <code>
+        /// ModbusRTUProtocol prot = new ModbusRTUProtocol();
+        /// prot.Connect("COM1",9600);
+        /// List&lt;object&gt; lstRegs = new List&lt;object&gt; { Byte.MaxValue, UInt16.MinValue, SByte.MinValue, Int16.MinValue, UInt32.MaxValue, Int32.MinValue, Single.MaxValue, UInt64.MaxValue, Int64.MinValue, Double.MaxValue, Decimal.MaxValue };                
+        /// code = prot.PresetMultipleRegisters(1, 0, lstRegs);
+        /// prot.Disconnect();
+        /// </code>
+        /// </example>
+        public ModbusErrorCode PresetMultipleRegisters(Byte rtuAddress, UInt16 forceAddress, List<object> values,bool bigEndianOrder = false)
+        {
+            if (values.Count <= 0)
+                return ModbusErrorCode.codeInvalidRequestedSize;
+            object[] tempArray = values.ToArray();
+            return ForceMultiple(16, rtuAddress, forceAddress, tempArray);            
+        }
 
         /// <summary>
         /// Adds two bytes of CRC16 to array representing Modbus protocol data packet passed in argument
@@ -343,45 +564,7 @@ namespace Modbus.Core
             BitArray bitsOfRawPacketData = new BitArray(rawPacketData);
             bitsOfRawPacketData.CopyTo(outputValues,0);
 
-            Array.Resize<bool>(ref outputValues, outputValues.Length - deltaResize);
-            
-
-            /*UInt32 totalLengthInBytesOfRequestedData = 0;
-            int currentIndexInPacketData = 0;
-            int currentIndexInOutputValues = 0;
-            foreach (var value in outputValues)
-            {                
-                if (value.GetType().IsValueType)//here we will process simple (only numeric) types
-                {
-                    if (GetTypeHelper.IsNumericType(value.GetType()))
-                    {
-                        totalLengthInBytesOfRequestedData += (UInt32)Marshal.SizeOf(value);
-                        if (totalLengthInBytesOfRequestedData > rawPacketData.Length)
-                            throw new ArgumentOutOfRangeException();
-                        ModbusDataMappingHelper.ExtractValueFromArrayByType(rawPacketData,
-                            ref currentIndexInPacketData, ref outputValues[currentIndexInOutputValues], bigEndianOrder);
-                    }
-                }
-                else//here we will process properties (only numeric) from complex (class) types 
-                {
-
-                    Type[] arrayOfOutputTypes = ModbusDataMappingHelper.GetObjectPropertiesTypeArray(value);
-                    totalLengthInBytesOfRequestedData += SizeofHelper.SizeOfPublicProperties(value);
-                    if (totalLengthInBytesOfRequestedData > rawPacketData.Length)
-                        throw new ArgumentOutOfRangeException();
-                    object[] arrayOfValuesForObject =
-                        ModbusDataMappingHelper.CreateValuesArrayFromTypesArray(arrayOfOutputTypes);
-
-                    for (int i = 0; i < arrayOfValuesForObject.Length; i++)
-                    {
-                        ModbusDataMappingHelper.ExtractValueFromArrayByType(rawPacketData,
-                            ref currentIndexInPacketData, ref arrayOfValuesForObject[i], bigEndianOrder);
-                    }
-                    ModbusDataMappingHelper.SetObjectPropertiesValuesFromArray(
-                        ref outputValues[currentIndexInOutputValues], arrayOfValuesForObject);
-                }
-                currentIndexInOutputValues++;
-            }*/
+            Array.Resize<bool>(ref outputValues, outputValues.Length - deltaResize);                        
         }
         /// <summary>
         /// Creates Modbus packet
@@ -692,14 +875,13 @@ namespace Modbus.Core
                 {
                     if (GetTypeHelper.IsNumericType(value.GetType()))
                     {
-                        totalLengthInBytesOfValuesToBeSet += (UInt32)Marshal.SizeOf(value);
-                        if(totalLengthInBytesOfValuesToBeSet > 250)//maximum 250 bytes can be processed
+                        totalLengthInBytesOfValuesToBeSet += (UInt32) Marshal.SizeOf(value);
+                        if (totalLengthInBytesOfValuesToBeSet > 250) //maximum 250 bytes can be processed
                             return ModbusErrorCode.codeInvalidInputArgument;
-                        ModbusDataMappingHelper.ConvertObjectValueAndAppendToArray(ref tempArrayOfBytes, value,
-                            bigEndianOrder);                        
+                        ModbusDataMappingHelper.ConvertObjectValueAndAppendToArray(ref tempArrayOfBytes, value, bigEndianOrder);
                     }
-                    else
-                        return ModbusErrorCode.codeInvalidInputArgument;
+                    else if(value.GetType() != typeof(bool))
+                        return ModbusErrorCode.codeInvalidInputArgument;                                            
                 }
                 else//here we will process properties (only numeric) from complex (class) types 
                 {

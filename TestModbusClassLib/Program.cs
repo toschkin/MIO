@@ -16,7 +16,7 @@ using EnumExtension;
 
 namespace TestModbusClassLib
 {
-    class MyClass
+    /*class MyClass
     {
         public MyClass()
         {
@@ -69,92 +69,16 @@ namespace TestModbusClassLib
             Console.WriteLine(a);
             Console.WriteLine(b);
         }
-    }
+    }*/
     class Program
-    {
-        static Type[] GetObjectPropertiesTypesArray(object obj)
-        {
-            List<Type> lstTypesOfClassMembers = new List<Type>();
-            PropertyInfo[] membersOfClass = obj.GetType().GetProperties();
-            foreach (var item in membersOfClass)
-            {
-                if (item.PropertyType.IsPublic)
-                    lstTypesOfClassMembers.Add(item.PropertyType);
-            }
-            return lstTypesOfClassMembers.ToArray<Type>();
-        }
-
-        static bool SetObjectPropertiesFromArray(ref object obj, ValueType[] arrayValues)
-        {
-            if (obj.GetType().GetProperties().Length == arrayValues.Length)
-            {
-                //first we check that arrayValues has same value types with object properties
-                int i = 0;
-                foreach (var item in obj.GetType().GetProperties())
-                {
-                    if (item.PropertyType == arrayValues[i].GetType())
-                        i++;
-                    else
-                        return false;
-                }
-                //setting values from arrayValues to corresponding properties  
-                i = 0;
-                foreach (var item in obj.GetType().GetProperties())
-                {
-                    item.SetValue(obj, Convert.ChangeType(arrayValues[i], item.PropertyType));
-                    i++;
-                }
-                return true;
-            }
-            else
-                return false;
-        }
-       
-        static ValueType[] CreateArrayByTypes(Type[] arrTypes)
-        {
-            List<ValueType> listOfElem = new List<ValueType>();
-            for (int i = 0; i < arrTypes.Length; i++)
-            {
-                if(arrTypes[i].Name == "Int16")
-                {
-                    Int16 a = -321;
-                    listOfElem.Add(a);
-                }                
-                if (arrTypes[i].Name == "UInt16")
-                {
-                    UInt16 a = 54321;
-                    listOfElem.Add(a);
-                }
-                if (arrTypes[i].Name == "Int32")
-                {
-                    Int32 a = -654321;
-                    listOfElem.Add(a);
-                }
-                if (arrTypes[i].Name == "UInt32")
-                {
-                    UInt32 a = 654321;
-                    listOfElem.Add(a);
-                }
-                if (arrTypes[i].Name == "Single")
-                {
-                    Single a = -123.456f;
-                    listOfElem.Add(a);
-                }
-                if (arrTypes[i].Name == "Double")
-                {
-                    Double a = -654.321;
-                    listOfElem.Add(a);
-                }
-            }
-            return listOfElem.ToArray < ValueType >();
-        }
+    {        
         public static void ShowException(Exception exception)
         {
             Console.WriteLine(exception.ToString()+"\t"+exception.StackTrace);
         }
         static void Main(string[] args)
         {                                             
-            Byte[] arr = BitConverterEx.GetBytes(1234567890.123456789m);
+            /*Byte[] arr = BitConverterEx.GetBytes(1234567890.123456789m);
             Byte[] arr2 = BitConverterEx.GetBytes(1234567890.123456789m);     
             Array.Reverse(arr);
             StringBuilder stbBuilder= new StringBuilder();
@@ -173,11 +97,9 @@ namespace TestModbusClassLib
                 stbBuilder2.Append(", ");
             }
             string strtemp = stbBuilder.ToString();
-            string strtemp2 = stbBuilder2.ToString();
-
+            string strtemp2 = stbBuilder2.ToString();*/
            
-
-            while (true)
+            /*while (true)
             {
                 var watch = Stopwatch.StartNew();
                 ModbusRTUProtocol prot = new ModbusRTUProtocol();
@@ -188,15 +110,48 @@ namespace TestModbusClassLib
 
                 prot.Connect("COM6");
 
+                ModbusDataPoint<UInt32> dpIn = new ModbusDataPoint<UInt32>();
+                dpIn.Value = 123456789;
+
+                ModbusDataPoint<UInt32> dpOut = new ModbusDataPoint<UInt32>();
+                dpOut.Value = 0;
+
                 object[] arrayValues = { Byte.MaxValue, UInt16.MinValue, SByte.MinValue, Int16.MinValue, UInt32.MaxValue, Int32.MinValue, Single.MaxValue, UInt64.MaxValue, Int64.MinValue, Double.MaxValue, Decimal.MaxValue };
 
                 object[] arrayValues2 = { (Byte)0, (UInt16)0, (SByte)0, (Int16)0, (UInt32)0, (Int32)0, (Single)0.0, (UInt64)0, (Int64)0, (Double)0.0, (Decimal)0m };
 
+                watch = Stopwatch.StartNew();  
                 ModbusErrorCode code = prot.PresetMultipleRegisters(1, 0, arrayValues);
+                watch.Stop();
+                Console.WriteLine("PresetMultipleRegisters: {0}", watch.ElapsedMilliseconds);
                 Console.WriteLine(code.GetDescription());
-                code = prot.ReadHoldingRegisters(1, 0, ref arrayValues2);
+                                
+
+                watch = Stopwatch.StartNew();
+                List<bool> lstVals = new List<bool> {true, true, true, true, true, true};
+
+                code = prot.ForceMultipleCoils(1, 0, lstVals);
+                watch.Stop();
+                Console.WriteLine("ForceMultipleCoils: {0}", watch.ElapsedMilliseconds);
                 Console.WriteLine(code.GetDescription());
-                Console.WriteLine(arrayValues.SequenceEqual(arrayValues2));
+
+                List<object> lstRegs = new List<object> { Byte.MaxValue, UInt16.MinValue, SByte.MinValue, Int16.MinValue, UInt32.MaxValue, Int32.MinValue, Single.MaxValue, UInt64.MaxValue, Int64.MinValue, Double.MaxValue, Decimal.MaxValue };
+                watch = Stopwatch.StartNew();
+                code = prot.PresetMultipleRegisters(1, 50, lstRegs);
+                watch.Stop();
+                Console.WriteLine("PresetMultipleRegisters: {0}", watch.ElapsedMilliseconds);
+                Console.WriteLine(code.GetDescription());
+
+                List<object> regs = arrayValues2.ToList();
+                watch = Stopwatch.StartNew();
+                code = prot.ReadHoldingRegisters(1, 50, ref regs);
+                watch.Stop();
+                Console.WriteLine("ReadHoldingRegisters: {0}", watch.ElapsedMilliseconds);
+                foreach (var reg in regs)
+                {
+                    Console.WriteLine(reg);
+                }
+
                 /*ModbusErrorCode code = prot.PresetSingleRegister(1, 0, (Int16)(-123));
                 code = prot.PresetSingleRegister(1, 1, (UInt16)65523);
                 code = prot.PresetSingleRegister(1, 2, arrVals);
@@ -289,10 +244,10 @@ namespace TestModbusClassLib
                 watch.Stop();
                 Console.WriteLine("PresetMultipleRegisters: {0}", watch.ElapsedMilliseconds);
                 Console.WriteLine(code.GetDescription());
-                */
+                
                 prot.Disconnect();
                 Console.ReadLine();
-            }                       
+            }  */                     
         }      
         
     }
