@@ -565,9 +565,9 @@ namespace Modbus.UnitTests
         public void ProcessData_ShouldProcessRawPacketBytesToApropriateValuesOfApropriateTypeIntoOutputArrayOfNumericObjectsAndReturnTrueOnSuccess_ReverseOrderOfRegisters()
         {
             //ModbusRTUProtocol prot = new ModbusRTUProtocol();                                            
-           
-            Byte[] packetRawData = {   0x20, //32
-                                       0xFE, //-2
+
+            Byte[] packetRawData = {   0xFE, //-2
+                                       0x20, //32                                       
                                        0xFF, 0xFF, //-1
                                        0x01, 0xF4, //500                                    
                                        0x49, 0x96, 0x02, 0xD2, //1234567890
@@ -580,6 +580,7 @@ namespace Modbus.UnitTests
                                     };
             //object[] arrayValues = { (Byte)0, (SByte)0, new ModbusDataRegisterUInt16(), (UInt16)0, (UInt32)0, new ModbusDataRegisterInt32(), (Single)0.0, (UInt64)0, (Int64)0, (Double)0.0, (Decimal)0m };
             object[] arrayValues = { (Byte)0, (SByte)0, (Int16)0, (UInt16)0, (UInt32)0, (Int32)0, (Single)0.0, (UInt64)0, (Int64)0, (Double)0.0, (Decimal)0m };
+            ModbusDataMappingHelper.SwapBytesInWordsInByteArray(ref packetRawData);
             ProcessAnalogData(packetRawData, ref arrayValues, true);
             
             Assert.AreEqual(32, arrayValues[0]);
@@ -599,8 +600,8 @@ namespace Modbus.UnitTests
         {
             //ModbusRTUProtocol prot = new ModbusRTUProtocol();
 
-            Byte[] packetRawData = {   0x20, //32
-                                       0xFE, //-2
+            Byte[] packetRawData = {   0xFE, //-2
+                                       0x20, //32                                       
                                        0xFF, 0xFF, //-1
                                        0x01, 0xF4, //500                                    
                                        0x02, 0xD2, 0x49, 0x96,  // 1234567890
@@ -613,6 +614,7 @@ namespace Modbus.UnitTests
                                     };
             //object[] arrayValues = { (Byte)0, (SByte)0, new ModbusDataRegisterUInt16(), (UInt16)0, (UInt32)0, new ModbusDataRegisterInt32(), (Single)0.0, (UInt64)0, (Int64)0, (Double)0.0, (Decimal)0m };
             object[] arrayValues = { (Byte)0, (SByte)0, (Int16)0, (UInt16)0, (UInt32)0, (Int32)0, (Single)0.0, (UInt64)0, (Int64)0, (Double)0.0, (Decimal)0m };
+            ModbusDataMappingHelper.SwapBytesInWordsInByteArray(ref packetRawData);
             ProcessAnalogData(packetRawData, ref arrayValues);
 
             Assert.AreEqual(32, arrayValues[0]);
@@ -632,8 +634,8 @@ namespace Modbus.UnitTests
         {
             //ModbusRTUProtocol prot = new ModbusRTUProtocol();
 
-            Byte[] packetRawData = {   0x20, //32
-                                       0xFE, //-2
+            Byte[] packetRawData = {   0xFE, //-2
+                                       0x20, //32                                      
                                        0xFF, 0xFF, //-1
                                        0x01, 0xF4, //500                                    
                                        0x49, 0x96, 0x02, 0xD2, //1234567890
@@ -655,7 +657,9 @@ namespace Modbus.UnitTests
                                      new ModbusDataPoint<Int64>(),  
                                      new ModbusDataPoint<Double>(), 
                                      new ModbusDataPoint<Decimal>()};
-            
+
+            ModbusDataMappingHelper.SwapBytesInWordsInByteArray(ref packetRawData);
+
             ProcessAnalogData(packetRawData, ref arrayValues, true);
             
             Assert.AreEqual(32, ((ModbusDataPoint<Byte>)arrayValues[0]).Value);
@@ -967,8 +971,8 @@ namespace Modbus.UnitTests
         [Test]       
         public void ExtractValueFromArrayByType_ShouldSetApropriateValueFromInputArrayToOutputArgument_ReverseRegsOrder()
         {
-            Byte[] packetRawData = {   0x20, //32
-                                       0xFE, //-2
+            Byte[] packetRawData = {   0xFE, //-2
+                                       0x20, //32                                       
                                        0xFF, 0xFF, //-1
                                        0x01, 0xF4, //500                                    
                                        0x49, 0x96, 0x02, 0xD2, //1234567890
@@ -981,6 +985,7 @@ namespace Modbus.UnitTests
                                     };
             object[] arrayValues = { (Byte)0, (SByte)0, (Int16)0, (UInt16)0, (UInt32)0, (Int32)0, (Single)0.0, (UInt64)0, (Int64)0, (Double)0.0,(Decimal)0m };
             int packetCurrentPositionIndex = 0;
+            ModbusDataMappingHelper.SwapBytesInWordsInByteArray(ref packetRawData);
             for (int i = 0; i < arrayValues.Length; i++)
             {
                 ModbusDataMappingHelper.ExtractValueFromArrayByType(packetRawData, ref packetCurrentPositionIndex, ref arrayValues[i],true);                 
@@ -1001,8 +1006,8 @@ namespace Modbus.UnitTests
         [Test]
         public void ExtractValueFromArrayByType_ShouldSetApropriateValueFromInputArrayToOutputArgument_StraightRegsOrder()
         {
-            Byte[] packetRawData = {   0x20, //32
-                                       0xFE, //-2
+            Byte[] packetRawData = {   0xFE, //-2
+                                       0x20, //32                                       
                                        0xFF, 0xFF, //-1
                                        0x01, 0xF4, //500                                    
                                        0x02, 0xD2, 0x49, 0x96, //1234567890
@@ -1015,6 +1020,8 @@ namespace Modbus.UnitTests
                                     };
             object[] arrayValues = { (Byte)0, (SByte)0, (Int16)0, (UInt16)0, (UInt32)0, (Int32)0, (Single)0.0, (UInt64)0, (Int64)0, (Double)0.0, (Decimal)0m};
             int packetCurrentPositionIndex = 0;
+
+            ModbusDataMappingHelper.SwapBytesInWordsInByteArray(ref packetRawData);
             for (int i = 0; i < arrayValues.Length; i++)
             {
                 ModbusDataMappingHelper.ExtractValueFromArrayByType(packetRawData, ref packetCurrentPositionIndex, ref arrayValues[i], false);

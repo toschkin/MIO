@@ -499,7 +499,8 @@ namespace Modbus.Core
                         Byte[] packetData = new Byte[recievedPacket.Length - 5];
                         Array.Copy(recievedPacket, 3, packetData, 0, packetData.Length);
                         try
-                        {
+                        {         
+                            ModbusDataMappingHelper.SwapBytesInWordsInByteArray(ref packetData);
                             ProcessAnalogData(packetData, ref registerValues, bigEndianOrder);
                         }
                         catch (Exception ex)
