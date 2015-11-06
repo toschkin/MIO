@@ -76,8 +76,13 @@ namespace TestModbusClassLib
         {
             Console.WriteLine(exception.ToString()+"\t"+exception.StackTrace);
         }
+        
+
         static void Main(string[] args)
-        {                                             
+        {
+            
+            Console.ReadLine();
+                
             /*Byte[] arr = BitConverterEx.GetBytes(1234567890.123456789m);
             Byte[] arr2 = BitConverterEx.GetBytes(1234567890.123456789m);     
             Array.Reverse(arr);
