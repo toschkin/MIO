@@ -55,64 +55,64 @@ namespace Modbus.Core
         { 
             get 
             {
-                return silentInterval; 
+                return _silentInterval; 
             } 
             set 
             {
                 if (value < 1)
                 {
-                    silentInterval = 1;
+                    _silentInterval = 1;
                     ArgumentOutOfRangeException ex = new ArgumentOutOfRangeException();
                     throw (ex);
                 }                
-                silentInterval = value;
+                _silentInterval = value;
             } 
         }       
         public int TangentaSetPinTimePeriodMsec
         {
             get
             {
-                return tangentaSetPinTimePeriodMsec;
+                return _tangentaSetPinTimePeriodMsec;
             }
             set
             {
                 if (value < 0)
                 {
-                    tangentaSetPinTimePeriodMsec = 0;
+                    _tangentaSetPinTimePeriodMsec = 0;
                     ArgumentOutOfRangeException ex = new ArgumentOutOfRangeException();
                     throw (ex);
                 }                
-                tangentaSetPinTimePeriodMsec = value;
+                _tangentaSetPinTimePeriodMsec = value;
             }
         }
         public int Retries
         {
-            get { return retries; }
+            get { return _retries; }
             set
             {
                 if (value < 1)
                 {
-                    retries = 1;
+                    _retries = 1;
                     ArgumentOutOfRangeException ex = new ArgumentOutOfRangeException();
                     throw (ex);
                 }
-                retries = value;
+                _retries = value;
             }
         }
         #endregion
                
         #region Variables
-        private int retries;
-        private SerialPort comPort;
-        private int silentInterval;
-        private int tangentaSetPinTimePeriodMsec;
+        private int _retries;
+        private SerialPort _comPort;
+        private int _silentInterval;
+        private int _tangentaSetPinTimePeriodMsec;
         //protected ModbusLogger logger;
         #endregion
 
         #region Ctors
         public RawSerialProtocol()
         {
-            comPort = new SerialPort();           
+            _comPort = new SerialPort();           
             IsConnected = false;
             StatusString = "Not connected";
             SilentInterval = 20;
@@ -128,19 +128,19 @@ namespace Modbus.Core
         #region Connect/Disconnect procedures
         public bool Connect(string portName, int baudRate=9600, int byteSize = 8, StopBits stopBits=StopBits.Two, Parity parity=Parity.None, int timeout=1000,Handshake handShake=Handshake.None)
         {
-            if (comPort.IsOpen)
-                comPort.Close();               
+            if (_comPort.IsOpen)
+                _comPort.Close();               
             try
             {
-                comPort.PortName = portName;
-                comPort.BaudRate = baudRate;
-                comPort.DataBits = byteSize;
-                comPort.StopBits = stopBits;
-                comPort.Parity = parity;
-                comPort.ReadTimeout = timeout;        
-                comPort.WriteTimeout = 1000;
-                comPort.Handshake = handShake;                
-                comPort.Open();
+                _comPort.PortName = portName;
+                _comPort.BaudRate = baudRate;
+                _comPort.DataBits = byteSize;
+                _comPort.StopBits = stopBits;
+                _comPort.Parity = parity;
+                _comPort.ReadTimeout = timeout;        
+                _comPort.WriteTimeout = 1000;
+                _comPort.Handshake = handShake;                
+                _comPort.Open();
             }
             catch (Exception error)
             {
@@ -150,14 +150,14 @@ namespace Modbus.Core
                 return false;
             }
             StatusString = "Connected";
-            IsConnected = comPort.IsOpen;
-            return comPort.IsOpen;
+            IsConnected = _comPort.IsOpen;
+            return _comPort.IsOpen;
         }
         public void Disconnect()
         {           
-            if (comPort.IsOpen)            
-                comPort.Close();
-            IsConnected = comPort.IsOpen;                
+            if (_comPort.IsOpen)            
+                _comPort.Close();
+            IsConnected = _comPort.IsOpen;                
             StatusString = "Not connected";
         }
         #endregion
@@ -166,7 +166,7 @@ namespace Modbus.Core
   
         public bool RecivePacket(ref byte[] packet)
         {
-            if (comPort.IsOpen == false)
+            if (_comPort.IsOpen == false)
             {
                 StatusString = "Error in RecivePacket: port not opened";
                 return false;
@@ -176,18 +176,18 @@ namespace Modbus.Core
                 int bytesTotallyRecieved = 0;               
                 bool smthRead = false;
                 int sleepTime = (SilentInterval / 3 == 0) ? 1 : SilentInterval / 3;
-                int stepsCount = comPort.ReadTimeout / sleepTime;
+                int stepsCount = _comPort.ReadTimeout / sleepTime;
                 int silenceTime = 0;
 
                 for (int i = 0; i < stepsCount; i++)
                 {
-                    int bytesRecieved = comPort.BytesToRead;
+                    int bytesRecieved = _comPort.BytesToRead;
                     if (bytesRecieved > 0)
                     {
                         silenceTime = 0;
                         smthRead = true;
                         Array.Resize<Byte>(ref packet, bytesTotallyRecieved + bytesRecieved);
-                        comPort.Read(packet, bytesTotallyRecieved, bytesRecieved);
+                        _comPort.Read(packet, bytesTotallyRecieved, bytesRecieved);
                         bytesTotallyRecieved += bytesRecieved;                        
                     }
                     else 
@@ -223,7 +223,7 @@ namespace Modbus.Core
         
         public bool SendPacket(byte[] packet)
         {            
-            if (comPort.IsOpen == false)
+            if (_comPort.IsOpen == false)
             {
                 StatusString = "Error in SendPacket: port not opened";
                 return false;
@@ -231,37 +231,37 @@ namespace Modbus.Core
 
             try
             {
-                if (comPort.Handshake == Handshake.None)
+                if (_comPort.Handshake == Handshake.None)
                 {
                     switch (TangentaPin)
                     {
-                        case SerialPortPin.RTS:
+                        case SerialPortPin.Rts:
                             {
-                                comPort.RtsEnable = true;
-                                Thread.Sleep(tangentaSetPinTimePeriodMsec);
+                                _comPort.RtsEnable = true;
+                                Thread.Sleep(_tangentaSetPinTimePeriodMsec);
                                 break;
                             }
-                        case SerialPortPin.DTR:
+                        case SerialPortPin.Dtr:
                             {
-                                comPort.DtrEnable = true;
-                                Thread.Sleep(tangentaSetPinTimePeriodMsec);
+                                _comPort.DtrEnable = true;
+                                Thread.Sleep(_tangentaSetPinTimePeriodMsec);
                                 break;
                             }
                     }
                 }
-                Thread.Sleep(silentInterval);
-                comPort.Write(packet, 0, packet.Length);
+                Thread.Sleep(_silentInterval);
+                _comPort.Write(packet, 0, packet.Length);
 
-                if (comPort.Handshake == Handshake.None)
+                if (_comPort.Handshake == Handshake.None)
                 {
                     switch (TangentaPin)
                     {
-                        case SerialPortPin.RTS:
-                            comPort.RtsEnable = false;
+                        case SerialPortPin.Rts:
+                            _comPort.RtsEnable = false;
                             break;
 
-                        case SerialPortPin.DTR:
-                            comPort.DtrEnable = false;
+                        case SerialPortPin.Dtr:
+                            _comPort.DtrEnable = false;
                             break;
                     }
                 }

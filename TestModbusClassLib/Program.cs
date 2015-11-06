@@ -104,10 +104,10 @@ namespace TestModbusClassLib
             string strtemp = stbBuilder.ToString();
             string strtemp2 = stbBuilder2.ToString();*/
            
-            /*while (true)
+            while (true)
             {
                 var watch = Stopwatch.StartNew();
-                ModbusRTUProtocol prot = new ModbusRTUProtocol();
+                ModbusRtuProtocol prot = new ModbusRtuProtocol();
                 watch.Stop();
                 Console.WriteLine("new ModbusRTUProtocol(): {0}",watch.ElapsedMilliseconds);
 
@@ -249,10 +249,10 @@ namespace TestModbusClassLib
                 watch.Stop();
                 Console.WriteLine("PresetMultipleRegisters: {0}", watch.ElapsedMilliseconds);
                 Console.WriteLine(code.GetDescription());
-                
+                */
                 prot.Disconnect();
                 Console.ReadLine();
-            }  */                     
+            }                       
         }      
         
     }

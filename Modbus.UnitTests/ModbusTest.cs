@@ -10,6 +10,7 @@ using Modbus.Core;
 using Tech.CodeGeneration;
 using System.Threading;
 using System.Reflection;
+using System.Runtime.InteropServices;
 
 
 namespace Modbus.UnitTests
@@ -18,29 +19,62 @@ namespace Modbus.UnitTests
     {
         public MyClass()
         {
-            a = 0;
-            b = 0;
-            c = 0.0f;
-            d = 0.0;
-        }        
-        public Int16 a { get; set; }
-        public Int32 b { get; set; }
-        public Single c { get; set; }
-        public Double d { get; set; }       
+            A = 0;
+            B = 0;
+            C = 0.0f;
+            D = 0.0;
+        }
+        [ModbusProperty]
+        public Int16 A { get; set; }
+        [ModbusProperty]
+        public Int32 B { get; set; }
+        [ModbusProperty]
+        public Single C { get; set; }
+        [ModbusProperty]
+        public Double D { get; set; }       
     }
     class MyClassWithPrivateProperty
     {
         public MyClassWithPrivateProperty()
         {
-            a = 0;
-            b = 0;
-            c = 0.0f;
-            d = 0.0;
+            A = 0;
+            B = 0;
+            C = 0.0f;
+            D = 0.0;
         }
-        private Int16 a { get; set; }
-        public Int32 b { get; set; }
-        public Single c { get; set; }
-        public Double d { get; set; }
+        [ModbusProperty]
+        private Int16 A { get; set; }
+        [ModbusProperty]
+        public Int32 B { get; set; }
+        [ModbusProperty]
+        public Single C { get; set; }
+        [ModbusProperty]
+        public Double D { get; set; }
+    }
+
+    class MyClassWithNonModbusPropertyAttributePublicProperty
+    {
+        public MyClassWithNonModbusPropertyAttributePublicProperty()
+        {
+            A = 0;
+            B = 0;           
+        }
+        [ModbusProperty]
+        public Int16 A { get; set; }       
+        public Int32 B { get; set; }        
+    }
+
+    class MyClassWithReadableModbusPropertyAttribute
+    {
+        public MyClassWithReadableModbusPropertyAttribute()
+        {
+            A = 0;
+            B = 0;
+        }
+        [ModbusProperty]
+        public Int16 A { get; set; }
+        [ModbusProperty(Access = ModbusRegisterAccessType.AccessRead)]
+        public Int32 B { get; set; }
     }
     
     public static class TestHelper
@@ -350,7 +384,7 @@ namespace Modbus.UnitTests
         #endregion
     }
 
-    class ModbusRTUProtocolTest : ModbusRTUProtocol
+    class ModbusRtuProtocolTest : ModbusRtuProtocol
     {
         /*const String portNameForTest = "COM6";               
         [Test]
@@ -370,7 +404,7 @@ namespace Modbus.UnitTests
                                      new ModbusDataPoint<Double>(), 
                                      new ModbusDataPoint<Decimal>()};
             ModbusErrorCode code = prot.ReadRegisters(3, 1, 0, ref modbusTestMap);
-            Assert.AreEqual(ModbusErrorCode.codeOK, code);            
+            Assert.AreEqual(ModbusErrorCode.CodeOk, code);            
             prot.Disconnect();            
         }
         [Test]
@@ -448,7 +482,7 @@ namespace Modbus.UnitTests
             //valid packet
             Byte[] packet = { 0x01, 0x03, 0x00, 0x64, 0x00, 0x01 };
             //prot.AddCRC(ref packet);
-            AddCRC(ref packet);
+            AddCrc(ref packet);
             Byte[] packetCompare = { 0x01, 0x03, 0x00, 0x64, 0x00, 0x01, 0xC5, 0xD5 };
             Assert.AreEqual(8, packet.Length);
             Assert.AreEqual(packetCompare, packet);                        
@@ -460,7 +494,7 @@ namespace Modbus.UnitTests
             //ModbusRTUProtocol prot = new ModbusRTUProtocol();
             //valid packet
             Byte[] packetNull = null;
-            AddCRC(ref packetNull);                                   
+            AddCrc(ref packetNull);                                   
         }
         [Test] 
         [ExpectedException(typeof(ArgumentOutOfRangeException))]     
@@ -470,7 +504,7 @@ namespace Modbus.UnitTests
             //invalid length packet (exceeds max length)
             Byte[] packet = { 0x01, 0x03, 0x00, 0x64, 0x00, 0x01 };
             Array.Resize<Byte>(ref packet, 255);
-            AddCRC(ref packet);                            
+            AddCrc(ref packet);                            
         }
         [Test] 
         [ExpectedException(typeof(ArgumentOutOfRangeException))]     
@@ -480,7 +514,7 @@ namespace Modbus.UnitTests
             //invalid length packet (less than min length)
             Byte[] packet = { 0x01, 0x03, 0x00, 0x64, 0x00, 0x01 };
             Array.Resize<Byte>(ref packet, 2);
-            AddCRC(ref packet);                            
+            AddCrc(ref packet);                            
         }                              
         [Test]
         public void CheckCRC_ShouldWorkProperlyOnVariousTypesOfPacket()
@@ -488,19 +522,19 @@ namespace Modbus.UnitTests
             //ModbusRTUProtocol prot = new ModbusRTUProtocol();
             //valid packet            
             Byte[] packet = { 0x01, 0x03, 0x00, 0x64, 0x00, 0x01, 0xC5, 0xD5 };
-            bool bRetCode = CheckCRC(packet);            
+            bool bRetCode = CheckCrc(packet);            
             Assert.AreEqual(true, bRetCode);                      
             //null packet
             Byte[] packetNull = null;
-            bRetCode = CheckCRC(packetNull);
+            bRetCode = CheckCrc(packetNull);
             Assert.AreEqual(false, bRetCode);
             //invalid length packet (exceeds max length)
             Array.Resize<Byte>(ref packet, 270);
-            bRetCode = CheckCRC(packet);
+            bRetCode = CheckCrc(packet);
             Assert.AreEqual(false, bRetCode);           
             //invalid length packet (less than min length)
             Array.Resize<Byte>(ref packet, 2);
-            bRetCode = CheckCRC(packet);
+            bRetCode = CheckCrc(packet);
             Assert.AreEqual(false, bRetCode);           
         }
         [Test]
@@ -510,7 +544,7 @@ namespace Modbus.UnitTests
             //valid packet                      
             Byte[] packetRecieve = {0x01, 0x03, 0x02, 0x00, 0x00, 0xB8, 0x44};
             ModbusErrorCode err = CheckPacket(packetRecieve, 0x01, 0x03, 7);
-            Assert.AreEqual(ModbusErrorCode.codeOK, err);
+            Assert.AreEqual(ModbusErrorCode.CodeOk, err);
         }
         [Test]
         public void CheckPacket_ShouldReturncodeInvalidPacketLengthOnNullPacket()
@@ -518,7 +552,7 @@ namespace Modbus.UnitTests
             //ModbusRTUProtocol prot = new ModbusRTUProtocol();     
             //null packet            
             ModbusErrorCode err = CheckPacket(null, 0x01, 0x03, 7);
-            Assert.AreEqual(ModbusErrorCode.codeInvalidPacketLength, err);
+            Assert.AreEqual(ModbusErrorCode.CodeInvalidPacketLength, err);
         }
         [Test]
         public void CheckPacket_ShouldReturncodeInvalidFunctionOnInvalidFuncCode()
@@ -527,7 +561,7 @@ namespace Modbus.UnitTests
             Byte[] packetRecieve = {0x01, 0x03, 0x02, 0x00, 0x00, 0xB8, 0x44};
             //invalid function code
             ModbusErrorCode err = CheckPacket(packetRecieve, 0x01, 0x02, 7);
-            Assert.AreEqual(ModbusErrorCode.codeInvalidFunction, err);
+            Assert.AreEqual(ModbusErrorCode.CodeInvalidFunction, err);
         }
         [Test]
         public void CheckPacket_ShouldReturncodeInvalidSlaveAddressOnInvalidSlaveAddress()
@@ -536,7 +570,7 @@ namespace Modbus.UnitTests
             Byte[] packetRecieve = {0x01, 0x03, 0x02, 0x00, 0x00, 0xB8, 0x44};
             //invalid slave address
             ModbusErrorCode err = CheckPacket(packetRecieve, 0x02, 0x03, 7);
-            Assert.AreEqual(ModbusErrorCode.codeInvalidSlaveAddress, err);
+            Assert.AreEqual(ModbusErrorCode.CodeInvalidSlaveAddress, err);
         }
         [Test]
         public void CheckPacket_ShouldReturncodeInvalidPacketLengthInApropriateConditionsOnInvalidPacketLength()
@@ -546,7 +580,7 @@ namespace Modbus.UnitTests
             //invalid length packet
             Array.Resize<byte>(ref packetRecieve,6);
             ModbusErrorCode err = CheckPacket(packetRecieve, 0x01, 0x03, 7);
-            Assert.AreEqual(ModbusErrorCode.codeInvalidPacketLength, err);
+            Assert.AreEqual(ModbusErrorCode.CodeInvalidPacketLength, err);
         }
         [Test]
         public void MakePacket_ShouldCreateModbusPacketOfApropriateLengthAndContents()
@@ -741,31 +775,42 @@ namespace Modbus.UnitTests
         public void SizeOfPublicPropertiesOfClass_ShouldReturnValidSize()
         {
             MyClassWithPrivateProperty cl = new MyClassWithPrivateProperty();
-            UInt32 size = SizeofHelper.SizeOfPublicProperties(cl);
+            UInt32 size = SizeofHelper.SizeOfPublicPropertiesWithModbusAttribute(cl);
             Assert.AreEqual(16, size);
+
+            MyClassWithNonModbusPropertyAttributePublicProperty cl2 = new MyClassWithNonModbusPropertyAttributePublicProperty();
+            size = SizeofHelper.SizeOfPublicPropertiesWithModbusAttribute(cl2);
+            Assert.AreEqual(2, size);
+
+            MyClassWithReadableModbusPropertyAttribute cl3 = new MyClassWithReadableModbusPropertyAttribute();
+            size = SizeofHelper.SizeOfPublicPropertiesWithModbusAttribute(cl3,ModbusRegisterAccessType.AccessReadWrite);
+            Assert.AreEqual(2, size);
+            
+            size = SizeofHelper.SizeOfPublicPropertiesWithModbusAttribute(cl3, ModbusRegisterAccessType.AccessRead);
+            Assert.AreEqual(6, size);
         }
 
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
         public void SizeOfPublicPropertiesOfClass_ShouldThrowOnNullArgument()
         {            
-            UInt32 size = SizeofHelper.SizeOfPublicProperties(null);            
+            UInt32 size = SizeofHelper.SizeOfPublicPropertiesWithModbusAttribute(null);            
         }
 
         [Test]
         public void SizeOfPublicPropertiesOfClassArray_ShouldReturnValidSize()
         {
-            object[] acl = { new MyClassWithPrivateProperty(), new MyClassWithPrivateProperty() };
-            UInt32 size = SizeofHelper.SizeOfPublicProperties(acl);
-            Assert.AreEqual(32, size);
+            object[] acl = { new MyClassWithPrivateProperty(), new MyClassWithPrivateProperty(), new MyClassWithNonModbusPropertyAttributePublicProperty(), new MyClassWithNonModbusPropertyAttributePublicProperty() };
+            UInt32 size = SizeofHelper.SizeOfPublicPropertiesWithModbusAttribute(acl,ModbusRegisterAccessType.AccessReadWrite);
+            Assert.AreEqual(36, size);
         }
 
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
         public void SizeOfPublicPropertiesOfClassArray_ShouldThrowOnNullArgument()
         {
-            UInt32 size = SizeofHelper.SizeOfPublicProperties(null);
-        }
+            UInt32 size = SizeofHelper.SizeOfPublicPropertiesWithModbusAttribute(null);
+        }                
     }
 
     class ModbusDataMappingHelperTest
@@ -774,7 +819,7 @@ namespace Modbus.UnitTests
         public void CreateArrayFromTypesArray_ShouldReturnArrayOfObjectsWithValidSizeAndValidTypesAndInTheSameOrder()
         {
             MyClass cl = new MyClass();
-            Type[] arrayOfTypes = ModbusDataMappingHelper.GetObjectPropertiesTypeArray(cl);
+            Type[] arrayOfTypes = ModbusDataMappingHelper.GetObjectModbusPropertiesTypeArray(cl);
 
             object[] arrayValues = ModbusDataMappingHelper.CreateValuesArrayFromTypesArray(arrayOfTypes);
             Assert.AreEqual(arrayOfTypes.Length,arrayValues.Length);
@@ -794,37 +839,49 @@ namespace Modbus.UnitTests
         public void GetObjectPropertiesTypesArray_ShouldReturnArrayOfValidSizeAndValidTypes()
         {            		      
           	MyClass cl = new MyClass();
-            Type[] arrayOfTypes = ModbusDataMappingHelper.GetObjectPropertiesTypeArray(cl);
+            Type[] arrayOfTypes = ModbusDataMappingHelper.GetObjectModbusPropertiesTypeArray(cl);
             Assert.AreEqual(arrayOfTypes.Length, 4);            
-            int i = 0;
+            int i = 0;           
             foreach (var item in cl.GetType().GetProperties())
 	        {
-                Assert.AreEqual(item.PropertyType, arrayOfTypes[i]);
-                i++;
+                if ((item.PropertyType.IsPublic) && (item.GetCustomAttributes(typeof(ModbusPropertyAttribute), false).Length != 0))
+	            {
+                    Assert.AreEqual(item.PropertyType, arrayOfTypes[i]);
+                    i++;
+	            }                                
 	        }            
         }
         [Test]               
         public void GetObjectPropertiesTypesArray_ShouldReturnArrayOfValidSizeAndValidTypesForArrayAsArgument()
         {
-            object[] array = { new MyClass(), new MyClass() };
+            object[] array = { new MyClass(), new MyClassWithNonModbusPropertyAttributePublicProperty() };
 
-            int totalLength = 0;
+            int propsCount = 0;
             foreach (var item in array)
             {
-                totalLength += item.GetType().GetProperties().Length;
+                foreach (var prop in item.GetType().GetProperties())
+                {
+                     if ((prop.PropertyType.IsPublic) && (prop.GetCustomAttributes(typeof(ModbusPropertyAttribute), false).Length != 0))
+                         propsCount++;
+                }
+                
             }
-            Assert.AreEqual(8, totalLength);
+            Assert.AreEqual(5, propsCount);
 
-            Type[] arrayOfTypes = ModbusDataMappingHelper.GetObjectPropertiesTypeArray(array);
-           
-            Assert.AreEqual(totalLength,arrayOfTypes.Length);
+            Type[] arrayOfTypes = ModbusDataMappingHelper.GetObjectModbusPropertiesTypeArray(array);
+
+            Assert.AreEqual(propsCount, arrayOfTypes.Length);
             int i = 0;
             for (int j = 0; j < array.Length; j++)
             {
                 foreach (var item in array[j].GetType().GetProperties())
                 {
-                    Assert.AreEqual(item.PropertyType, arrayOfTypes[i]);
-                    i++;
+                    if ((item.PropertyType.IsPublic) &&
+                        (item.GetCustomAttributes(typeof(ModbusPropertyAttribute), false).Length != 0))
+                    {
+                        Assert.AreEqual(item.PropertyType, arrayOfTypes[i]);
+                        i++;
+                    }                    
                 }    
             }            
         }
@@ -832,14 +889,14 @@ namespace Modbus.UnitTests
         public void GetObjectPropertiesTypesArray_ShouldExtractOnlyPublicPropertiesFromArgument()
         {
             object[] array = { new MyClassWithPrivateProperty(), new MyClassWithPrivateProperty() };
-            Type[] arrayOfTypes = ModbusDataMappingHelper.GetObjectPropertiesTypeArray(array);
-            Assert.AreEqual(arrayOfTypes.Length, 6);       
+            Type[] arrayOfTypes = ModbusDataMappingHelper.GetObjectModbusPropertiesTypeArray(array);
+            Assert.AreEqual(6, arrayOfTypes.Length);       
         }
         [Test]
         public void GetObjectPropertiesTypesArray_ShouldExtractOnlyPublicPropertiesFromArgumentArray()
         {
             MyClassWithPrivateProperty cl = new MyClassWithPrivateProperty();
-            Type[] arrayOfTypes = ModbusDataMappingHelper.GetObjectPropertiesTypeArray(cl);
+            Type[] arrayOfTypes = ModbusDataMappingHelper.GetObjectModbusPropertiesTypeArray(cl);
             Assert.AreEqual(arrayOfTypes.Length, 3);
         }
         [Test]
@@ -847,13 +904,13 @@ namespace Modbus.UnitTests
         public void GetObjectPropertiesTypesArray_ShouldThrowOnNullArrayArgument()
         {
             MyClass[] cl = new MyClass[2];
-            Type[] arrayOfTypes = ModbusDataMappingHelper.GetObjectPropertiesTypeArray(cl);    
+            Type[] arrayOfTypes = ModbusDataMappingHelper.GetObjectModbusPropertiesTypeArray(cl);    
         }
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
         public void GetObjectPropertiesTypesArray_ShouldThrowOnNullArgument()
         {
-            Type[] arrayOfTypes = ModbusDataMappingHelper.GetObjectPropertiesTypeArray(null);
+            Type[] arrayOfTypes = ModbusDataMappingHelper.GetObjectModbusPropertiesTypeArray(null);
         }
 
         [Test]
@@ -873,10 +930,10 @@ namespace Modbus.UnitTests
             object[] arrayValues = { (Int16)(-12345), (Int32)(-123456), (Single)123.456f, (Double)1234567890.0 };
             bool ret = ModbusDataMappingHelper.SetObjectPropertiesValuesFromArray(ref tmp, arrayValues);
             Assert.AreEqual(true, ret);
-            Assert.AreEqual(arrayValues[0], cl.a);
-            Assert.AreEqual(arrayValues[1], cl.b);
-            Assert.AreEqual(arrayValues[2], cl.c);
-            Assert.AreEqual(arrayValues[3], cl.d);
+            Assert.AreEqual(arrayValues[0], cl.A);
+            Assert.AreEqual(arrayValues[1], cl.B);
+            Assert.AreEqual(arrayValues[2], cl.C);
+            Assert.AreEqual(arrayValues[3], cl.D);
         }
         [Test]
         public void SetObjectPropertiesValuesFromArray_ShouldSetOnlyPublicPropertiesToValuesFromArrayAndReturnTrueOnSuccess()
@@ -886,9 +943,9 @@ namespace Modbus.UnitTests
             object[] arrayValues = { (Int32)(-123456), (Single)123.456f, (Double)1234567890.0 };
             bool ret = ModbusDataMappingHelper.SetObjectPropertiesValuesFromArray(ref tmp, arrayValues);
             Assert.AreEqual(true, ret);
-            Assert.AreEqual(arrayValues[0], cl.b);
-            Assert.AreEqual(arrayValues[1], cl.c);
-            Assert.AreEqual(arrayValues[2], cl.d);            
+            Assert.AreEqual(arrayValues[0], cl.B);
+            Assert.AreEqual(arrayValues[1], cl.C);
+            Assert.AreEqual(arrayValues[2], cl.D);            
         }
         [Test]
         public void SetObjectPropertiesValuesFromArray_ShouldReturnFalseIfFailed()

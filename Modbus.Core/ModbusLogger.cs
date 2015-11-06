@@ -13,19 +13,19 @@ namespace Modbus.Core
     public class  ModbusLogger
     {
         #region Variables
-        private string exceptionLogFilePath;
-        private Logger logger;
+        private string _exceptionLogFilePath;
+        private Logger _logger;
         #endregion
 
         #region Properties
-        public String ExceptionLogFilePath { get { return exceptionLogFilePath; } private set { exceptionLogFilePath = value; } }
+        public String ExceptionLogFilePath { get { return _exceptionLogFilePath; } private set { _exceptionLogFilePath = value; } }
         public String ExceptionLogDir
         {
             get
             {
-                int index = exceptionLogFilePath.LastIndexOf('\\');
+                int index = _exceptionLogFilePath.LastIndexOf('\\');
                 if (index >= 0)
-                    return exceptionLogFilePath.Remove(index + 1, exceptionLogFilePath.Length - index - 1);
+                    return _exceptionLogFilePath.Remove(index + 1, _exceptionLogFilePath.Length - index - 1);
                 else
                     return "";
             }
@@ -35,13 +35,13 @@ namespace Modbus.Core
                 char[] slashes = { '\\', '/' };
                 temp = temp.TrimEnd(slashes);
                 temp += @"\";
-                exceptionLogFilePath = temp + "ModbusCoreExceptions.txt";                
+                _exceptionLogFilePath = temp + "ModbusCoreExceptions.txt";                
                 LoggingConfiguration config = LogManager.Configuration;                                
                 config.RemoveTarget("ExceptionsFile");
                 FileTarget fileTarget = new FileTarget();
                 config.AddTarget("ExceptionsFile", fileTarget);
                 // Step 3. Set target properties             
-                fileTarget.FileName = exceptionLogFilePath;
+                fileTarget.FileName = _exceptionLogFilePath;
                 fileTarget.Layout = "${longdate} ${message} ${exception:format=ToString}";
                 
                 LoggingRule rule = new LoggingRule("*", LogLevel.Error, fileTarget);
@@ -50,7 +50,7 @@ namespace Modbus.Core
                 LogManager.Configuration = config;
                 // Example usage               
                 LogManager.ReconfigExistingLoggers();
-                logger = LogManager.GetLogger("ModbusLogger");
+                _logger = LogManager.GetLogger("ModbusLogger");
             }
         }
         #endregion
@@ -58,14 +58,14 @@ namespace Modbus.Core
         #region Ctors
         public ModbusLogger()
         {
-            exceptionLogFilePath = @"${basedir}\ModbusCoreExceptions.txt";
+            _exceptionLogFilePath = @"${basedir}\ModbusCoreExceptions.txt";
             // Step 1. Create configuration object 
             LoggingConfiguration config = new LoggingConfiguration();            
             // Step 2. Create targets and add them to the configuration            
             FileTarget fileTarget = new FileTarget();
             config.AddTarget("ExceptionsFile", fileTarget);
             // Step 3. Set target properties             
-            fileTarget.FileName = exceptionLogFilePath;
+            fileTarget.FileName = _exceptionLogFilePath;
             fileTarget.Layout = "${longdate} ${message} ${exception:format=Method,ToString}";
             // Step 4. Define rules            
             LoggingRule rule = new LoggingRule("*", LogLevel.Error, fileTarget);
@@ -75,14 +75,14 @@ namespace Modbus.Core
             // Example usage
             LogManager.ThrowExceptions = true;
             LogManager.ReconfigExistingLoggers();
-            logger = LogManager.GetLogger("ModbusLogger");
+            _logger = LogManager.GetLogger("ModbusLogger");
         }
         #endregion
 
         #region Methods        
         public void SaveException(Exception exception)
         {
-            logger.Error(exception);
+            _logger.Error(exception);
         }
         #endregion
         

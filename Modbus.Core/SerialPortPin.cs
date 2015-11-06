@@ -11,14 +11,14 @@ namespace Modbus.Core
     public enum SerialPortPin
     {
         None,
-        PGNG,
+        Pgng,
         TxD,
         RxD,
-        DTR,
-        GND,
-        DSR,
-        RTS,
-        CTS,
-        RI
+        Dtr,
+        Gnd,
+        Dsr,
+        Rts,
+        Cts,
+        Ri
     }
 }
