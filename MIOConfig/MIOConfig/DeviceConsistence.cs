@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using Modbus.Core;
 
 namespace MIOConfig
-{
+{    
     public class DeviceConsistence
     {
         public bool ModuleModbusMaster;
@@ -52,5 +52,5 @@ namespace MIOConfig
                 }               
             } 
         }        
-    }
+    }    
 }

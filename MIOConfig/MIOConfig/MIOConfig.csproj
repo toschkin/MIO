@@ -42,7 +42,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Device.cs" />
+    <Compile Include="DeviceConfigurationTime.cs" />
     <Compile Include="DeviceConsistence.cs" />
+    <Compile Include="DeviceUARTPortConfiguration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
