@@ -4,15 +4,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{8BDFBACF-6340-4F27-831C-358ABA3921E9}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <ProjectGuid>{65E51F91-606C-47E9-AED2-C5231F2B809E}</ProjectGuid>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MIOConfig</RootNamespace>
-    <AssemblyName>MIOConfig</AssemblyName>
+    <RootNamespace>ConsoleMIOConfigTester</RootNamespace>
+    <AssemblyName>ConsoleMIOConfigTester</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -22,6 +23,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -42,14 +44,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DeviceConfiguration.cs" />
-    <Compile Include="DeviceConfigurationTime.cs" />
-    <Compile Include="DeviceConsistence.cs" />
-    <Compile Include="DeviceHeader.cs" />
-    <Compile Include="DeviceUARTPortConfiguration.cs" />
-    <Compile Include="IDeviceReaderSaver.cs" />
-    <Compile Include="ModbusDeviceReaderSaver.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MIOConfig\MIOConfig.csproj">
+      <Project>{8bdfbacf-6340-4f27-831c-358aba3921e9}</Project>
+      <Name>MIOConfig</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

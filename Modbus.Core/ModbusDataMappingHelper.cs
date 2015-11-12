@@ -119,11 +119,11 @@ namespace Modbus.Core
             PropertyInfo[] membersOfClass = obj.GetType().GetProperties();
             foreach (var item in membersOfClass)
             {
-                if (!GetTypeHelper.IsNumericType(item.PropertyType))
-                    throw new ArgumentException();
-
-                if ((item.PropertyType.IsPublic) && (item.GetIndexParameters().Length == 0) && (item.GetCustomAttributes(typeof(ModbusPropertyAttribute), false).Length != 0))
-                    lstTypesOfClassMembers.Add(item.GetValue(obj));
+                if (GetTypeHelper.IsNumericType(item.PropertyType))
+                {
+                    if ((item.PropertyType.IsPublic) && (item.GetIndexParameters().Length == 0) && (item.GetCustomAttributes(typeof(ModbusPropertyAttribute), false).Length != 0))
+                        lstTypesOfClassMembers.Add(item.GetValue(obj));    
+                }                
             }
             return lstTypesOfClassMembers.ToArray<object>();
         }
@@ -141,10 +141,11 @@ namespace Modbus.Core
             PropertyInfo[] membersOfClass = obj.GetType().GetProperties();
             foreach (var item in membersOfClass)
             {
-                if (!GetTypeHelper.IsNumericType(item.PropertyType))
-                    throw new ArgumentException();
-                if ((item.PropertyType.IsPublic) && (item.GetCustomAttributes(typeof(ModbusPropertyAttribute), false).Length != 0))
-                    lstTypesOfClassMembers.Add(item.PropertyType);
+                if (GetTypeHelper.IsNumericType(item.PropertyType))
+                {
+                    if ((item.PropertyType.IsPublic) && (item.GetCustomAttributes(typeof(ModbusPropertyAttribute), false).Length != 0))
+                        lstTypesOfClassMembers.Add(item.PropertyType);
+                }                
             }
             return lstTypesOfClassMembers.ToArray<Type>();
         }
@@ -166,10 +167,11 @@ namespace Modbus.Core
                 PropertyInfo[] membersOfClass = item.GetType().GetProperties();
                 foreach (var property in membersOfClass)
                 {
-                    if (!GetTypeHelper.IsNumericType(property.PropertyType))
-                        throw new ArgumentException();
-                    if ((property.PropertyType.IsPublic) && (property.GetCustomAttributes(typeof(ModbusPropertyAttribute), false).Length != 0))
-                        lstTypesOfClassMembers.Add(property.PropertyType);
+                    if (GetTypeHelper.IsNumericType(property.PropertyType))
+                    {
+                        if ((property.PropertyType.IsPublic) && (property.GetCustomAttributes(typeof(ModbusPropertyAttribute), false).Length != 0))
+                            lstTypesOfClassMembers.Add(property.PropertyType);    
+                    }                    
                 }     
             }           
             return lstTypesOfClassMembers.ToArray<Type>();

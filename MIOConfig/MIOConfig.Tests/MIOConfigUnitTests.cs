@@ -5,7 +5,19 @@ using Modbus.Core;
 
 namespace MIOConfig.Tests
 {
-
+    [TestClass]
+    public class DeviceTests
+    {
+        [TestMethod]
+        public void DeviceUartChannelsCount_Property_Set_ShouldResizeDeviceUartPortsList()
+        {
+            DeviceConfiguration deviceConfiguration = new DeviceConfiguration();
+            deviceConfiguration.DeviceHeaderFields.DeviceUartChannelsCount = 5;
+            Assert.AreEqual(5, deviceConfiguration.DeviceUartPorts.Count);
+            deviceConfiguration.DeviceHeaderFields.DeviceUartChannelsCount = 0;
+            Assert.AreEqual(1, deviceConfiguration.DeviceUartPorts.Count);
+        }        
+    }
     [TestClass]
     public class DeviceUARTPortConfigurationTests
     {

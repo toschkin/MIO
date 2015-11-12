@@ -44,7 +44,7 @@ namespace MIOConfig
         /// <summary>
         /// Holding regs|addr.: 1007+7*(DevicePortNumber-1) HiByte|count: 1| R/W
         /// </summary>
-        /// <value>range: 1..Device.DeviceUartChannelsCount</value>
+        /// <value>range: 1..DeviceConfiguration.DeviceUartChannelsCount</value>
         [ModbusProperty(Access = ModbusRegisterAccessType.AccessReadWrite)]
         public Byte PortNumber { get; set; }
 
@@ -150,7 +150,7 @@ namespace MIOConfig
         /// <summary>
         /// Holding regs|addr.: 1012+7*(DevicePortNumber-1) HiByte|count: 1| R/W
         /// </summary>
-        /// <value>range: 1..Device.DeviceMaximumModbusMasterRequestsToSubDeviceCount</value>
+        /// <value>range: 1..DeviceConfiguration.DeviceMaximumModbusMasterRequestsToSubDeviceCount</value>
         [ModbusProperty(Access = ModbusRegisterAccessType.AccessReadWrite)]
         public Byte PortMasterRequestCount { get; set; }
 

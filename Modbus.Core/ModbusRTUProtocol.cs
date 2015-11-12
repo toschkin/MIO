@@ -885,11 +885,11 @@ namespace Modbus.Core
                 }
                 else//here we will process properties (only numeric) from complex (class) types 
                 {
-                    Type[] arrayOfObjectPropsTypes = null;
+                    //Type[] arrayOfObjectPropsTypes = null;
                     object[] arrayOfObjectPropsValues = null;
                     try
                     {
-                        arrayOfObjectPropsTypes = ModbusDataMappingHelper.GetObjectModbusPropertiesTypeArray(value);
+                        //arrayOfObjectPropsTypes = ModbusDataMappingHelper.GetObjectModbusPropertiesTypeArray(value);
                         arrayOfObjectPropsValues = ModbusDataMappingHelper.GetObjectModbusPropertiesValuesArray(value);
                     }
                     catch (Exception ex)
