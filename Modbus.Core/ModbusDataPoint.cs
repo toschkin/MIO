@@ -31,7 +31,7 @@ namespace Modbus.Core
         {            
             Value = default(T);
         }
-        [ModbusProperty]
+        [ModbusProperty(Access = ModbusRegisterAccessType.AccessReadWrite)]
         public T Value { get; set; }       
     }
 }

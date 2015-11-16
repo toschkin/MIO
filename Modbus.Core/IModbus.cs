@@ -32,5 +32,11 @@ namespace Modbus.Core
         ModbusErrorCode ReadInputRegisters(Byte rtuAddress, UInt16 startAddress, ref List<object> registerValues, bool bigEndianOrder = false);
         ModbusErrorCode ForceMultipleCoils(Byte rtuAddress, UInt16 forceAddress, List<bool> values);
         ModbusErrorCode PresetMultipleRegisters(Byte rtuAddress, UInt16 forceAddress, List<object> values, bool bigEndianOrder = false);
+
+        //overloads with indexing in object array
+        ModbusErrorCode ReadHoldingRegisters(Byte rtuAddress, UInt16 startAddress, ref object[] registerValues, UInt16 startIndex, UInt16 objectsCount, bool bigEndianOrder = false);
+        ModbusErrorCode ReadInputRegisters(Byte rtuAddress, UInt16 startAddress, ref object[] registerValues, UInt16 startIndex, UInt16 objectsCount, bool bigEndianOrder = false);
+        ModbusErrorCode ReadHoldingRegisters(Byte rtuAddress, UInt16 startAddress, ref List<object> registerValues, UInt16 startIndex, UInt16 objectsCount, bool bigEndianOrder = false);
+        ModbusErrorCode ReadInputRegisters(Byte rtuAddress, UInt16 startAddress, ref List<object> registerValues, UInt16 startIndex, UInt16 objectsCount, bool bigEndianOrder = false);        
     }
 }

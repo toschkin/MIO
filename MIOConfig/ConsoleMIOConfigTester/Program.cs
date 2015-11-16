@@ -33,10 +33,10 @@ namespace ConsoleMIOConfigTester
 
             if (protocol.Connect("COM6"))
             {
-                ModbusDeviceReaderSaver modbusReader = new ModbusDeviceReaderSaver(protocol,1,1000);
+                ModbusDeviceReaderSaver modbusReader = new ModbusDeviceReaderSaver(protocol,1,1000,false,4);
                 ModbusDeviceReaderSaver modbusSaver = new ModbusDeviceReaderSaver(protocol, 1, 1005);
 
-                DeviceConfiguration config = new DeviceConfiguration();
+                /*DeviceConfiguration config = new DeviceConfiguration();
 
                 ShowObjectPropsAndVals(config.DeviceUartPorts[0]);
                 Console.WriteLine();    
@@ -72,8 +72,19 @@ namespace ConsoleMIOConfigTester
                 ShowObjectPropsAndVals(config.DeviceUartPorts[0]);
                 Console.WriteLine();    
                 ShowObjectPropsAndVals(config.DeviceHeaderFields);
-                Console.WriteLine("config.DeviceUartPorts.Count = {0}", config.DeviceUartPorts.Count);    
-                
+                Console.WriteLine("config.DeviceUartPorts.Count = {0}", config.DeviceUartPorts.Count);    */
+                ModbusDataPoint<Byte> dpB1= new ModbusDataPoint<byte>();
+                ModbusDataPoint<UInt16> dpW1 = new ModbusDataPoint<UInt16>();
+                ModbusDataPoint<UInt16> dpW2 = new ModbusDataPoint<UInt16>();
+                ModbusDataPoint<Byte> dpB2 = new ModbusDataPoint<byte>();
+
+                dpB1.Value = 0x01;
+                dpW1.Value = 0xFFFF;
+                dpW2.Value = 0xAAAA;
+                dpB2.Value = 0x02;
+
+                List<object> listForTest = new List<object> {dpB1,dpW1,dpW2,dpB2};
+                modbusReader.ReadDeviceConfiguration(ref listForTest);
                 protocol.Disconnect();
             }
 

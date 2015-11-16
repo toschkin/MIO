@@ -615,7 +615,7 @@ namespace Modbus.UnitTests
             //object[] arrayValues = { (Byte)0, (SByte)0, new ModbusDataRegisterUInt16(), (UInt16)0, (UInt32)0, new ModbusDataRegisterInt32(), (Single)0.0, (UInt64)0, (Int64)0, (Double)0.0, (Decimal)0m };
             object[] arrayValues = { (Byte)0, (SByte)0, (Int16)0, (UInt16)0, (UInt32)0, (Int32)0, (Single)0.0, (UInt64)0, (Int64)0, (Double)0.0, (Decimal)0m };
             ModbusDataMappingHelper.SwapBytesInWordsInByteArray(ref packetRawData);
-            ProcessAnalogData(packetRawData, ref arrayValues, true);
+            ProcessAnalogData(packetRawData, ref arrayValues,0,(UInt16)arrayValues.Length, true);
             
             Assert.AreEqual(32, arrayValues[0]);
             Assert.AreEqual(-2, arrayValues[1]);
@@ -649,7 +649,7 @@ namespace Modbus.UnitTests
             //object[] arrayValues = { (Byte)0, (SByte)0, new ModbusDataRegisterUInt16(), (UInt16)0, (UInt32)0, new ModbusDataRegisterInt32(), (Single)0.0, (UInt64)0, (Int64)0, (Double)0.0, (Decimal)0m };
             object[] arrayValues = { (Byte)0, (SByte)0, (Int16)0, (UInt16)0, (UInt32)0, (Int32)0, (Single)0.0, (UInt64)0, (Int64)0, (Double)0.0, (Decimal)0m };
             ModbusDataMappingHelper.SwapBytesInWordsInByteArray(ref packetRawData);
-            ProcessAnalogData(packetRawData, ref arrayValues);
+            ProcessAnalogData(packetRawData, ref arrayValues,0,(UInt16)arrayValues.Length );
 
             Assert.AreEqual(32, arrayValues[0]);
             Assert.AreEqual(-2, arrayValues[1]);
@@ -694,7 +694,7 @@ namespace Modbus.UnitTests
 
             ModbusDataMappingHelper.SwapBytesInWordsInByteArray(ref packetRawData);
 
-            ProcessAnalogData(packetRawData, ref arrayValues, true);
+            ProcessAnalogData(packetRawData, ref arrayValues,0,(UInt16)arrayValues.Length, true);
             
             Assert.AreEqual(32, ((ModbusDataPoint<Byte>)arrayValues[0]).Value);
             Assert.AreEqual(-2, ((ModbusDataPoint<SByte>)arrayValues[1]).Value);
@@ -707,20 +707,7 @@ namespace Modbus.UnitTests
             Assert.AreEqual(-1234567891011121314, ((ModbusDataPoint<Int64>)arrayValues[8]).Value);
             Assert.AreEqual(12345.67891, ((ModbusDataPoint<Double>)arrayValues[9]).Value);
             Assert.AreEqual(1234567890.123456789m, ((ModbusDataPoint<Decimal>)arrayValues[10]).Value);
-        }
-        [Test]
-        [ExpectedException(typeof(ArgumentException))]
-        public void ProcessData_ShouldThrowIfNotValueTypeElementsAreRequestedInOutputArray()
-        {
-            //ModbusRTUProtocol prot = new ModbusRTUProtocol();
-            Byte[] packetRawData = { 0xFF, 0xFF, //-1
-                                     0x01, 0xF4, //500
-                                     0x00, 0x00, //0
-                                     0x49, 0x96, 0x02, 0xD2, //1234567890
-                                     };
-            object[] rtuData = { (String)"aaa", new ModbusDataPoint<UInt16>(), new ModbusDataPoint<UInt16>(), new UInt32() };
-            ProcessAnalogData(packetRawData, ref rtuData);                   
-        }
+        }       
         [Test]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void ProcessData_ShouldThrowIfAmmountOfInfoRequestedInOutputArrayExceedsCapacityOfRawDataArray()
@@ -732,7 +719,7 @@ namespace Modbus.UnitTests
                                      0x49, 0x96, 0x02, 0xD2, //1234567890
                                      };
             object[] rtuData = { new ModbusDataPoint<UInt16>(), new ModbusDataPoint<UInt16>(), new UInt32(), new UInt32(), new UInt32() };
-            ProcessAnalogData(packetRawData, ref rtuData);           
+            ProcessAnalogData(packetRawData, ref rtuData, 0, (UInt16)rtuData.Length);           
         }
         [Test]
         public void ProcessData_ShouldNotThrowTrueIfAmmountOfInfoRequestedInOutputArrayLessThanCapacityOfRawDataArray()
@@ -744,7 +731,7 @@ namespace Modbus.UnitTests
                                      0x49, 0x96, 0x02, 0xD2, //1234567890
                                      };
             object[] rtuData = { new ModbusDataPoint<UInt16>(), new ModbusDataPoint<UInt16>() };
-            ProcessAnalogData(packetRawData, ref rtuData);            
+            ProcessAnalogData(packetRawData, ref rtuData, 0, (UInt16)rtuData.Length);            
         }
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
@@ -752,7 +739,7 @@ namespace Modbus.UnitTests
         {
             //ModbusRTUProtocol prot = new ModbusRTUProtocol();
             object[] rtuData = { new Int16(), new ModbusDataPoint<UInt16>(), new ModbusDataPoint<UInt16>(), new UInt32() };
-            ProcessAnalogData(null, ref rtuData);     
+            ProcessAnalogData(null, ref rtuData,0, (UInt16)rtuData.Length);     
         }
         [Test]
         [ExpectedException(typeof(NullReferenceException))]
@@ -765,7 +752,7 @@ namespace Modbus.UnitTests
                                      0x49, 0x96, 0x02, 0xD2, //1234567890
                                      };
             object[] rtuData = new object[2];
-            ProcessAnalogData(packetRawData, ref rtuData);
+            ProcessAnalogData(packetRawData, ref rtuData,0, (UInt16)rtuData.Length);
         }
     }
 
