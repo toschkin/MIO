@@ -15,9 +15,10 @@ namespace Modbus.Core
         /// <summary>
         /// Default ctor
         /// </summary>
-        public ModbusRtuProtocol()            
+        public ModbusRtuProtocol()
         {
-
+            _writeRegistersPerQueryCapacity = 125;
+            _readRegistersPerQueryCapacity = 125;
         }
 
         #region Logging
@@ -253,7 +254,7 @@ namespace Modbus.Core
             registerValues = tempArray.ToList();            
             return code;
         }
-        
+      
         /// <summary>
         /// Reads 16bit holding registers from Modbus device and convert them to array of values of numeric types
         /// </summary>        
@@ -430,7 +431,7 @@ namespace Modbus.Core
         /// </example>
         public ModbusErrorCode ForceMultipleCoils(Byte rtuAddress, UInt16 forceAddress, bool[] values)
         {
-            return ForceMultiple(15, rtuAddress, forceAddress, Array.ConvertAll(values, b => (object) b));
+            return ForceMultiple(15, rtuAddress, forceAddress, Array.ConvertAll(values, b => (object)b), 0, (UInt16)values.Length);
         }
         /// <summary>
         /// Sets a number of output coils to on/off states
@@ -454,7 +455,7 @@ namespace Modbus.Core
             if (values.Count <= 0)
                 return ModbusErrorCode.CodeInvalidRequestedSize;
             bool[] tempArray = values.ToArray();
-            return ForceMultiple(15, rtuAddress, forceAddress, Array.ConvertAll(tempArray, b => (object)b));                        
+            return ForceMultiple(15, rtuAddress, forceAddress, Array.ConvertAll(tempArray, b => (object)b), 0, (UInt16)tempArray.Length);                        
         }
         /// <summary>
         /// Presets a number of 16 bit modbus registers
@@ -477,7 +478,7 @@ namespace Modbus.Core
         public ModbusErrorCode PresetMultipleRegisters(Byte rtuAddress, UInt16 forceAddress, object[] values, bool bigEndianOrder = false)
         {
             //it was Array.ConvertAll(values, b => (object)b)
-            return ForceMultiple(16, rtuAddress, forceAddress, values, bigEndianOrder);
+            return ForceMultiple(16, rtuAddress, forceAddress, values, 0, (UInt16)values.Length, bigEndianOrder);
         }
         /// <summary>
         /// Presets a number of 16 bit modbus registers
@@ -502,7 +503,22 @@ namespace Modbus.Core
             if (values.Count <= 0)
                 return ModbusErrorCode.CodeInvalidRequestedSize;
             object[] tempArray = values.ToArray();
-            return ForceMultiple(16, rtuAddress, forceAddress, tempArray);            
+            return ForceMultiple(16, rtuAddress, forceAddress, tempArray, 0, (UInt16)tempArray.Length, bigEndianOrder);            
+        }
+
+        public ModbusErrorCode PresetMultipleRegisters(Byte rtuAddress, UInt16 forceAddress, object[] values,
+            UInt16 startIndex, UInt16 objectsCount, bool bigEndianOrder = false)
+        {
+            return ForceMultiple(16, rtuAddress, forceAddress, values, startIndex, objectsCount, bigEndianOrder);
+        }
+
+        public ModbusErrorCode PresetMultipleRegisters(Byte rtuAddress, UInt16 forceAddress, List<object> values,
+            UInt16 startIndex, UInt16 objectsCount, bool bigEndianOrder = false)
+        {
+            if (values.Count <= 0)
+                return ModbusErrorCode.CodeInvalidRequestedSize;
+            object[] tempArray = values.ToArray();
+            return ForceMultiple(16, rtuAddress, forceAddress, tempArray, startIndex, objectsCount, bigEndianOrder);      
         }
 
         /// <summary>
@@ -623,7 +639,7 @@ namespace Modbus.Core
 
             UInt32 totalLengthInBytesOfRequestedData = 0;
             int currentIndexInPacketData = 0;
-
+           
             for (int val = startIndex; val < startIndex + objectsCount; val++)
             {
                 if (outputValues[val] == null)
@@ -635,7 +651,7 @@ namespace Modbus.Core
                     {
                         totalLengthInBytesOfRequestedData += (UInt32)Marshal.SizeOf(outputValues[val]);
                         if (totalLengthInBytesOfRequestedData > rawPacketData.Length)
-                            throw new ArgumentOutOfRangeException();
+                            throw new ArgumentOutOfRangeException();                        
                         ModbusDataMappingHelper.ExtractValueFromArrayByType(rawPacketData,
                             ref currentIndexInPacketData, ref outputValues[val], bigEndianOrder);
                     }
@@ -789,8 +805,8 @@ namespace Modbus.Core
                         bytesCount += SizeofHelper.SizeOfPublicPropertiesWithModbusAttribute(registerValues[regVal]);
                 }
                 registersCount = (bytesCount + 1)/2;
-                
-                if ((registersCount > 125) || (registersCount < 1) || (startAddress + registersCount > UInt16.MaxValue))
+
+                if ((registersCount > _readRegistersPerQueryCapacity) || (registersCount < 1) || (startAddress + registersCount > UInt16.MaxValue))
                     return ModbusErrorCode.CodeInvalidRequestedSize;
 
                 Byte[] recievedPacket = null;
@@ -961,15 +977,15 @@ namespace Modbus.Core
             }            
         }
 
-        protected ModbusErrorCode ForceMultiple(Byte functionNumber, Byte rtuAddress, UInt16 forceAddress, object[] values, bool bigEndianOrder = false)
+        protected ModbusErrorCode ForceMultiple(Byte functionNumber, Byte rtuAddress, UInt16 forceAddress, object[] values, UInt16 startIndex, UInt16 objectsCount, bool bigEndianOrder = false)
         {
             if (!IsConnected)
                 return ModbusErrorCode.CodeNotConnected;
             if ((rtuAddress > 247) || (rtuAddress < 1))
                 return ModbusErrorCode.CodeInvalidSlaveAddress;
-            if(values.Length <= 0)
-                return ModbusErrorCode.CodeInvalidInputArgument;
-            
+            if (startIndex + objectsCount > values.Length)
+                return ModbusErrorCode.CodeInvalidRequestedSize;
+                        
             //array of output 16bit values
             UInt16[] forcedValues = null;
 
@@ -979,39 +995,40 @@ namespace Modbus.Core
             //if firstElementType is boolean then all elements of array are considered to be boolean type also
             if (firstElementType == typeof (bool))
             {
-                if (values.Length > 2000)//can force maximum 2000 coils
-                    return ModbusErrorCode.CodeInvalidInputArgument;                
-                Array.Resize(ref forcedValues,(values.Length + 15)/16);
-                Array.Resize(ref boolValues,values.Length);
+                if (startIndex + objectsCount > 2000)//can force maximum 2000 coils
+                    return ModbusErrorCode.CodeInvalidInputArgument;
+                Array.Resize(ref forcedValues, (startIndex + objectsCount + 15) / 16);
+                Array.Resize(ref boolValues, startIndex + objectsCount);
             }
             Byte[] tempArrayOfBytes = null;
             UInt32 totalLengthInBytesOfValuesToBeSet = 0;
             int i = 0;
-            foreach (var value in values)
+            //foreach (var value in values)
+            for (int regVal = startIndex; regVal < startIndex + objectsCount; regVal++)
             {
                 //if arrayType is bool - all elements must be bool
-                if ((firstElementType == typeof(bool)) && (firstElementType != value.GetType()))
+                if ((firstElementType == typeof(bool)) && (firstElementType != values[regVal].GetType()))
                     return ModbusErrorCode.CodeInvalidInputArgument;
                 if (firstElementType == typeof(bool))
-                    boolValues[i] = (bool) value;
+                    boolValues[i] = (bool)values[regVal];
 
                 //if another type 
-                if (value.GetType().IsValueType) //here we will process simple (only numeric) types
+                if (values[regVal].GetType().IsValueType) //here we will process simple (only numeric) types
                 {
-                    if (GetTypeHelper.IsNumericType(value.GetType()))
+                    if (GetTypeHelper.IsNumericType(values[regVal].GetType()))
                     {
-                        totalLengthInBytesOfValuesToBeSet += (UInt32) Marshal.SizeOf(value);
-                        if (totalLengthInBytesOfValuesToBeSet > 250) //maximum 250 bytes can be processed
+                        totalLengthInBytesOfValuesToBeSet += (UInt32)Marshal.SizeOf(values[regVal]);
+                        if (totalLengthInBytesOfValuesToBeSet > _writeRegistersPerQueryCapacity * 2) //maximum _writeRegistersPerQueryCapacity*2 bytes can be processed
                             return ModbusErrorCode.CodeInvalidInputArgument;
-                        ModbusDataMappingHelper.ConvertObjectValueAndAppendToArray(ref tempArrayOfBytes, value, bigEndianOrder);
+                        ModbusDataMappingHelper.ConvertObjectValueAndAppendToArray(ref tempArrayOfBytes, values[regVal], bigEndianOrder);
                     }
-                    else if(value.GetType() != typeof(bool))
+                    else if (values[regVal].GetType() != typeof(bool))
                         return ModbusErrorCode.CodeInvalidInputArgument;                                            
                 }
                 else//here we will process properties (only numeric) from complex (class) types 
                 {
-                    totalLengthInBytesOfValuesToBeSet += SizeofHelper.SizeOfPublicPropertiesWithModbusAttribute(value);
-                    if (totalLengthInBytesOfValuesToBeSet > 250)//maximum 250 bytes can be processed
+                    totalLengthInBytesOfValuesToBeSet += SizeofHelper.SizeOfPublicPropertiesWithModbusAttribute(values[regVal]);
+                    if (totalLengthInBytesOfValuesToBeSet > _writeRegistersPerQueryCapacity * 2)//maximum _writeRegistersPerQueryCapacity*2 bytes can be processed
                         return ModbusErrorCode.CodeInvalidInputArgument;
                     if (totalLengthInBytesOfValuesToBeSet > 0)
                     {
@@ -1019,7 +1036,7 @@ namespace Modbus.Core
                         try
                         {
                             //arrayOfObjectPropsTypes = ModbusDataMappingHelper.GetObjectModbusPropertiesTypeArray(value);
-                            arrayOfObjectPropsValues = ModbusDataMappingHelper.GetObjectModbusPropertiesValuesArray(value);
+                            arrayOfObjectPropsValues = ModbusDataMappingHelper.GetObjectModbusPropertiesValuesArray(values[regVal]);
                         }
                         catch (Exception ex)
                         {
@@ -1050,18 +1067,22 @@ namespace Modbus.Core
                 Buffer.BlockCopy(tempArrayOfBytes, 0, forcedValues, 0, tempArrayOfBytes.Length);                
             }
 
+
+            if ((forcedValues.Length > _writeRegistersPerQueryCapacity) || (forcedValues.Length < 1) || (forceAddress + forcedValues.Length > UInt16.MaxValue))
+                return ModbusErrorCode.CodeInvalidRequestedSize;
+
             Byte[] recievedPacket = null;           
 
             try
             {
-                Byte[] sendPacket = MakePacket(rtuAddress, functionNumber, forceAddress, (firstElementType == typeof(bool)) ? (UInt16)values.Length : (UInt16)forcedValues.Length, forcedValues, true, firstElementType == typeof(bool), bigEndianOrder);
+                Byte[] sendPacket = MakePacket(rtuAddress, functionNumber, forceAddress, (firstElementType == typeof(bool)) ? (UInt16)(startIndex + objectsCount) : (UInt16)forcedValues.Length, forcedValues, true, firstElementType == typeof(bool), bigEndianOrder);
                 
                 if (TxRxMessage(sendPacket, ref recievedPacket, 8))
                 {
                     ModbusErrorCode errorCode = CheckPacket(recievedPacket, sendPacket[0], sendPacket[1], 8);
                     if (errorCode == ModbusErrorCode.CodeOk)
                     {
-                        Byte[] tmp = BitConverter.GetBytes((firstElementType == typeof(bool)) ? (UInt16)values.Length : (UInt16)forcedValues.Length);
+                        Byte[] tmp = BitConverter.GetBytes((firstElementType == typeof(bool)) ? (UInt16)(startIndex + objectsCount) : (UInt16)forcedValues.Length);
                         Array.Reverse(tmp); 
                         if (BitConverter.ToUInt16(recievedPacket, 4) != BitConverter.ToUInt16(tmp, 0))
                             return ModbusErrorCode.CodeInvalidResponse;
@@ -1092,6 +1113,30 @@ namespace Modbus.Core
                     _logExceptionModbusRtu(ex);
                 return ModbusErrorCode.CodeExceptionInCodeOccured;
             }            
-        }        
+        }
+
+        private Byte _readRegistersPerQueryCapacity;
+        private Byte _writeRegistersPerQueryCapacity;
+
+        public Byte ReadRegistersPerQueryCapacity
+        {
+            get { return _readRegistersPerQueryCapacity; }
+            set
+            {
+                if (value > 125) _readRegistersPerQueryCapacity = 125;
+                else if (value == 0) _readRegistersPerQueryCapacity = 1;
+                else _readRegistersPerQueryCapacity = value;
+            }
+        }
+        public Byte WriteRegistersPerQueryCapacity
+        {
+            get { return _writeRegistersPerQueryCapacity; }
+            set
+            {
+                if (value > 125) _writeRegistersPerQueryCapacity = 125;
+                else if (value == 0) _readRegistersPerQueryCapacity = 1;
+                else _writeRegistersPerQueryCapacity = value;
+            }
+        }
     }   
 }

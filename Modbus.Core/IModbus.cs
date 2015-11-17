@@ -11,7 +11,7 @@ namespace Modbus.Core
     /// <summary>
     /// Modbus protocol functions
     /// </summary>
-    interface IModbus
+    public interface IModbus
     {      
         /// <summary>
         /// Implemented in inherited classes
@@ -37,6 +37,11 @@ namespace Modbus.Core
         ModbusErrorCode ReadHoldingRegisters(Byte rtuAddress, UInt16 startAddress, ref object[] registerValues, UInt16 startIndex, UInt16 objectsCount, bool bigEndianOrder = false);
         ModbusErrorCode ReadInputRegisters(Byte rtuAddress, UInt16 startAddress, ref object[] registerValues, UInt16 startIndex, UInt16 objectsCount, bool bigEndianOrder = false);
         ModbusErrorCode ReadHoldingRegisters(Byte rtuAddress, UInt16 startAddress, ref List<object> registerValues, UInt16 startIndex, UInt16 objectsCount, bool bigEndianOrder = false);
-        ModbusErrorCode ReadInputRegisters(Byte rtuAddress, UInt16 startAddress, ref List<object> registerValues, UInt16 startIndex, UInt16 objectsCount, bool bigEndianOrder = false);        
+        ModbusErrorCode ReadInputRegisters(Byte rtuAddress, UInt16 startAddress, ref List<object> registerValues, UInt16 startIndex, UInt16 objectsCount, bool bigEndianOrder = false);
+        ModbusErrorCode PresetMultipleRegisters(Byte rtuAddress, UInt16 forceAddress, object[] values, UInt16 startIndex, UInt16 objectsCount, bool bigEndianOrder = false);
+        ModbusErrorCode PresetMultipleRegisters(Byte rtuAddress, UInt16 forceAddress, List<object> values, UInt16 startIndex, UInt16 objectsCount, bool bigEndianOrder = false);
+        bool IsConnected { get; }
+        Byte ReadRegistersPerQueryCapacity { get; set; }
+        Byte WriteRegistersPerQueryCapacity { get; set; }
     }
 }

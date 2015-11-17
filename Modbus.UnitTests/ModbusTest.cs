@@ -1325,6 +1325,28 @@ namespace Modbus.UnitTests
             Assert.AreEqual(1, arr2[15]);
             Assert.AreEqual(2, arr2[16]);
         }
+        [Test]
+        public void GetObjectsHighestByte_ShouldReturnApropriateByte()
+        {
+            
+            //0xE6, 0x66, 0x42, 0xF6, //123.45       
+            //0xdb,0x77,0xe6,0x85,0x1c,0xd6,0x40,0xc8,//12345.67891     
+            //0x81, 0x15, 0x7D, 0xE9, 0x10, 0xF4, 0x11, 0x22, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x9//1234567890.123456789
+            object[] arrayValues = { (Byte)0x10, (SByte)0x11, (Int16)0x1200, (UInt16)0x13BB, (UInt32)0x14AABBCC, (Int32)0x15000000, (Single)123.45, 
+                                       (UInt64)0x1600AACCDDEEFFDD, (Int64)0x1700AACCDDEEFFDD, (Double)12345.67891, (Decimal)1234567890.123456789m };
+
+            Assert.AreEqual(0x10, ModbusDataMappingHelper.GetObjectsHighestByte(arrayValues[0]));
+            Assert.AreEqual(0x11, ModbusDataMappingHelper.GetObjectsHighestByte(arrayValues[1]));
+            Assert.AreEqual(0x12, ModbusDataMappingHelper.GetObjectsHighestByte(arrayValues[2]));
+            Assert.AreEqual(0x13, ModbusDataMappingHelper.GetObjectsHighestByte(arrayValues[3]));
+            Assert.AreEqual(0x14, ModbusDataMappingHelper.GetObjectsHighestByte(arrayValues[4]));
+            Assert.AreEqual(0x15, ModbusDataMappingHelper.GetObjectsHighestByte(arrayValues[5]));
+            Assert.AreEqual(0x42, ModbusDataMappingHelper.GetObjectsHighestByte(arrayValues[6]));
+            Assert.AreEqual(0x16, ModbusDataMappingHelper.GetObjectsHighestByte(arrayValues[7]));
+            Assert.AreEqual(0x17, ModbusDataMappingHelper.GetObjectsHighestByte(arrayValues[8]));
+            Assert.AreEqual(0x40, ModbusDataMappingHelper.GetObjectsHighestByte(arrayValues[9]));
+            Assert.AreEqual(0x00, ModbusDataMappingHelper.GetObjectsHighestByte(arrayValues[10]));            
+        }
     }
    
     class ConversionHelperTest

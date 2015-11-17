@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MIOConfig;
 using Modbus.Core;
+using EnumExtension;
 
 namespace ConsoleMIOConfigTester
 {
@@ -33,10 +34,12 @@ namespace ConsoleMIOConfigTester
 
             if (protocol.Connect("COM6"))
             {
-                ModbusDeviceReaderSaver modbusReader = new ModbusDeviceReaderSaver(protocol,1,1000,false,4);
+                protocol.ReadRegistersPerQueryCapacity = 125;
+                protocol.WriteRegistersPerQueryCapacity = 2;
+                ModbusDeviceReaderSaver modbusReader = new ModbusDeviceReaderSaver(protocol,1,1000);
                 ModbusDeviceReaderSaver modbusSaver = new ModbusDeviceReaderSaver(protocol, 1, 1005);
 
-                /*DeviceConfiguration config = new DeviceConfiguration();
+               DeviceConfiguration config = new DeviceConfiguration();
 
                 ShowObjectPropsAndVals(config.DeviceUartPorts[0]);
                 Console.WriteLine();    
@@ -72,19 +75,40 @@ namespace ConsoleMIOConfigTester
                 ShowObjectPropsAndVals(config.DeviceUartPorts[0]);
                 Console.WriteLine();    
                 ShowObjectPropsAndVals(config.DeviceHeaderFields);
-                Console.WriteLine("config.DeviceUartPorts.Count = {0}", config.DeviceUartPorts.Count);    */
+                Console.WriteLine("config.DeviceUartPorts.Count = {0}", config.DeviceUartPorts.Count);    
                 ModbusDataPoint<Byte> dpB1= new ModbusDataPoint<byte>();
                 ModbusDataPoint<UInt16> dpW1 = new ModbusDataPoint<UInt16>();
                 ModbusDataPoint<UInt16> dpW2 = new ModbusDataPoint<UInt16>();
                 ModbusDataPoint<Byte> dpB2 = new ModbusDataPoint<byte>();
+                ModbusDataPoint<UInt16> dpW3 = new ModbusDataPoint<UInt16>();
+                ModbusDataPoint<UInt16> dpW4 = new ModbusDataPoint<UInt16>();
+                ModbusDataPoint<UInt16> dpW5 = new ModbusDataPoint<UInt16>();
+                ModbusDataPoint<UInt16> dpW6 = new ModbusDataPoint<UInt16>();
+                ModbusDataPoint<Byte> dpB3 = new ModbusDataPoint<byte>();
+                ModbusDataPoint<Byte> dpB4 = new ModbusDataPoint<byte>();
+                ModbusDataPoint<UInt32> dpDW1 = new ModbusDataPoint<UInt32>();
+                
+                
+                /*dpB1.Value = 0x00;
+                dpW1.Value = 0x0000;
+                dpW2.Value = 0x0000;
+                dpB2.Value = 0x00;
+                dpW3.Value = 0x0000;
+                dpW4.Value = 0x0000;
+                dpW5.Value = 0x0000;
+                dpW6.Value = 0x0000;
+                dpB3.Value = 0x00;
+                dpB4.Value = 0x00;
+                dpDW1.Value = 0x00000000;
 
-                dpB1.Value = 0x01;
-                dpW1.Value = 0xFFFF;
-                dpW2.Value = 0xAAAA;
-                dpB2.Value = 0x02;
+                List<object> listForTest = new List<object> { dpB1, dpW1, dpW2, dpB2, dpW3, dpW4, dpW5, dpW6, dpB3, dpB4, dpDW1 };
+                Console.WriteLine(modbusReader.SaveDeviceConfiguration(listForTest));
 
-                List<object> listForTest = new List<object> {dpB1,dpW1,dpW2,dpB2};
-                modbusReader.ReadDeviceConfiguration(ref listForTest);
+                foreach (var item in listForTest)
+                {
+                    ShowObjectPropsAndVals(item);
+                } */             
+
                 protocol.Disconnect();
             }
 
