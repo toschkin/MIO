@@ -30,7 +30,7 @@ namespace ConsoleMIOConfigTester
             PropertyInfo[] props = obj.GetType().GetProperties();
             foreach (var prop in props)
             {
-                Console.WriteLine("{0}\t{1}\t{2:X}",GetVariableName(() => obj), prop.Name, prop.GetValue(obj));
+                Console.WriteLine("{0}\t{1}\t{2}",GetVariableName(() => obj), prop.Name, prop.GetValue(obj));
             }
         }
 
@@ -41,17 +41,18 @@ namespace ConsoleMIOConfigTester
 
             if (protocol.Connect("COM6"))
             {
-                protocol.ReadRegistersPerQueryCapacity = 5;
-                protocol.WriteRegistersPerQueryCapacity = 2;
+                protocol.ReadRegistersPerQueryCapacity = 125;
+                protocol.WriteRegistersPerQueryCapacity = 125;
                 ModbusDeviceReaderSaver modbusReader = new ModbusDeviceReaderSaver(protocol,1,1000);
-                ModbusDeviceReaderSaver modbusSaver = new ModbusDeviceReaderSaver(protocol, 1, 1020);
+                ModbusDeviceReaderSaver modbusSaver = new ModbusDeviceReaderSaver(protocol, 1, 1005);
 
-               /*DeviceConfiguration config = new DeviceConfiguration();
+                DeviceConfiguration config = new DeviceConfiguration();
 
-                ShowObjectPropsAndVals(config.DeviceUartPorts[0]);
-                Console.WriteLine();    
                 ShowObjectPropsAndVals(config.DeviceHeaderFields);
                 Console.WriteLine();    
+                ShowObjectPropsAndVals(config.DeviceUartPorts[0]);
+                Console.WriteLine();    
+               
 
                 Console.WriteLine("SaveConfiguration...");
                 Console.WriteLine(config.SaveConfiguration(modbusSaver));
@@ -76,14 +77,16 @@ namespace ConsoleMIOConfigTester
                 
                 Console.WriteLine("ReadConfiguration...");
                 Console.WriteLine(config.ReadConfiguration(modbusReader));
-                Console.WriteLine();   
+                Console.WriteLine();
 
-                
-                ShowObjectPropsAndVals(config.DeviceUartPorts[0]);
-                Console.WriteLine();    
+
                 ShowObjectPropsAndVals(config.DeviceHeaderFields);
-                Console.WriteLine("config.DeviceUartPorts.Count = {0}", config.DeviceUartPorts.Count);    */
-                ModbusDataPoint<Byte> dpB1= new ModbusDataPoint<byte>();
+                Console.WriteLine();    
+                ShowObjectPropsAndVals(config.DeviceUartPorts[0]);
+                                
+                Console.WriteLine("config.DeviceUartPorts.Count = {0}", config.DeviceUartPorts.Count);    
+
+                /*ModbusDataPoint<Byte> dpB1= new ModbusDataPoint<byte>();
                 ModbusDataPoint<UInt16> dpW1 = new ModbusDataPoint<UInt16>();
                 ModbusDataPoint<UInt16> dpW2 = new ModbusDataPoint<UInt16>();
                 ModbusDataPoint<Byte> dpB2 = new ModbusDataPoint<byte>();
@@ -110,20 +113,21 @@ namespace ConsoleMIOConfigTester
                 dpB4.Value = 0x06;
                 //dpDW1.Value = 0x10090807;
                 //dpB5.Value = 0x11;
-                //dpDW2.Value = 0x15141312;*/
+                //dpDW2.Value = 0x15141312;
                 
                 //Console.WriteLine(modbusSaver.SaveDeviceConfiguration(listForTest));
 
                 modbusReader.BigEndianOrder = false;
-
+                bool ret = false;
                 for (byte i = 1; i <= 14; i++)
                 {
                     List<object> listForTest = new List<object> { dpB1, dpW1, dpW2, dpB2, dpW3, dpW4, dpW5, dpW6, dpB3, dpB4, dpDW1, dpB5, dpDW2 };
                     protocol.ReadRegistersPerQueryCapacity = i;
-                    protocol.WriteRegistersPerQueryCapacity = i;
+                    protocol.WriteRegistersPerQueryCapacity = i;                    
                     var watch = Stopwatch.StartNew();
-                    Console.WriteLine("Read = {0}",modbusReader.ReadDeviceConfiguration(ref listForTest));
+                    ret = modbusReader.ReadDeviceConfiguration(ref listForTest);
                     watch.Stop();
+                    Console.WriteLine("Read = {0}",ret);
                     foreach (var item in listForTest)
                     {
                         ShowObjectPropsAndVals(item);
@@ -131,14 +135,15 @@ namespace ConsoleMIOConfigTester
                     
                     protocol.ReadRegistersPerQueryCapacity = i;
                     watch = Stopwatch.StartNew();
-                    Console.WriteLine("Save = {0}", modbusSaver.SaveDeviceConfiguration(listForTest));
+                    ret = modbusSaver.SaveDeviceConfiguration(listForTest);
                     watch.Stop();
+                    Console.WriteLine("Save = {0}", ret);
                     Console.WriteLine(watch.ElapsedMilliseconds);
                     Console.ReadLine();              
                 }
+                */
 
-                                    
-                 
+
 
                 protocol.Disconnect();
             }            

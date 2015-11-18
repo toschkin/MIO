@@ -29,105 +29,6 @@ namespace MIOConfig
         public UInt16   RegisterAddressOffset { get; set; }
         public bool     BigEndianOrder { get; set; }
         
-        /*public bool SaveDeviceConfiguration(List<object> configurationItems)
-        {
-            if (_protocol.IsConnected)
-            {
-                UInt32 registerNumberNeeded = (SizeofHelper.SizeOfPublicPropertiesWithModbusAttribute(configurationItems,
-                    ModbusRegisterAccessType.AccessRead) + 1) / 2;
-                if ((registerNumberNeeded > 0) &&
-                    (registerNumberNeeded <= (UInt16.MaxValue - RegisterAddressOffset) + 1))
-                {
-                    ModbusDataPoint<byte> poinOfByteSize = new ModbusDataPoint<byte>();
-                    UInt16 currentWriteOffset = RegisterAddressOffset;
-                    UInt32 totalBytesInQuery = 0;
-                    UInt16 currentOffsetInItemsList = 0;
-                    int byteInsertedIndex = -1;
-                    for (int i = 0; i < configurationItems.Count; i++)
-                    {
-                        UInt32 bytesNumberNeededForObject =
-                            SizeofHelper.SizeOfPublicPropertiesWithModbusAttribute(configurationItems[i],
-                                ModbusRegisterAccessType.AccessReadWrite);
-                        
-                        if (i + 1 < configurationItems.Count)
-                        {
-                            UInt32 bytesNumberNeededForNextObject = SizeofHelper.SizeOfPublicPropertiesWithModbusAttribute(configurationItems[i+1],
-                                ModbusRegisterAccessType.AccessReadWrite);
-
-                            if ((totalBytesInQuery + bytesNumberNeededForObject + bytesNumberNeededForNextObject <= _protocol.WriteRegistersPerQueryCapacity))
-                            {
-                                totalBytesInQuery += bytesNumberNeededForObject + bytesNumberNeededForNextObject;                                
-                                continue;
-                            }
-                        }                        
-
-                        if (((totalBytesInQuery + bytesNumberNeededForObject + 1) / 2 >= _protocol.WriteRegistersPerQueryCapacity)
-                            || ((i == configurationItems.Count - 1)))
-                        {
-                            
-
-                            if ((totalBytesInQuery + bytesNumberNeededForObject + 1) / 2 == _protocol.WriteRegistersPerQueryCapacity)
-                                totalBytesInQuery += bytesNumberNeededForObject;
-
-                            if (_protocol.PresetMultipleRegisters(SlaveAddress, currentWriteOffset, configurationItems, currentOffsetInItemsList, (UInt16)(i + 1 - currentOffsetInItemsList), BigEndianOrder) != ModbusErrorCode.CodeOk)
-                                return false;
-
-                            currentOffsetInItemsList += (UInt16)(i + 1 - currentOffsetInItemsList);
-
-                            if (byteInsertedIndex != -1)
-                            {
-                                configurationItems.RemoveAt(byteInsertedIndex);
-                                byteInsertedIndex = -1;
-                                currentOffsetInItemsList--;
-                                i--;
-                            }
-
-                            if (totalBytesInQuery % 2 != 0)
-                            {
-                                poinOfByteSize.Value =
-                                    ModbusDataMappingHelper.GetModbusObjectsHighestByte(
-                                        configurationItems[currentOffsetInItemsList - 1],
-                                        ModbusRegisterAccessType.AccessReadWrite);
-                                configurationItems.Insert(currentOffsetInItemsList, poinOfByteSize);
-                                byteInsertedIndex = currentOffsetInItemsList;
-                            }
-
-                            if ((bytesNumberNeededForObject + 1) / 2 > _protocol.WriteRegistersPerQueryCapacity)
-                            {
-                                //TODO big objects (registerNumberNeededForObject > WriteRegistersPerQueryCapacity)
-                                //we will skip those enormous objects by now
-                                currentWriteOffset += (UInt16)(bytesNumberNeededForObject / 2);
-                                if (byteInsertedIndex != -1)
-                                {
-                                    configurationItems.RemoveAt(byteInsertedIndex);
-                                    byteInsertedIndex = -1;
-                                }
-                                else
-                                {
-                                    currentOffsetInItemsList++;
-                                    i++;
-                                }
-                            }
-                            else
-                            {
-                                currentWriteOffset += (UInt16)(totalBytesInQuery / 2);
-                                totalBytesInQuery = 0;
-                            }
-
-                        }
-                        else
-                        {
-                            totalBytesInQuery += bytesNumberNeededForObject;
-                        }
-
-                    }
-                    return true;
-                }                
-            }
-            return false;
-        }*/
-
-
         public bool SaveDeviceConfiguration(List<object> configurationItems)
         {
             if (_protocol.IsConnected)
@@ -151,19 +52,16 @@ namespace MIOConfig
                     object[] tempArray = configurationItems.ToArray();
                     ModbusDataMappingHelper.ConvertObjectsVaulesToRegisters(tempArray, 0,
                         (UInt32) configurationItems.Count,
-                        BigEndianOrder, out forcedValues, out firstElementType);                                           
-                    
-                    List<object> rawBytesMap = new List<object>();
-                    rawBytesMap.AddRange(Array.ConvertAll(forcedValues, b => (object)b));
-
+                        BigEndianOrder, out forcedValues, out firstElementType);
+                                               
                     for (UInt16 query = 0; query < (UInt16)((registerNumberNeeded + _protocol.WriteRegistersPerQueryCapacity - 1) / _protocol.WriteRegistersPerQueryCapacity); query++)
                     {
                         UInt32 currentArrayOffset = (UInt16)(query * _protocol.WriteRegistersPerQueryCapacity);
                         if (_protocol.PresetMultipleRegisters(SlaveAddress,
                                                             currentDeviceOffset,
-                                                            rawBytesMap,
+                                                            Array.ConvertAll(forcedValues, b => (object) b),
                                                             (UInt32)(query * _protocol.WriteRegistersPerQueryCapacity),
-                                                            rawBytesMap.Count - (currentArrayOffset) > _protocol.WriteRegistersPerQueryCapacity ? _protocol.WriteRegistersPerQueryCapacity : (UInt32)(rawBytesMap.Count - (currentArrayOffset)),
+                                                            forcedValues.Length - (currentArrayOffset) > _protocol.WriteRegistersPerQueryCapacity ? _protocol.WriteRegistersPerQueryCapacity : (UInt32)(forcedValues.Length - (currentArrayOffset)),
                                                             BigEndianOrder) != ModbusErrorCode.CodeOk)
                             return false;
 

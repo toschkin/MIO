@@ -12,6 +12,7 @@ namespace MIOConfig
         public DeviceHeader(DeviceConfiguration deviceConfiguration)
         {
             _deviceConfiguration = deviceConfiguration;
+            _deviceUartChannelsCount = 1;
         }
 
         /// <summary>
