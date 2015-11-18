@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -580,6 +581,76 @@ namespace Modbus.Core
                         throw new ArgumentException();
                     }
             }  
+        }
+
+        public static void ConvertObjectsVaulesToRegisters(object[] values, uint startIndex, uint objectsCount,
+            bool bigEndianOrder, out ushort[] forcedValues, out Type firstElementType)
+        {
+            //array of output 16bit values
+            forcedValues = null;
+
+            //only for determine if we need to preset multiple coils
+            firstElementType = values[0].GetType();
+            bool[] boolValues = null;
+            //if firstElementType is boolean then all elements of array are considered to be boolean type also
+            if (firstElementType == typeof(bool))
+            {
+                if (startIndex + objectsCount > 2000) //can force maximum 2000 coils                
+                    throw new ArgumentException();
+
+                Array.Resize(ref forcedValues, (int)(startIndex + objectsCount + 15) / 16);
+                Array.Resize(ref boolValues, (int)(startIndex + objectsCount));
+            }
+            Byte[] tempArrayOfBytes = null;            
+            int i = 0;
+            //foreach (var value in values)
+            for (UInt32 regVal = startIndex; regVal < startIndex + objectsCount; regVal++)
+            {
+                //if arrayType is bool - all elements must be bool
+                if ((firstElementType == typeof(bool)) && (firstElementType != values[regVal].GetType()))
+                    throw new ArgumentException();
+
+                if (firstElementType == typeof(bool))
+                    boolValues[i] = (bool)values[regVal];
+
+                //if another type 
+                if (values[regVal].GetType().IsValueType) //here we will process simple (only numeric) types
+                {
+                    if (GetTypeHelper.IsNumericType(values[regVal].GetType()))
+                    {                       
+                        ConvertObjectValueAndAppendToArray(ref tempArrayOfBytes, values[regVal],
+                            bigEndianOrder);
+                    }
+                    else if (values[regVal].GetType() != typeof (bool))
+                        throw new ArgumentException();
+
+                }
+                else //here we will process properties (only numeric) from complex (class) types 
+                {                                       
+                    object[] arrayOfObjectPropsValues =
+                        GetObjectModbusPropertiesValuesArray(values[regVal]);
+
+                    for (int k = 0; k < arrayOfObjectPropsValues.Length; k++)
+                    {
+                        ConvertObjectValueAndAppendToArray(ref tempArrayOfBytes,
+                            arrayOfObjectPropsValues[k],
+                            bigEndianOrder);
+                    }
+                }
+                i++;
+            }
+
+            if (firstElementType == typeof(bool))
+            {
+                Byte[] temp = new Byte[forcedValues.Length * 2];
+                new BitArray(boolValues).CopyTo(temp, 0);
+                Buffer.BlockCopy(temp, 0, forcedValues, 0, temp.Length);
+            }
+            else
+            {
+                Array.Resize(ref forcedValues, (tempArrayOfBytes.Length + 1) / 2);
+                Buffer.BlockCopy(tempArrayOfBytes, 0, forcedValues, 0, tempArrayOfBytes.Length);
+            }            
         }
     }    
 }

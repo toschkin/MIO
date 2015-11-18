@@ -985,91 +985,23 @@ namespace Modbus.Core
                 return ModbusErrorCode.CodeInvalidSlaveAddress;
             if (startIndex + objectsCount > values.Length)
                 return ModbusErrorCode.CodeInvalidRequestedSize;
-                        
-            //array of output 16bit values
-            UInt16[] forcedValues = null;
 
-            //only for determine if we need to preset multiple coils
-            Type firstElementType = values[0].GetType();
-            bool[] boolValues  = null;
-            //if firstElementType is boolean then all elements of array are considered to be boolean type also
-            if (firstElementType == typeof (bool))
+            ushort[] forcedValues;
+            Type firstElementType;
+
+            try
             {
-                if (startIndex + objectsCount > 2000)//can force maximum 2000 coils
-                    return ModbusErrorCode.CodeInvalidInputArgument;
-                Array.Resize(ref forcedValues, (int)(startIndex + objectsCount + 15) / 16);
-                Array.Resize(ref boolValues, (int)(startIndex + objectsCount));
+                ModbusDataMappingHelper.ConvertObjectsVaulesToRegisters(values, startIndex, objectsCount,
+                    bigEndianOrder, out forcedValues, out firstElementType);
             }
-            Byte[] tempArrayOfBytes = null;
-            UInt32 totalLengthInBytesOfValuesToBeSet = 0;
-            int i = 0;
-            //foreach (var value in values)
-            for (UInt32 regVal = startIndex; regVal < startIndex + objectsCount; regVal++)
+            catch (Exception)
             {
-                //if arrayType is bool - all elements must be bool
-                if ((firstElementType == typeof(bool)) && (firstElementType != values[regVal].GetType()))
-                    return ModbusErrorCode.CodeInvalidInputArgument;
-                if (firstElementType == typeof(bool))
-                    boolValues[i] = (bool)values[regVal];
-
-                //if another type 
-                if (values[regVal].GetType().IsValueType) //here we will process simple (only numeric) types
-                {
-                    if (GetTypeHelper.IsNumericType(values[regVal].GetType()))
-                    {
-                        totalLengthInBytesOfValuesToBeSet += (UInt32)Marshal.SizeOf(values[regVal]);
-                        if (totalLengthInBytesOfValuesToBeSet > _writeRegistersPerQueryCapacity * 2) //maximum _writeRegistersPerQueryCapacity*2 bytes can be processed
-                            return ModbusErrorCode.CodeInvalidInputArgument;
-                        ModbusDataMappingHelper.ConvertObjectValueAndAppendToArray(ref tempArrayOfBytes, values[regVal], bigEndianOrder);
-                    }
-                    else if (values[regVal].GetType() != typeof(bool))
-                        return ModbusErrorCode.CodeInvalidInputArgument;                                            
-                }
-                else//here we will process properties (only numeric) from complex (class) types 
-                {
-                    totalLengthInBytesOfValuesToBeSet += SizeofHelper.SizeOfPublicPropertiesWithModbusAttribute(values[regVal]);
-                    if (totalLengthInBytesOfValuesToBeSet > _writeRegistersPerQueryCapacity * 2)//maximum _writeRegistersPerQueryCapacity*2 bytes can be processed
-                        return ModbusErrorCode.CodeInvalidInputArgument;
-                    if (totalLengthInBytesOfValuesToBeSet > 0)
-                    {
-                        object[] arrayOfObjectPropsValues = null;
-                        try
-                        {
-                            //arrayOfObjectPropsTypes = ModbusDataMappingHelper.GetObjectModbusPropertiesTypeArray(value);
-                            arrayOfObjectPropsValues = ModbusDataMappingHelper.GetObjectModbusPropertiesValuesArray(values[regVal]);
-                        }
-                        catch (Exception ex)
-                        {
-                            if (_logExceptionModbusRtu != null)
-                                _logExceptionModbusRtu(ex);
-                            return ModbusErrorCode.CodeInvalidInputArgument;
-                        }
-
-                        for (int k = 0; k < arrayOfObjectPropsValues.Length; k++)
-                        {
-                            ModbusDataMappingHelper.ConvertObjectValueAndAppendToArray(ref tempArrayOfBytes, arrayOfObjectPropsValues[k],
-                                bigEndianOrder);
-                        }                       
-                    }                    
-                }               
-                i++;
+                return ModbusErrorCode.CodeInvalidInputArgument;
             }
 
-            if (firstElementType == typeof(bool))
-            {
-                Byte[] temp = new Byte[forcedValues.Length*2];
-                new BitArray(boolValues).CopyTo(temp, 0);                
-                Buffer.BlockCopy(temp, 0, forcedValues, 0, temp.Length);
-            }
-            else
-            {
-                Array.Resize(ref forcedValues, (tempArrayOfBytes.Length + 1) / 2);
-                Buffer.BlockCopy(tempArrayOfBytes, 0, forcedValues, 0, tempArrayOfBytes.Length);                
-            }
-
-
-            if ((forcedValues.Length > _writeRegistersPerQueryCapacity) || (forcedValues.Length < 1) || (forceAddress + forcedValues.Length > UInt16.MaxValue))
-                return ModbusErrorCode.CodeInvalidRequestedSize;
+            if ((forcedValues.Length > _writeRegistersPerQueryCapacity) || (forcedValues.Length < 1) ||
+                (forceAddress + forcedValues.Length > UInt16.MaxValue))
+                return ModbusErrorCode.CodeInvalidRequestedSize;   
 
             Byte[] recievedPacket = null;           
 
@@ -1113,7 +1045,7 @@ namespace Modbus.Core
                     _logExceptionModbusRtu(ex);
                 return ModbusErrorCode.CodeExceptionInCodeOccured;
             }            
-        }
+        }        
 
         private Byte _readRegistersPerQueryCapacity;
         private Byte _writeRegistersPerQueryCapacity;

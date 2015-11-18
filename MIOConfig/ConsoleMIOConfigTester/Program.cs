@@ -44,7 +44,7 @@ namespace ConsoleMIOConfigTester
                 protocol.ReadRegistersPerQueryCapacity = 5;
                 protocol.WriteRegistersPerQueryCapacity = 2;
                 ModbusDeviceReaderSaver modbusReader = new ModbusDeviceReaderSaver(protocol,1,1000);
-                ModbusDeviceReaderSaver modbusSaver = new ModbusDeviceReaderSaver(protocol, 1, 1005);
+                ModbusDeviceReaderSaver modbusSaver = new ModbusDeviceReaderSaver(protocol, 1, 1020);
 
                /*DeviceConfiguration config = new DeviceConfiguration();
 
@@ -119,17 +119,26 @@ namespace ConsoleMIOConfigTester
                 for (byte i = 1; i <= 14; i++)
                 {
                     List<object> listForTest = new List<object> { dpB1, dpW1, dpW2, dpB2, dpW3, dpW4, dpW5, dpW6, dpB3, dpB4, dpDW1, dpB5, dpDW2 };
-                    protocol.ReadRegistersPerQueryCapacity = i;                    
-                    Console.WriteLine(modbusReader.ReadDeviceConfiguration(ref listForTest));
+                    protocol.ReadRegistersPerQueryCapacity = i;
+                    protocol.WriteRegistersPerQueryCapacity = i;
+                    var watch = Stopwatch.StartNew();
+                    Console.WriteLine("Read = {0}",modbusReader.ReadDeviceConfiguration(ref listForTest));
+                    watch.Stop();
                     foreach (var item in listForTest)
                     {
                         ShowObjectPropsAndVals(item);
-                    }                                      
+                    }                   
+                    
+                    protocol.ReadRegistersPerQueryCapacity = i;
+                    watch = Stopwatch.StartNew();
+                    Console.WriteLine("Save = {0}", modbusSaver.SaveDeviceConfiguration(listForTest));
+                    watch.Stop();
+                    Console.WriteLine(watch.ElapsedMilliseconds);
+                    Console.ReadLine();              
                 }
 
-               
-
-                Console.ReadLine();                
+                                    
+                 
 
                 protocol.Disconnect();
             }            
