@@ -2,10 +2,19 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MIOConfig", "MIOConfig\MIOConfig.csproj", "{8BDFBACF-6340-4F27-831C-358ABA3921E9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{89D68483-4090-4F6F-B08F-7F34B914606B} = {89D68483-4090-4F6F-B08F-7F34B914606B}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MIOConfig.Tests", "MIOConfig.Tests\MIOConfig.Tests.csproj", "{BDE3DEA1-655A-4405-A6E6-E7C4803FA28D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{89D68483-4090-4F6F-B08F-7F34B914606B} = {89D68483-4090-4F6F-B08F-7F34B914606B}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleMIOConfigTester", "ConsoleMIOConfigTester\ConsoleMIOConfigTester.csproj", "{65E51F91-606C-47E9-AED2-C5231F2B809E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{89D68483-4090-4F6F-B08F-7F34B914606B} = {89D68483-4090-4F6F-B08F-7F34B914606B}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Modbus.Core", "..\Modbus.Core\Modbus.Core.csproj", "{89D68483-4090-4F6F-B08F-7F34B914606B}"
 EndProject

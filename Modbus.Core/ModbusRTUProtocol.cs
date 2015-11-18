@@ -275,7 +275,7 @@ namespace Modbus.Core
         /// prot.Disconnect();
         /// </code>
         /// </example>
-        public ModbusErrorCode ReadHoldingRegisters(Byte rtuAddress, UInt16 startAddress, ref object[] registerValues, UInt16 startIndex, UInt16 objectsCount, bool bigEndianOrder = false)
+        public ModbusErrorCode ReadHoldingRegisters(Byte rtuAddress, UInt16 startAddress, ref object[] registerValues, UInt32 startIndex, UInt32 objectsCount, bool bigEndianOrder = false)
         {
             return ReadRegisters(3, rtuAddress, startAddress, ref registerValues, startIndex, objectsCount, bigEndianOrder);
         }
@@ -304,7 +304,7 @@ namespace Modbus.Core
         /// prot.Disconnect();
         /// </code>
         /// </example>
-        public ModbusErrorCode ReadHoldingRegisters(Byte rtuAddress, UInt16 startAddress, ref List<object> registerValues, UInt16 startIndex, UInt16 objectsCount, bool bigEndianOrder = false)
+        public ModbusErrorCode ReadHoldingRegisters(Byte rtuAddress, UInt16 startAddress, ref List<object> registerValues, UInt32 startIndex, UInt32 objectsCount, bool bigEndianOrder = false)
         {
             if (registerValues.Count <= 0)
                 return ModbusErrorCode.CodeInvalidRequestedSize;
@@ -333,7 +333,7 @@ namespace Modbus.Core
         /// prot.Disconnect();
         /// </code>
         /// </example>
-        public ModbusErrorCode ReadInputRegisters(Byte rtuAddress, UInt16 startAddress, ref object[] registerValues, UInt16 startIndex, UInt16 objectsCount, bool bigEndianOrder = false)
+        public ModbusErrorCode ReadInputRegisters(Byte rtuAddress, UInt16 startAddress, ref object[] registerValues, UInt32 startIndex, UInt32 objectsCount, bool bigEndianOrder = false)
         {
             return ReadRegisters(4, rtuAddress, startAddress, ref registerValues, startIndex, objectsCount, bigEndianOrder);
         }
@@ -362,7 +362,7 @@ namespace Modbus.Core
         /// prot.Disconnect();
         /// </code>
         /// </example>
-        public ModbusErrorCode ReadInputRegisters(Byte rtuAddress, UInt16 startAddress, ref List<object> registerValues, UInt16 startIndex, UInt16 objectsCount, bool bigEndianOrder = false)
+        public ModbusErrorCode ReadInputRegisters(Byte rtuAddress, UInt16 startAddress, ref List<object> registerValues, UInt32 startIndex, UInt32 objectsCount, bool bigEndianOrder = false)
         {
             if (registerValues.Count <= 0)
                 return ModbusErrorCode.CodeInvalidRequestedSize;
@@ -507,13 +507,13 @@ namespace Modbus.Core
         }
 
         public ModbusErrorCode PresetMultipleRegisters(Byte rtuAddress, UInt16 forceAddress, object[] values,
-            UInt16 startIndex, UInt16 objectsCount, bool bigEndianOrder = false)
+            UInt32 startIndex, UInt32 objectsCount, bool bigEndianOrder = false)
         {
             return ForceMultiple(16, rtuAddress, forceAddress, values, startIndex, objectsCount, bigEndianOrder);
         }
 
         public ModbusErrorCode PresetMultipleRegisters(Byte rtuAddress, UInt16 forceAddress, List<object> values,
-            UInt16 startIndex, UInt16 objectsCount, bool bigEndianOrder = false)
+            UInt32 startIndex, UInt32 objectsCount, bool bigEndianOrder = false)
         {
             if (values.Count <= 0)
                 return ModbusErrorCode.CodeInvalidRequestedSize;
@@ -630,7 +630,7 @@ namespace Modbus.Core
         /// <exception cref="System.ArgumentException"></exception>
         /// <exception cref="System.NullReferenceException"></exception>
         /// <remarks>outputValues can contain numeric types and classes or structs with public numeric properties</remarks>
-        protected void ProcessAnalogData(Byte[] rawPacketData, ref object[] outputValues,UInt16 startIndex, UInt16 objectsCount, bool bigEndianOrder = false)
+        public static void ProcessAnalogData(Byte[] rawPacketData, ref object[] outputValues,UInt32 startIndex, UInt32 objectsCount, bool bigEndianOrder = false)
         {
             if(rawPacketData == null)
                 throw new ArgumentNullException();
@@ -639,8 +639,8 @@ namespace Modbus.Core
 
             UInt32 totalLengthInBytesOfRequestedData = 0;
             int currentIndexInPacketData = 0;
-           
-            for (int val = startIndex; val < startIndex + objectsCount; val++)
+
+            for (UInt32 val = startIndex; val < startIndex + objectsCount; val++)
             {
                 if (outputValues[val] == null)
                     throw new NullReferenceException();
@@ -785,7 +785,7 @@ namespace Modbus.Core
             return ModbusErrorCode.CodeInvalidPacketLength;
         }
 
-        protected ModbusErrorCode ReadRegisters(Byte functionNumber, Byte rtuAddress, UInt16 startAddress, ref object[] registerValues, UInt16 startIndex, UInt16 objectsCount, bool bigEndianOrder = false)
+        protected ModbusErrorCode ReadRegisters(Byte functionNumber, Byte rtuAddress, UInt16 startAddress, ref object[] registerValues, UInt32 startIndex, UInt32 objectsCount, bool bigEndianOrder = false)
         {            
             if (!IsConnected)
                 return ModbusErrorCode.CodeNotConnected;
@@ -797,7 +797,7 @@ namespace Modbus.Core
             try
             {
                 UInt32 registersCount = 0, bytesCount = 0;
-                for (int regVal = startIndex; regVal < startIndex + objectsCount; regVal++)
+                for (UInt32 regVal = startIndex; regVal < startIndex + objectsCount; regVal++)
                 {
                     if (GetTypeHelper.IsNumericType(registerValues[regVal].GetType()))
                         bytesCount += (UInt16)Marshal.SizeOf(registerValues[regVal]);
@@ -977,7 +977,7 @@ namespace Modbus.Core
             }            
         }
 
-        protected ModbusErrorCode ForceMultiple(Byte functionNumber, Byte rtuAddress, UInt16 forceAddress, object[] values, UInt16 startIndex, UInt16 objectsCount, bool bigEndianOrder = false)
+        protected ModbusErrorCode ForceMultiple(Byte functionNumber, Byte rtuAddress, UInt16 forceAddress, object[] values, UInt32 startIndex, UInt32 objectsCount, bool bigEndianOrder = false)
         {
             if (!IsConnected)
                 return ModbusErrorCode.CodeNotConnected;
@@ -997,14 +997,14 @@ namespace Modbus.Core
             {
                 if (startIndex + objectsCount > 2000)//can force maximum 2000 coils
                     return ModbusErrorCode.CodeInvalidInputArgument;
-                Array.Resize(ref forcedValues, (startIndex + objectsCount + 15) / 16);
-                Array.Resize(ref boolValues, startIndex + objectsCount);
+                Array.Resize(ref forcedValues, (int)(startIndex + objectsCount + 15) / 16);
+                Array.Resize(ref boolValues, (int)(startIndex + objectsCount));
             }
             Byte[] tempArrayOfBytes = null;
             UInt32 totalLengthInBytesOfValuesToBeSet = 0;
             int i = 0;
             //foreach (var value in values)
-            for (int regVal = startIndex; regVal < startIndex + objectsCount; regVal++)
+            for (UInt32 regVal = startIndex; regVal < startIndex + objectsCount; regVal++)
             {
                 //if arrayType is bool - all elements must be bool
                 if ((firstElementType == typeof(bool)) && (firstElementType != values[regVal].GetType()))

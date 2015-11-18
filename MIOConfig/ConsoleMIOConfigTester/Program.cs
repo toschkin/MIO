@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,13 +19,18 @@ namespace ConsoleMIOConfigTester
         {
             Console.WriteLine(exception.ToString() + "\t" + exception.StackTrace);
         }
-
-        private static void ShowObjectPropsAndVals(object obj)
+        static string GetVariableName<T>(Expression<Func<T>> expr)
         {
+            var body = (MemberExpression)expr.Body;
+
+            return body.Member.Name;
+        }
+        private static void ShowObjectPropsAndVals(object obj)
+        {    
             PropertyInfo[] props = obj.GetType().GetProperties();
             foreach (var prop in props)
             {
-                Console.WriteLine("{0}\t{1}", prop.Name, prop.GetValue(obj));
+                Console.WriteLine("{0}\t{1}\t{2:X}",GetVariableName(() => obj), prop.Name, prop.GetValue(obj));
             }
         }
 
@@ -34,12 +41,12 @@ namespace ConsoleMIOConfigTester
 
             if (protocol.Connect("COM6"))
             {
-                protocol.ReadRegistersPerQueryCapacity = 125;
+                protocol.ReadRegistersPerQueryCapacity = 5;
                 protocol.WriteRegistersPerQueryCapacity = 2;
                 ModbusDeviceReaderSaver modbusReader = new ModbusDeviceReaderSaver(protocol,1,1000);
                 ModbusDeviceReaderSaver modbusSaver = new ModbusDeviceReaderSaver(protocol, 1, 1005);
 
-               DeviceConfiguration config = new DeviceConfiguration();
+               /*DeviceConfiguration config = new DeviceConfiguration();
 
                 ShowObjectPropsAndVals(config.DeviceUartPorts[0]);
                 Console.WriteLine();    
@@ -75,7 +82,7 @@ namespace ConsoleMIOConfigTester
                 ShowObjectPropsAndVals(config.DeviceUartPorts[0]);
                 Console.WriteLine();    
                 ShowObjectPropsAndVals(config.DeviceHeaderFields);
-                Console.WriteLine("config.DeviceUartPorts.Count = {0}", config.DeviceUartPorts.Count);    
+                Console.WriteLine("config.DeviceUartPorts.Count = {0}", config.DeviceUartPorts.Count);    */
                 ModbusDataPoint<Byte> dpB1= new ModbusDataPoint<byte>();
                 ModbusDataPoint<UInt16> dpW1 = new ModbusDataPoint<UInt16>();
                 ModbusDataPoint<UInt16> dpW2 = new ModbusDataPoint<UInt16>();
@@ -87,32 +94,45 @@ namespace ConsoleMIOConfigTester
                 ModbusDataPoint<Byte> dpB3 = new ModbusDataPoint<byte>();
                 ModbusDataPoint<Byte> dpB4 = new ModbusDataPoint<byte>();
                 ModbusDataPoint<UInt32> dpDW1 = new ModbusDataPoint<UInt32>();
+                ModbusDataPoint<Byte> dpB5 = new ModbusDataPoint<byte>();
+                ModbusDataPoint<Int32> dpDW2 = new ModbusDataPoint<Int32>();
                 
                 
-                /*dpB1.Value = 0x00;
-                dpW1.Value = 0x0000;
-                dpW2.Value = 0x0000;
-                dpB2.Value = 0x00;
-                dpW3.Value = 0x0000;
-                dpW4.Value = 0x0000;
-                dpW5.Value = 0x0000;
-                dpW6.Value = 0x0000;
-                dpB3.Value = 0x00;
-                dpB4.Value = 0x00;
-                dpDW1.Value = 0x00000000;
+                /*dpB1.Value = 0xAA;
+                dpW1.Value = 0xBBAA;
+                dpW2.Value = 0xCCBB;
+                dpB2.Value = 0xCC;
+                dpW3.Value = 0xDDDD;
+                dpW4.Value = 0xEEEE;
+                dpW5.Value = 0xFFFF;
+                dpW6.Value = 0x0403;
+                dpB3.Value = 0x05;
+                dpB4.Value = 0x06;
+                //dpDW1.Value = 0x10090807;
+                //dpB5.Value = 0x11;
+                //dpDW2.Value = 0x15141312;*/
+                
+                //Console.WriteLine(modbusSaver.SaveDeviceConfiguration(listForTest));
 
-                List<object> listForTest = new List<object> { dpB1, dpW1, dpW2, dpB2, dpW3, dpW4, dpW5, dpW6, dpB3, dpB4, dpDW1 };
-                Console.WriteLine(modbusReader.SaveDeviceConfiguration(listForTest));
+                modbusReader.BigEndianOrder = false;
 
-                foreach (var item in listForTest)
+                for (byte i = 1; i <= 14; i++)
                 {
-                    ShowObjectPropsAndVals(item);
-                } */             
+                    List<object> listForTest = new List<object> { dpB1, dpW1, dpW2, dpB2, dpW3, dpW4, dpW5, dpW6, dpB3, dpB4, dpDW1, dpB5, dpDW2 };
+                    protocol.ReadRegistersPerQueryCapacity = i;                    
+                    Console.WriteLine(modbusReader.ReadDeviceConfiguration(ref listForTest));
+                    foreach (var item in listForTest)
+                    {
+                        ShowObjectPropsAndVals(item);
+                    }                                      
+                }
+
+               
+
+                Console.ReadLine();                
 
                 protocol.Disconnect();
-            }
-
-            Console.ReadLine();
+            }            
         }
     }
 }

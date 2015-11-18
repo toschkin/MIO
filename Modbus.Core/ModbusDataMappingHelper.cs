@@ -504,62 +504,82 @@ namespace Modbus.Core
             }
         }
 
-        public static Byte GetObjectsHighestByte(object obj)
+        public static Byte GetModbusObjectsHighestByte(object obj, ModbusRegisterAccessType accessType = ModbusRegisterAccessType.AccessRead)
         {
             if (obj == null)
-                throw new ArgumentNullException();           
-            
+                throw new ArgumentNullException();
+                        
+            if (!GetTypeHelper.IsNumericType(obj.GetType()))
+            {
+                for (int i = obj.GetType().GetProperties().Length-1; i >=0; i--)
+                {
+                    if ((obj.GetType().GetProperties()[i].PropertyType.IsPublic) &&
+                       (obj.GetType().GetProperties()[i].GetCustomAttributes(typeof(ModbusPropertyAttribute), false).Length != 0))
+                    {
+                        foreach (var attr in obj.GetType().GetProperties()[i].GetCustomAttributes(typeof(ModbusPropertyAttribute), false))
+                        {
+                            if (((ModbusPropertyAttribute)attr).Access >= accessType)
+                            {
+                                obj = obj.GetType().GetProperties()[i].GetValue(obj);
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                }                
+            } 
+          
             switch (obj.GetType().Name)
             {
                 case "Byte":
                     {
-                        return (Byte)obj;                       
+                        return (Byte)obj;
                     }
                 case "SByte":
                     {
-                        return unchecked((Byte)((SByte)obj));                       
+                        return unchecked((Byte)((SByte)obj));
                     }
                 case "UInt16":
                     {
-                        return BitConverter.GetBytes((UInt16)obj).ElementAt<Byte>(BitConverter.GetBytes((UInt16)obj).Length-1);                                               
+                        return BitConverter.GetBytes((UInt16)obj).ElementAt<Byte>(BitConverter.GetBytes((UInt16)obj).Length - 1);
                     }
                 case "Int16":
                     {
-                        return BitConverter.GetBytes((Int16)obj).ElementAt<Byte>(BitConverter.GetBytes((Int16)obj).Length - 1); 
+                        return BitConverter.GetBytes((Int16)obj).ElementAt<Byte>(BitConverter.GetBytes((Int16)obj).Length - 1);
                     }
                 case "UInt32":
                     {
-                        return BitConverter.GetBytes((UInt32)obj).ElementAt<Byte>(BitConverter.GetBytes((UInt32)obj).Length - 1);                         
+                        return BitConverter.GetBytes((UInt32)obj).ElementAt<Byte>(BitConverter.GetBytes((UInt32)obj).Length - 1);
                     }
                 case "Int32":
                     {
-                        return BitConverter.GetBytes((Int32)obj).ElementAt<Byte>(BitConverter.GetBytes((Int32)obj).Length - 1);     
+                        return BitConverter.GetBytes((Int32)obj).ElementAt<Byte>(BitConverter.GetBytes((Int32)obj).Length - 1);
                     }
                 case "UInt64":
                     {
-                        return BitConverter.GetBytes((UInt64)obj).ElementAt<Byte>(BitConverter.GetBytes((UInt64)obj).Length - 1);     
+                        return BitConverter.GetBytes((UInt64)obj).ElementAt<Byte>(BitConverter.GetBytes((UInt64)obj).Length - 1);
                     }
                 case "Int64":
                     {
-                        return BitConverter.GetBytes((Int64)obj).ElementAt<Byte>(BitConverter.GetBytes((Int64)obj).Length - 1);                        
+                        return BitConverter.GetBytes((Int64)obj).ElementAt<Byte>(BitConverter.GetBytes((Int64)obj).Length - 1);
                     }
                 case "Single":
                     {
-                        return BitConverter.GetBytes((Single)obj).ElementAt<Byte>(BitConverter.GetBytes((Single)obj).Length - 1);                                
+                        return BitConverter.GetBytes((Single)obj).ElementAt<Byte>(BitConverter.GetBytes((Single)obj).Length - 1);
                     }
                 case "Double":
                     {
-                        return BitConverter.GetBytes((Double)obj).ElementAt<Byte>(BitConverter.GetBytes((Double)obj).Length - 1); 
+                        return BitConverter.GetBytes((Double)obj).ElementAt<Byte>(BitConverter.GetBytes((Double)obj).Length - 1);
                     }
                 case "Decimal":
                     {
-                        return BitConverterEx.GetBytes((Decimal)obj).ElementAt<Byte>(BitConverterEx.GetBytes((Decimal)obj).Length - 1);                        
+                        return BitConverterEx.GetBytes((Decimal)obj).ElementAt<Byte>(BitConverterEx.GetBytes((Decimal)obj).Length - 1);
                     }
                 default:
-                {
-                    throw new ArgumentException();
-                }
-            }            
+                    {
+                        throw new ArgumentException();
+                    }
+            }  
         }
     }    
 }
