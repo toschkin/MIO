@@ -36,9 +36,13 @@ namespace ConsoleMIOConfigTester
 
         static void Main(string[] args)
         {
+            DeviceConfiguration config = new DeviceConfiguration();
+
             ModbusRtuProtocol protocol = new ModbusRtuProtocol();           
             protocol.AddExceptionsLogger(ShowException);
 
+            FileReaderSaver fileSaverReader = new FileReaderSaver(@"c:\device.dat");                    
+            
             if (protocol.Connect("COM6"))
             {
                 protocol.ReadRegistersPerQueryCapacity = 125;
@@ -46,19 +50,41 @@ namespace ConsoleMIOConfigTester
                 ModbusDeviceReaderSaver modbusReader = new ModbusDeviceReaderSaver(protocol,1,1000);
                 ModbusDeviceReaderSaver modbusSaver = new ModbusDeviceReaderSaver(protocol, 1, 1005);
 
-                DeviceConfiguration config = new DeviceConfiguration();
-
-                ShowObjectPropsAndVals(config.DeviceHeaderFields);
-                Console.WriteLine();    
-                ShowObjectPropsAndVals(config.DeviceUartPorts[0]);
-                Console.WriteLine();    
+                Console.WriteLine("Start...");
+                config.DeviceHeaderFields.DeviceUartChannelsCount = 3;
+                Console.WriteLine(config.DeviceHeaderFields.DeviceHeaderCrc16);
+                Console.ReadLine();        
                
-
                 Console.WriteLine("SaveConfiguration...");
                 Console.WriteLine(config.SaveConfiguration(modbusSaver));
-                Console.WriteLine();    
+                Console.WriteLine();
 
-                Console.WriteLine("Changing config");
+                Console.WriteLine("clear Configuration...");
+                config = new DeviceConfiguration();
+                Console.WriteLine(config.DeviceHeaderFields.DeviceHeaderCrc16);
+                Console.ReadLine();        
+
+                Console.WriteLine("ReadConfiguration...");
+                Console.WriteLine(config.ReadConfiguration(modbusReader));
+                Console.WriteLine();
+                Console.WriteLine(config.DeviceHeaderFields.DeviceHeaderCrc16);
+                Console.ReadLine();
+
+                Console.WriteLine("SaveConfiguration to {0}", fileSaverReader.FilePath);
+                Console.WriteLine(config.SaveConfiguration(fileSaverReader));
+
+                Console.WriteLine("clear Configuration...");
+                config = new DeviceConfiguration();
+                Console.WriteLine(config.DeviceHeaderFields.DeviceHeaderCrc16);
+                Console.ReadLine();
+
+                Console.WriteLine("ReadConfiguration from {0}", fileSaverReader.FilePath);
+                Console.WriteLine(config.ReadConfiguration(fileSaverReader));
+                Console.WriteLine(config.DeviceHeaderFields.DeviceHeaderCrc16);
+                Console.WriteLine();                
+                Console.ReadLine();        
+
+                /*Console.WriteLine("Changing config");
                 config.DeviceUartPorts[0].PortOperation = 0;
                 config.DeviceUartPorts[0].PortNumber = 1;
                 config.DeviceUartPorts[0].PortSpeed = 1200;

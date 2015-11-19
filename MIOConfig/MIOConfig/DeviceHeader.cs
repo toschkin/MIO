@@ -3,13 +3,19 @@ using Modbus.Core;
 
 namespace MIOConfig
 {
+    [Serializable]
     public class DeviceHeader
     {
         private DeviceConfiguration _deviceConfiguration;        
 
         private UInt16 _deviceUartChannelsCount;
 
-        public DeviceHeader(DeviceConfiguration deviceConfiguration)
+        public DeviceHeader()
+        {
+            _deviceConfiguration = null;
+            _deviceUartChannelsCount = 1;
+        }
+        public DeviceHeader( ref DeviceConfiguration deviceConfiguration)
         {
             _deviceConfiguration = deviceConfiguration;
             _deviceUartChannelsCount = 1;
@@ -26,10 +32,19 @@ namespace MIOConfig
             {
                 if (value < 1)
                     value = 1;
-                if (value > _deviceConfiguration.DeviceUartPorts.Count)
-                    _deviceConfiguration.DeviceUartPorts.AddRange(new DeviceUARTPortConfiguration[value - _deviceConfiguration.DeviceUartPorts.Count]);
-                if (value < _deviceConfiguration.DeviceUartPorts.Count)
-                    _deviceConfiguration.DeviceUartPorts.RemoveRange(value, _deviceConfiguration.DeviceUartPorts.Count - value);
+                if (_deviceConfiguration != null)
+                {
+                    if (value > _deviceConfiguration.DeviceUartPorts.Count)
+                    {
+                        int addCount = value - _deviceConfiguration.DeviceUartPorts.Count;
+
+                        for (int i = 0; i < addCount; i++)
+                            _deviceConfiguration.DeviceUartPorts.Add(new DeviceUARTPortConfiguration());
+                    }
+
+                    if (value < _deviceConfiguration.DeviceUartPorts.Count)
+                        _deviceConfiguration.DeviceUartPorts.RemoveRange(value, _deviceConfiguration.DeviceUartPorts.Count - value);    
+                }                
                 _deviceUartChannelsCount = value;                
             }
         }

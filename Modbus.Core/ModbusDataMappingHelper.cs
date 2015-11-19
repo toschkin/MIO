@@ -11,103 +11,6 @@ using System.Runtime.Remoting.Messaging;
 
 namespace Modbus.Core
 {
-    public static class SizeofHelper
-    {        
-        /// <summary>
-        /// Calculates total size in bytes of all public properties of an array of objects
-        /// </summary>
-        /// <param name="array">array which total element's properties sizes should be calculated</param>
-        /// <returns>size in bytes of all public properties of an object's in array</returns>
-        public static UInt32 SizeOfPublicPropertiesWithModbusAttribute(object[] array, ModbusRegisterAccessType accessType = ModbusRegisterAccessType.AccessRead)
-        {
-            if (array == null)
-                throw new ArgumentNullException();
-            
-            UInt32 totalLengthInBytes = 0;
-            foreach (var element in array)
-            {
-                foreach (var field in element.GetType().GetProperties())
-                {
-                    if ((field.PropertyType.IsPublic) &&
-                        (field.GetCustomAttributes(typeof (ModbusPropertyAttribute), false).Length != 0))
-                    {
-                        foreach (var attr in field.GetCustomAttributes(typeof(ModbusPropertyAttribute), false))
-                        {
-                            if (((ModbusPropertyAttribute)attr).Access >= accessType)
-                            {
-                                totalLengthInBytes += (UInt32)Marshal.SizeOf(field.PropertyType);
-                                break;
-                            } 
-                        }                                                    
-                    }
-                        
-                }
-            }            
-            return totalLengthInBytes;
-        }
-
-        /// <summary>
-        /// Calculates total size in bytes of all public properties of an object
-        /// </summary>
-        /// <param name="obj">object which properties size should be calculated</param>
-        /// <returns>size in bytes of all public properties of an object</returns>
-        public static UInt32 SizeOfPublicPropertiesWithModbusAttribute(object obj, ModbusRegisterAccessType accessType = ModbusRegisterAccessType.AccessRead)
-        {
-            if (obj is List<object>)
-                return SizeOfPublicPropertiesWithModbusAttribute(((List<object>)obj).ToArray(), accessType);
-
-            if (obj == null)
-                throw new ArgumentNullException();
-
-            UInt32 totalLengthInBytes = 0;
-            foreach (var field in obj.GetType().GetProperties())
-            {
-                if ((field.PropertyType.IsPublic) &&
-                    (field.GetCustomAttributes(typeof(ModbusPropertyAttribute), false).Length != 0))
-                {
-                    foreach (var attr in field.GetCustomAttributes(typeof(ModbusPropertyAttribute), false))
-                    {
-                        if (((ModbusPropertyAttribute)attr).Access >= accessType)
-                        {
-                            totalLengthInBytes += (UInt32)Marshal.SizeOf(field.PropertyType);
-                            break;
-                        }
-                    }
-                }
-            }
-            return totalLengthInBytes;
-        }
-    }
-
-    public static class GetTypeHelper
-    {
-        /// <summary>
-        /// Checks whether the type is numerical
-        /// </summary>
-        /// <param name="type">A type to check</param>
-        /// <returns>true if type is numerical, false otherwise</returns>
-        public static bool IsNumericType(Type type)
-        {
-            switch (Type.GetTypeCode(type))
-            {
-                case TypeCode.Byte:
-                case TypeCode.SByte:
-                case TypeCode.UInt16:
-                case TypeCode.UInt32:
-                case TypeCode.UInt64:
-                case TypeCode.Int16:
-                case TypeCode.Int32:
-                case TypeCode.Int64:
-                case TypeCode.Decimal:
-                case TypeCode.Double:
-                case TypeCode.Single:
-                    return true;
-                default:
-                    return false;
-            }
-        }
-    }
-    
     public static class ModbusDataMappingHelper
     {
         /// <summary>
@@ -115,7 +18,7 @@ namespace Modbus.Core
         /// </summary>
         /// <param name="obj">object which properties values should be extracted</param>
         /// <returns>array of public properties values</returns>
-        public static object[] GetObjectModbusPropertiesValuesArray(object obj)
+        public static object[] GetObjectModbusPropertiesValuesArray(object obj, ModbusRegisterAccessType accessType = ModbusRegisterAccessType.AccessRead)
         {
             if (obj == null)
                 throw new ArgumentNullException();
@@ -126,8 +29,18 @@ namespace Modbus.Core
             {
                 if (GetTypeHelper.IsNumericType(item.PropertyType))
                 {
-                    if ((item.PropertyType.IsPublic) && (item.GetIndexParameters().Length == 0) && (item.GetCustomAttributes(typeof(ModbusPropertyAttribute), false).Length != 0))
-                        lstTypesOfClassMembers.Add(item.GetValue(obj));    
+                    if ((item.PropertyType.IsPublic) && (item.GetIndexParameters().Length == 0)
+                        && (item.GetCustomAttributes(typeof (ModbusPropertyAttribute), false).Length != 0))
+                    {
+                        foreach (var attr in item.GetCustomAttributes(typeof(ModbusPropertyAttribute), false))
+                        {
+                            if (((ModbusPropertyAttribute)attr).Access >= accessType)
+                            {
+                                lstTypesOfClassMembers.Add(item.GetValue(obj));    
+                                break;
+                            }
+                        }                        
+                    }                        
                 }                
             }
             return lstTypesOfClassMembers.ToArray<object>();
@@ -137,7 +50,7 @@ namespace Modbus.Core
         /// </summary>
         /// <param name="obj">object which properties should be extracted</param>
         /// <returns>array of public properties types</returns>
-        public static Type[] GetObjectModbusPropertiesTypeArray(object obj)
+        public static Type[] GetObjectModbusPropertiesTypeArray(object obj, ModbusRegisterAccessType accessType = ModbusRegisterAccessType.AccessRead)
         {
             if (obj == null)
                 throw new ArgumentNullException();
@@ -148,8 +61,19 @@ namespace Modbus.Core
             {
                 if (GetTypeHelper.IsNumericType(item.PropertyType))
                 {
-                    if ((item.PropertyType.IsPublic) && (item.GetCustomAttributes(typeof(ModbusPropertyAttribute), false).Length != 0))
-                        lstTypesOfClassMembers.Add(item.PropertyType);
+                    if ((item.PropertyType.IsPublic) &&
+                        (item.GetCustomAttributes(typeof (ModbusPropertyAttribute), false).Length != 0))
+                    {
+                        foreach (var attr in item.GetCustomAttributes(typeof(ModbusPropertyAttribute), false))
+                        {
+                            if (((ModbusPropertyAttribute)attr).Access >= accessType)
+                            {
+                                lstTypesOfClassMembers.Add(item.PropertyType);
+                                break;
+                            }
+                        } 
+                    }
+                    
                 }                
             }
             return lstTypesOfClassMembers.ToArray<Type>();
@@ -159,7 +83,7 @@ namespace Modbus.Core
         /// </summary>
         /// <param name="obj">array of objects which properties should be extracted</param>
         /// <returns>array of public properties types</returns>       
-        public static Type[] GetObjectModbusPropertiesTypeArray(object[] obj)
+        public static Type[] GetObjectModbusPropertiesTypeArray(object[] obj, ModbusRegisterAccessType accessType = ModbusRegisterAccessType.AccessRead)
         {
             if (obj == null)
                 throw new ArgumentNullException();
@@ -174,8 +98,19 @@ namespace Modbus.Core
                 {
                     if (GetTypeHelper.IsNumericType(property.PropertyType))
                     {
-                        if ((property.PropertyType.IsPublic) && (property.GetCustomAttributes(typeof(ModbusPropertyAttribute), false).Length != 0))
-                            lstTypesOfClassMembers.Add(property.PropertyType);    
+                        if ((property.PropertyType.IsPublic) &&
+                            (property.GetCustomAttributes(typeof (ModbusPropertyAttribute), false).Length != 0))
+                        {
+                            foreach (var attr in property.GetCustomAttributes(typeof(ModbusPropertyAttribute), false))
+                            {
+                                if (((ModbusPropertyAttribute)attr).Access >= accessType)
+                                {
+                                    lstTypesOfClassMembers.Add(property.PropertyType);    
+                                    break;
+                                }
+                            } 
+                        }
+
                     }                    
                 }     
             }           
@@ -188,7 +123,7 @@ namespace Modbus.Core
         /// <param name="arrayValues">Values to which this function sets properties of the object array</param>
         /// <returns>true on success, false otherwise</returns>
         /// <remarks>Values in arrayValues should be placed sequentionaly in the same order with object's properties definitions</remarks>
-        public static bool SetObjectPropertiesValuesFromArray(ref object obj, object[] arrayValues)
+        public static bool SetObjectPropertiesValuesFromArray(ref object obj, object[] arrayValues, ModbusRegisterAccessType accessType = ModbusRegisterAccessType.AccessRead)
         {
             if (obj == null)
                 throw new ArgumentNullException();
@@ -203,18 +138,35 @@ namespace Modbus.Core
                 {
                     if ((item.PropertyType.IsPublic) && (item.GetCustomAttributes(typeof(ModbusPropertyAttribute), false).Length != 0))
                     {
-                        if (item.PropertyType == arrayValues[i].GetType())
-                            i++;
-                        else
-                            return false;    
+                        foreach (var attr in item.GetCustomAttributes(typeof(ModbusPropertyAttribute), false))
+                        {
+                            if (((ModbusPropertyAttribute)attr).Access >= accessType)
+                            {
+                                if (item.PropertyType == arrayValues[i].GetType())
+                                    i++;
+                                else
+                                    return false;    
+                                break;
+                            }
+                        }                         
                     }                    
                 }
                 //setting values from arrayValues to corresponding properties  
                 i = 0;
                 foreach (var item in obj.GetType().GetProperties())
                 {
-                    if ((item.PropertyType.IsPublic) && (item.GetCustomAttributes(typeof(ModbusPropertyAttribute), false).Length != 0))                   
-                        item.SetValue(obj, Convert.ChangeType(arrayValues[i], item.PropertyType));                   
+                    if ((item.PropertyType.IsPublic) &&
+                        (item.GetCustomAttributes(typeof (ModbusPropertyAttribute), false).Length != 0))
+                    {
+                        foreach (var attr in item.GetCustomAttributes(typeof(ModbusPropertyAttribute), false))
+                        {
+                            if (((ModbusPropertyAttribute)attr).Access >= accessType)
+                            {
+                                item.SetValue(obj, Convert.ChangeType(arrayValues[i], item.PropertyType));                   
+                                break;
+                            }
+                        } 
+                    }                    
                     i++;
                 }
                 return true;
@@ -490,6 +442,7 @@ namespace Modbus.Core
                 }
             }
         }
+       
         public static void SwapBytesInWordsInByteArray(ref byte[] array)
         {
             if (array == null)
@@ -584,7 +537,7 @@ namespace Modbus.Core
         }
 
         public static void ConvertObjectsVaulesToRegisters(object[] values, uint startIndex, uint objectsCount,
-            bool bigEndianOrder, out ushort[] forcedValues, out Type firstElementType)
+            bool bigEndianOrder, out ushort[] forcedValues, out Type firstElementType, ModbusRegisterAccessType accessType = ModbusRegisterAccessType.AccessRead)
         {
             //array of output 16bit values
             forcedValues = null;
@@ -628,7 +581,7 @@ namespace Modbus.Core
                 else //here we will process properties (only numeric) from complex (class) types 
                 {                                       
                     object[] arrayOfObjectPropsValues =
-                        GetObjectModbusPropertiesValuesArray(values[regVal]);
+                        GetObjectModbusPropertiesValuesArray(values[regVal], accessType);
 
                     for (int k = 0; k < arrayOfObjectPropsValues.Length; k++)
                     {
@@ -651,6 +604,97 @@ namespace Modbus.Core
                 Array.Resize(ref forcedValues, (tempArrayOfBytes.Length + 1) / 2);
                 Buffer.BlockCopy(tempArrayOfBytes, 0, forcedValues, 0, tempArrayOfBytes.Length);
             }            
+        }
+
+        /// <summary>
+        /// Fills array of bool values from modbus packet
+        /// </summary>
+        /// <param name="rawPacketData">raw data extracted from modbus packet</param>
+        /// <param name="outputValues">array of boolean values to fill</param>        
+        /// <returns>true on success, false otherwise</returns>
+        /// <exception cref="System.ArgumentNullException"></exception>
+        /// <exception cref="System.ArgumentOutOfRangeException"></exception>        
+        /// <remarks>outputValues can contain numeric types and classes or structs with public numeric properties</remarks>
+        public static void ProcessDiscreetData(Byte[] rawPacketData, ref bool[] outputValues)
+        {
+            if (rawPacketData == null)
+                throw new ArgumentNullException();
+
+            if (outputValues.Length > rawPacketData.Length * 8)
+                throw new ArgumentOutOfRangeException();
+
+            int deltaResize = rawPacketData.Length * 8 - outputValues.Length;
+
+            Array.Resize<bool>(ref outputValues, rawPacketData.Length * 8);
+            BitArray bitsOfRawPacketData = new BitArray(rawPacketData);
+            bitsOfRawPacketData.CopyTo(outputValues, 0);
+
+            Array.Resize<bool>(ref outputValues, outputValues.Length - deltaResize);
+        }
+
+        /// <summary>
+        /// Fills array of objects with values from array of raw data extracted from modbus packet
+        /// </summary>
+        /// <param name="rawPacketData">raw data extracted from modbus packet</param>
+        /// <param name="outputValues">array of objects to fill</param>
+        /// <param name="startIndex">start position in array to which objects will be filled</param>
+        /// <param name="objectsCount">count of objects that will be filled</param>
+        /// <param name="bigEndianOrder">if true modbus registers are processed to 32bit(or higher) values in big endian order: first register - high 16bit, second - low 16bit</param>
+        /// <returns>true on success, false otherwise</returns>
+        /// <exception cref="System.ArgumentNullException"></exception>
+        /// <exception cref="System.ArgumentOutOfRangeException"></exception>
+        /// <exception cref="System.ArgumentException"></exception>
+        /// <exception cref="System.NullReferenceException"></exception>
+        /// <remarks>outputValues can contain numeric types and classes or structs with public numeric properties</remarks>
+        public static void ProcessAnalogData(Byte[] rawPacketData, ref object[] outputValues, UInt32 startIndex, UInt32 objectsCount, bool bigEndianOrder = false)
+        {
+            if (rawPacketData == null)
+                throw new ArgumentNullException();
+            if (startIndex + objectsCount > outputValues.Length)
+                throw new ArgumentOutOfRangeException();
+
+            UInt32 totalLengthInBytesOfRequestedData = 0;
+            int currentIndexInPacketData = 0;
+
+            for (UInt32 val = startIndex; val < startIndex + objectsCount; val++)
+            {
+                if (outputValues[val] == null)
+                    throw new NullReferenceException();
+
+                if (outputValues[val].GetType().IsValueType)//here we will process simple (only numeric) types
+                {
+                    if (GetTypeHelper.IsNumericType(outputValues[val].GetType()))
+                    {
+                        totalLengthInBytesOfRequestedData += (UInt32)Marshal.SizeOf(outputValues[val]);
+                        if (totalLengthInBytesOfRequestedData > rawPacketData.Length)
+                            throw new ArgumentOutOfRangeException();
+                        ExtractValueFromArrayByType(rawPacketData,
+                            ref currentIndexInPacketData, ref outputValues[val], bigEndianOrder);
+                    }
+                    else
+                        throw new ArgumentException("Neither numeric nor class value in outputValues array");
+                }
+                else//here we will process properties (only numeric) from complex (class) types 
+                {
+                    Type[] arrayOfOutputTypes = GetObjectModbusPropertiesTypeArray(outputValues[val]);
+                    totalLengthInBytesOfRequestedData += SizeofHelper.SizeOfPublicPropertiesWithModbusAttribute(outputValues[val]);
+                    if (totalLengthInBytesOfRequestedData > 0)
+                    {
+                        if (totalLengthInBytesOfRequestedData > rawPacketData.Length)
+                            throw new ArgumentOutOfRangeException();
+                        object[] arrayOfValuesForObject =
+                            CreateValuesArrayFromTypesArray(arrayOfOutputTypes);
+
+                        for (int i = 0; i < arrayOfValuesForObject.Length; i++)
+                        {
+                            ExtractValueFromArrayByType(rawPacketData,
+                                ref currentIndexInPacketData, ref arrayOfValuesForObject[i], bigEndianOrder);
+                        }
+                        SetObjectPropertiesValuesFromArray(
+                            ref outputValues[val], arrayOfValuesForObject);
+                    }
+                }
+            }
         }
     }    
 }

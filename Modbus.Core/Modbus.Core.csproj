@@ -50,9 +50,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Crc16.cs" />
     <Compile Include="DelegatesDef.cs" />
     <Compile Include="ConversionHelper.cs" />
     <Compile Include="EnumExtension.cs" />
+    <Compile Include="GetTypeHelper.cs" />
     <Compile Include="IModbus.cs" />
     <Compile Include="ModbusDataMappingHelper.cs" />
     <Compile Include="ModbusDataPoint.cs" />
@@ -62,6 +64,7 @@
     <Compile Include="ModbusRTUProtocol.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SerialPortPin.cs" />
+    <Compile Include="SizeofHelper.cs" />
     <Compile Include="UInt128.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -46,7 +46,9 @@
     <Compile Include="DeviceConfigurationTime.cs" />
     <Compile Include="DeviceConsistence.cs" />
     <Compile Include="DeviceHeader.cs" />
+    <Compile Include="DeviceModuleDI.cs" />
     <Compile Include="DeviceUARTPortConfiguration.cs" />
+    <Compile Include="FileReaderSaver.cs" />
     <Compile Include="IDeviceReaderSaver.cs" />
     <Compile Include="ModbusDeviceReaderSaver.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

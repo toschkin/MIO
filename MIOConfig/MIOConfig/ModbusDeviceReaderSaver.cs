@@ -41,7 +41,7 @@ namespace MIOConfig
                 {
                     if (registerNumberNeeded <= _protocol.WriteRegistersPerQueryCapacity)
                     {
-                        if (_protocol.PresetMultipleRegisters(SlaveAddress, RegisterAddressOffset, configurationItems, 0, (UInt32)configurationItems.Count, BigEndianOrder) != ModbusErrorCode.CodeOk)
+                        if (_protocol.PresetMultipleRegisters(SlaveAddress, RegisterAddressOffset, configurationItems, BigEndianOrder) != ModbusErrorCode.CodeOk)
                             return false;                        
                         return true;
                     }
@@ -84,7 +84,7 @@ namespace MIOConfig
                 {
                     if (registerNumberNeeded <= _protocol.ReadRegistersPerQueryCapacity)
                     {
-                        if (_protocol.ReadHoldingRegisters(SlaveAddress, RegisterAddressOffset, ref configurationItems, 0, (UInt32)configurationItems.Count, BigEndianOrder) != ModbusErrorCode.CodeOk)
+                        if (_protocol.ReadHoldingRegisters(SlaveAddress, RegisterAddressOffset, ref configurationItems, BigEndianOrder) != ModbusErrorCode.CodeOk)
                             return false;
                         return true;
                     }
@@ -109,7 +109,7 @@ namespace MIOConfig
                     }
                     object[] tempArray = configurationItems.ToArray();
 
-                    ModbusRtuProtocol.ProcessAnalogData(Array.ConvertAll(rawBytesMap.ToArray(), b => (byte)b),
+                    ModbusDataMappingHelper.ProcessAnalogData(Array.ConvertAll(rawBytesMap.ToArray(), b => (byte)b),
                         ref tempArray, 0, (UInt16)tempArray.Length, BigEndianOrder);
                     return true;                    
                 }                

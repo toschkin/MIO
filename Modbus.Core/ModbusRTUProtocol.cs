@@ -522,79 +522,6 @@ namespace Modbus.Core
         }
 
         /// <summary>
-        /// Adds two bytes of CRC16 to array representing Modbus protocol data packet passed in argument
-        /// </summary>
-        /// <param name="packet">data packet to which we need to add CRC16</param>
-        ///  <exception cref="System.ArgumentNullException">Thrown if packet is null</exception>
-        ///  <exception cref="System.ArgumentOutOfRangeException">Thrown if argument length &lt; 2 or &gt; 254</exception>
-        protected void AddCrc(ref Byte[] packet)
-        {
-            if (packet == null)
-                throw new ArgumentNullException();
-            if ((packet.Length<3)||(packet.Length>254))
-                throw new ArgumentOutOfRangeException();
-        
-            UInt16 crc = 0xFFFF;
-
-            for (int pos = 0; pos < packet.Length; pos++)
-            {
-                crc ^= (UInt16)packet[pos];          // XOR byte into least sig. byte of crc
- 
-                for (int i = 8; i != 0; i--) 
-                {    // Loop over each bit
-                    if ((crc & 0x0001) != 0) 
-                    {      // If the LSB is set
-                        crc >>= 1;                    // Shift right and XOR 0xA001
-                        crc ^= 0xA001;
-                    }
-                else                            // Else LSB is not set
-                    crc >>= 1;                    // Just shift right
-                }
-            }
-            List<byte> listCrc = new List<byte>();
-            listCrc.AddRange(packet);
-            listCrc.Add(BitConverter.GetBytes(crc).ElementAt<Byte>(0));
-            listCrc.Add(BitConverter.GetBytes(crc).ElementAt<Byte>(1));
-            Array.Resize(ref packet, listCrc.Count);
-            listCrc.ToArray().CopyTo(packet, 0);                                             
-        }
-        /// <summary>
-        /// Checks CRC16 of Modbus protocol data packet passed in argument
-        /// </summary>
-        /// <param name="packet"> packet, which CRC we need to verify</param>
-        /// <returns>true on success, otherwise false</returns>            
-        protected bool CheckCrc(Byte[] packet)
-        {
-            if (packet == null)
-                return false;
-            if ((packet.Length < 5) || (packet.Length > 256))
-                return false;
-
-            UInt16 crc = 0xFFFF;
-
-            for (int pos = 0; pos < packet.Length-2; pos++)
-            {
-                crc ^= (UInt16)packet[pos];          // XOR byte into least sig. byte of crc
-
-                for (int i = 8; i != 0; i--)
-                {    // Loop over each bit
-                    if ((crc & 0x0001) != 0)
-                    {      // If the LSB is set
-                        crc >>= 1;                    // Shift right and XOR 0xA001
-                        crc ^= 0xA001;
-                    }
-                    else                            // Else LSB is not set
-                        crc >>= 1;                    // Just shift right
-                }
-            }
-
-            if((packet[packet.Length-2] == BitConverter.GetBytes(crc).ElementAt<Byte>(0))
-                &&(packet[packet.Length-1] == BitConverter.GetBytes(crc).ElementAt<Byte>(1)))
-                return true;
-            
-            return false;
-        }
-        /// <summary>
         /// Validates recieved packet
         /// </summary>
         /// <param name="packetRecieved">Packet to validate</param>
@@ -607,7 +534,7 @@ namespace Modbus.Core
         {
             if ((packetRecieved == null)||(packetRecieved.Length != expectedPacketLength))
                 return ModbusErrorCode.CodeInvalidPacketLength;
-            if (!CheckCrc(packetRecieved)) 
+            if (!Crc16.CheckCrc(packetRecieved)) 
                 return ModbusErrorCode.CodeCrcError;
             if (slaveAddress != packetRecieved[0])
                 return ModbusErrorCode.CodeInvalidSlaveAddress;
@@ -615,96 +542,7 @@ namespace Modbus.Core
                 return ModbusErrorCode.CodeInvalidFunction;
             
             return ModbusErrorCode.CodeOk;
-        }
-        /// <summary>
-        /// Fills array of objects with values from array of raw data extracted from modbus packet
-        /// </summary>
-        /// <param name="rawPacketData">raw data extracted from modbus packet</param>
-        /// <param name="outputValues">array of objects to fill</param>
-        /// <param name="startIndex">start position in array to which objects will be filled</param>
-        /// <param name="objectsCount">count of objects that will be filled</param>
-        /// <param name="bigEndianOrder">if true modbus registers are processed to 32bit(or higher) values in big endian order: first register - high 16bit, second - low 16bit</param>
-        /// <returns>true on success, false otherwise</returns>
-        /// <exception cref="System.ArgumentNullException"></exception>
-        /// <exception cref="System.ArgumentOutOfRangeException"></exception>
-        /// <exception cref="System.ArgumentException"></exception>
-        /// <exception cref="System.NullReferenceException"></exception>
-        /// <remarks>outputValues can contain numeric types and classes or structs with public numeric properties</remarks>
-        public static void ProcessAnalogData(Byte[] rawPacketData, ref object[] outputValues,UInt32 startIndex, UInt32 objectsCount, bool bigEndianOrder = false)
-        {
-            if(rawPacketData == null)
-                throw new ArgumentNullException();
-            if (startIndex + objectsCount > outputValues.Length)
-                throw new ArgumentOutOfRangeException();
-
-            UInt32 totalLengthInBytesOfRequestedData = 0;
-            int currentIndexInPacketData = 0;
-
-            for (UInt32 val = startIndex; val < startIndex + objectsCount; val++)
-            {
-                if (outputValues[val] == null)
-                    throw new NullReferenceException();
-
-                if (outputValues[val].GetType().IsValueType)//here we will process simple (only numeric) types
-                {
-                    if (GetTypeHelper.IsNumericType(outputValues[val].GetType()))
-                    {
-                        totalLengthInBytesOfRequestedData += (UInt32)Marshal.SizeOf(outputValues[val]);
-                        if (totalLengthInBytesOfRequestedData > rawPacketData.Length)
-                            throw new ArgumentOutOfRangeException();                        
-                        ModbusDataMappingHelper.ExtractValueFromArrayByType(rawPacketData,
-                            ref currentIndexInPacketData, ref outputValues[val], bigEndianOrder);
-                    }
-                    else
-                        throw new ArgumentException("Neither numeric nor class value in outputValues array");
-                }
-                else//here we will process properties (only numeric) from complex (class) types 
-                {
-                    Type[] arrayOfOutputTypes = ModbusDataMappingHelper.GetObjectModbusPropertiesTypeArray(outputValues[val]);
-                    totalLengthInBytesOfRequestedData += SizeofHelper.SizeOfPublicPropertiesWithModbusAttribute(outputValues[val]);
-                    if (totalLengthInBytesOfRequestedData > 0)
-                    {
-                        if (totalLengthInBytesOfRequestedData > rawPacketData.Length)
-                            throw new ArgumentOutOfRangeException();
-                        object[] arrayOfValuesForObject =
-                            ModbusDataMappingHelper.CreateValuesArrayFromTypesArray(arrayOfOutputTypes);
-
-                        for (int i = 0; i < arrayOfValuesForObject.Length; i++)
-                        {
-                            ModbusDataMappingHelper.ExtractValueFromArrayByType(rawPacketData,
-                                ref currentIndexInPacketData, ref arrayOfValuesForObject[i], bigEndianOrder);
-                        }
-                        ModbusDataMappingHelper.SetObjectPropertiesValuesFromArray(
-                            ref outputValues[val], arrayOfValuesForObject);                                        
-                    }                    
-                }               
-            }                    
-        }
-        /// <summary>
-        /// Fills array of bool values from modbus packet
-        /// </summary>
-        /// <param name="rawPacketData">raw data extracted from modbus packet</param>
-        /// <param name="outputValues">array of boolean values to fill</param>        
-        /// <returns>true on success, false otherwise</returns>
-        /// <exception cref="System.ArgumentNullException"></exception>
-        /// <exception cref="System.ArgumentOutOfRangeException"></exception>        
-        /// <remarks>outputValues can contain numeric types and classes or structs with public numeric properties</remarks>
-        protected void ProcessDiscreetData(Byte[] rawPacketData, ref bool[] outputValues)
-        {
-            if (rawPacketData == null)
-                throw new ArgumentNullException();
-            
-            if (outputValues.Length > rawPacketData.Length*8)
-                throw new ArgumentOutOfRangeException();
-            
-            int deltaResize = rawPacketData.Length*8 - outputValues.Length;
-
-            Array.Resize<bool>(ref outputValues, rawPacketData.Length * 8);
-            BitArray bitsOfRawPacketData = new BitArray(rawPacketData);
-            bitsOfRawPacketData.CopyTo(outputValues,0);
-
-            Array.Resize<bool>(ref outputValues, outputValues.Length - deltaResize);                        
-        }
+        }               
         /// <summary>
         /// Creates Modbus packet
         /// </summary>
@@ -766,7 +604,7 @@ namespace Modbus.Core
                 }
             }                                                  
             Byte[] sendPacket = sendPacketList.ToArray();
-            AddCrc(ref sendPacket);
+            Crc16.AddCrc(ref sendPacket);
             return sendPacket;
         }
 
@@ -778,7 +616,7 @@ namespace Modbus.Core
                     return ModbusErrorCode.CodeInvalidSlaveAddress;
                 if (functionNumber + 0x80 != recievedPacket[1])
                     return ModbusErrorCode.CodeInvalidFunction;                
-                if (CheckCrc(recievedPacket) == false)
+                if (Crc16.CheckCrc(recievedPacket) == false)
                     return ModbusErrorCode.CodeCrcError;
                 return (ModbusErrorCode)(recievedPacket[2] + 0x8000);
             }            
@@ -825,7 +663,7 @@ namespace Modbus.Core
                         try
                         {         
                             ModbusDataMappingHelper.SwapBytesInWordsInByteArray(ref packetData);
-                            ProcessAnalogData(packetData, ref registerValues,startIndex, objectsCount, bigEndianOrder);
+                            ModbusDataMappingHelper.ProcessAnalogData(packetData, ref registerValues, startIndex, objectsCount, bigEndianOrder);
                         }
                         catch (Exception ex)
                         {
@@ -885,7 +723,7 @@ namespace Modbus.Core
 
                         try
                         {
-                            ProcessDiscreetData(packetData, ref statusesValues);                            
+                            ModbusDataMappingHelper.ProcessDiscreetData(packetData, ref statusesValues);                            
                         }
                         catch (Exception ex)
                         {
@@ -989,6 +827,17 @@ namespace Modbus.Core
             ushort[] forcedValues;
             Type firstElementType;
 
+            for (Int32 i = (Int32)(objectsCount + startIndex - 1); i >= startIndex; i--)
+            {
+                if (
+                    SizeofHelper.SizeOfPublicPropertiesWithModbusAttribute(values[i],
+                        ModbusRegisterAccessType.AccessReadWrite) == 0)
+                {
+                    values = values.Where((val, idx) => idx != i).ToArray();
+                    objectsCount--;
+                }
+            }            
+           
             try
             {
                 ModbusDataMappingHelper.ConvertObjectsVaulesToRegisters(values, startIndex, objectsCount,

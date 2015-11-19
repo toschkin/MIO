@@ -7,7 +7,7 @@ using Modbus.Core;
 
 namespace MIOConfig
 {
-
+    [Serializable]
     public class DeviceConfigurationTime
     {
         public DateTime ConfigurationTime { get; set; }
