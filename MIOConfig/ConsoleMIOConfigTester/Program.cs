@@ -19,6 +19,12 @@ namespace ConsoleMIOConfigTester
         {
             Console.WriteLine(exception.ToString() + "\t" + exception.StackTrace);
         }
+
+        public static void ShowError(string error)
+        {
+            Console.WriteLine("DeviceConfiguration: {0}",error);
+        }
+
         static string GetVariableName<T>(Expression<Func<T>> expr)
         {
             var body = (MemberExpression)expr.Body;
@@ -37,6 +43,7 @@ namespace ConsoleMIOConfigTester
         static void Main(string[] args)
         {
             DeviceConfiguration config = new DeviceConfiguration();
+            config.AddErrorLogger(ShowError);
 
             ModbusRtuProtocol protocol = new ModbusRtuProtocol();           
             protocol.AddExceptionsLogger(ShowException);
@@ -50,38 +57,44 @@ namespace ConsoleMIOConfigTester
                 ModbusDeviceReaderSaver modbusReader = new ModbusDeviceReaderSaver(protocol,1,1000);
                 ModbusDeviceReaderSaver modbusSaver = new ModbusDeviceReaderSaver(protocol, 1, 1005);
 
-                Console.WriteLine("Start...");
-                config.DeviceHeaderFields.DeviceUartChannelsCount = 3;
-                Console.WriteLine(config.DeviceHeaderFields.DeviceHeaderCrc16);
+                Console.WriteLine("Start...");                
+                Console.WriteLine(config);
                 Console.ReadLine();        
                
-                Console.WriteLine("SaveConfiguration...");
-                Console.WriteLine(config.SaveConfiguration(modbusSaver));
+                /*Console.WriteLine("SaveConfiguration...");
+                Console.WriteLine(config.SaveConfiguration(modbusSaver));     
+                Console.WriteLine(config);
                 Console.WriteLine();
 
                 Console.WriteLine("clear Configuration...");
                 config = new DeviceConfiguration();
-                Console.WriteLine(config.DeviceHeaderFields.DeviceHeaderCrc16);
-                Console.ReadLine();        
+                Console.WriteLine(config);
+                Console.WriteLine();*/
 
                 Console.WriteLine("ReadConfiguration...");
-                Console.WriteLine(config.ReadConfiguration(modbusReader));
-                Console.WriteLine();
-                Console.WriteLine(config.DeviceHeaderFields.DeviceHeaderCrc16);
-                Console.ReadLine();
+                Console.WriteLine(config.ReadConfiguration(modbusReader));                
+                Console.WriteLine(config);
+                foreach (var item in config.DeviceUartPorts)
+                {
+                    ShowObjectPropsAndVals(item);
+                }  
+               
 
                 Console.WriteLine("SaveConfiguration to {0}", fileSaverReader.FilePath);
                 Console.WriteLine(config.SaveConfiguration(fileSaverReader));
 
                 Console.WriteLine("clear Configuration...");
                 config = new DeviceConfiguration();
-                Console.WriteLine(config.DeviceHeaderFields.DeviceHeaderCrc16);
+                Console.WriteLine(config);
                 Console.ReadLine();
 
                 Console.WriteLine("ReadConfiguration from {0}", fileSaverReader.FilePath);
                 Console.WriteLine(config.ReadConfiguration(fileSaverReader));
-                Console.WriteLine(config.DeviceHeaderFields.DeviceHeaderCrc16);
-                Console.WriteLine();                
+                Console.WriteLine(config);
+                foreach (var item in config.DeviceUartPorts)
+                {
+                    ShowObjectPropsAndVals(item);
+                }    
                 Console.ReadLine();        
 
                 /*Console.WriteLine("Changing config");

@@ -40,9 +40,9 @@ namespace Modbus.Core
         /// </summary>
         /// <param name="logger">delegate of form: void SaveException(Exception message);</param>
         public void RemoveExceptionsLogger(SaveException logger)
-        {
-            _logExceptionModbusRtu += logger;
+        {            
             LogExceptionRsp -= logger;
+            _logExceptionModbusRtu -= logger;
         }
         #endregion
 

@@ -36,5 +36,12 @@ namespace MIOConfig
                                                         (int)((value & 0xFC000000) >> 26));                
             }
         }
+
+        public override string ToString()
+        {
+            StringBuilder resultString = new StringBuilder();
+            resultString.AppendFormat("Время последней конфигурации: {0}\r\n", ConfigurationTime);
+            return resultString.ToString();
+        }
     }
 }

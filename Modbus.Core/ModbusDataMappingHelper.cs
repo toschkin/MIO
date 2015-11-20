@@ -130,7 +130,7 @@ namespace Modbus.Core
             if (arrayValues == null)
                 throw new ArgumentNullException();
 
-            if (obj.GetType().GetProperties().Length == arrayValues.Length)
+            if (obj.GetType().GetProperties().Length >= arrayValues.Length)
             {
                 //first we check that arrayValues has same value types with object properties
                 int i = 0;
@@ -143,7 +143,10 @@ namespace Modbus.Core
                             if (((ModbusPropertyAttribute)attr).Access >= accessType)
                             {
                                 if (item.PropertyType == arrayValues[i].GetType())
+                                {                                    
+                                    item.SetValue(obj, Convert.ChangeType(arrayValues[i], item.PropertyType));
                                     i++;
+                                }                                    
                                 else
                                     return false;    
                                 break;
@@ -151,7 +154,7 @@ namespace Modbus.Core
                         }                         
                     }                    
                 }
-                //setting values from arrayValues to corresponding properties  
+                /*/setting values from arrayValues to corresponding properties  
                 i = 0;
                 foreach (var item in obj.GetType().GetProperties())
                 {
@@ -162,13 +165,13 @@ namespace Modbus.Core
                         {
                             if (((ModbusPropertyAttribute)attr).Access >= accessType)
                             {
-                                item.SetValue(obj, Convert.ChangeType(arrayValues[i], item.PropertyType));                   
+                                item.SetValue(obj, Convert.ChangeType(arrayValues[i], item.PropertyType));
+                                i++;
                                 break;
                             }
                         } 
-                    }                    
-                    i++;
-                }
+                    }                                        
+                }*/
                 return true;
             }            
             return false;
