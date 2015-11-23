@@ -9,9 +9,8 @@ namespace MIOConfig
     [Serializable]
     public class DeviceHeader
     {
-        private DeviceConfiguration _deviceConfiguration;        
+        private DeviceConfiguration _deviceConfiguration;
         private UInt16 _deviceUartChannelsCount;
-
         public bool ModuleModbusMaster;
         public bool ModuleRetranslator;
         public bool ModuleTS;
@@ -27,7 +26,7 @@ namespace MIOConfig
         public bool Reserve12;
         public bool Reserve13;
         public bool Reserve14;
-        public bool ModuleModbusSlave;
+        public bool ModuleModbusSlave;        
        
         public DeviceHeader()
         {
@@ -35,11 +34,11 @@ namespace MIOConfig
             _deviceUartChannelsCount = 1;
         }
 
-        public DeviceHeader( ref DeviceConfiguration deviceConfiguration)
+        public DeviceHeader(ref DeviceConfiguration deviceConfiguration)
         {
             _deviceConfiguration = deviceConfiguration;
             _deviceUartChannelsCount = 1;
-        }
+        } 
         /// <summary>
         /// Holding regs|addr.: 1000|count: 1
         /// </summary>     
@@ -77,7 +76,7 @@ namespace MIOConfig
             set
             {
                 if (value < 1)
-                    value = 1;
+                    value = 1;                 
                 if (_deviceConfiguration != null)
                 {
                     if (value > _deviceConfiguration.DeviceUartPorts.Count)
@@ -89,11 +88,11 @@ namespace MIOConfig
                     }
 
                     if (value < _deviceConfiguration.DeviceUartPorts.Count)
-                        _deviceConfiguration.DeviceUartPorts.RemoveRange(value, _deviceConfiguration.DeviceUartPorts.Count - value);    
-                }                
-                _deviceUartChannelsCount = value;                
+                        _deviceConfiguration.DeviceUartPorts.RemoveRange(value, _deviceConfiguration.DeviceUartPorts.Count - value); 
+                }
+                _deviceUartChannelsCount = value;
             }
-        }
+        }       
 
         /// <summary>
         /// Holding regs|addr.: 1002|count: 1| R/O

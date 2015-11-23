@@ -29,7 +29,7 @@ namespace Modbus.Core
             {
                 if (GetTypeHelper.IsNumericType(item.PropertyType))
                 {
-                    if ((item.PropertyType.IsPublic) && (item.GetIndexParameters().Length == 0)
+                    if ((item.CanWrite) && (item.GetIndexParameters().Length == 0)
                         && (item.GetCustomAttributes(typeof (ModbusPropertyAttribute), false).Length != 0))
                     {
                         foreach (var attr in item.GetCustomAttributes(typeof(ModbusPropertyAttribute), false))
@@ -61,7 +61,7 @@ namespace Modbus.Core
             {
                 if (GetTypeHelper.IsNumericType(item.PropertyType))
                 {
-                    if ((item.PropertyType.IsPublic) &&
+                    if ((item.CanWrite) &&
                         (item.GetCustomAttributes(typeof (ModbusPropertyAttribute), false).Length != 0))
                     {
                         foreach (var attr in item.GetCustomAttributes(typeof(ModbusPropertyAttribute), false))
@@ -98,7 +98,7 @@ namespace Modbus.Core
                 {
                     if (GetTypeHelper.IsNumericType(property.PropertyType))
                     {
-                        if ((property.PropertyType.IsPublic) &&
+                        if ((property.CanWrite) &&
                             (property.GetCustomAttributes(typeof (ModbusPropertyAttribute), false).Length != 0))
                         {
                             foreach (var attr in property.GetCustomAttributes(typeof(ModbusPropertyAttribute), false))
@@ -136,7 +136,7 @@ namespace Modbus.Core
                 int i = 0;
                 foreach (var item in obj.GetType().GetProperties())
                 {
-                    if ((item.PropertyType.IsPublic) && (item.GetCustomAttributes(typeof(ModbusPropertyAttribute), false).Length != 0))
+                    if ((item.CanWrite) && (item.GetCustomAttributes(typeof(ModbusPropertyAttribute), false).Length != 0))
                     {
                         foreach (var attr in item.GetCustomAttributes(typeof(ModbusPropertyAttribute), false))
                         {
@@ -153,25 +153,7 @@ namespace Modbus.Core
                             }
                         }                         
                     }                    
-                }
-                /*/setting values from arrayValues to corresponding properties  
-                i = 0;
-                foreach (var item in obj.GetType().GetProperties())
-                {
-                    if ((item.PropertyType.IsPublic) &&
-                        (item.GetCustomAttributes(typeof (ModbusPropertyAttribute), false).Length != 0))
-                    {
-                        foreach (var attr in item.GetCustomAttributes(typeof(ModbusPropertyAttribute), false))
-                        {
-                            if (((ModbusPropertyAttribute)attr).Access >= accessType)
-                            {
-                                item.SetValue(obj, Convert.ChangeType(arrayValues[i], item.PropertyType));
-                                i++;
-                                break;
-                            }
-                        } 
-                    }                                        
-                }*/
+                }               
                 return true;
             }            
             return false;
@@ -470,7 +452,7 @@ namespace Modbus.Core
             {
                 for (int i = obj.GetType().GetProperties().Length-1; i >=0; i--)
                 {
-                    if ((obj.GetType().GetProperties()[i].PropertyType.IsPublic) &&
+                    if ((obj.GetType().GetProperties()[i].CanWrite) &&
                        (obj.GetType().GetProperties()[i].GetCustomAttributes(typeof(ModbusPropertyAttribute), false).Length != 0))
                     {
                         foreach (var attr in obj.GetType().GetProperties()[i].GetCustomAttributes(typeof(ModbusPropertyAttribute), false))

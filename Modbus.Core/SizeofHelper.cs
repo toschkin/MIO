@@ -21,7 +21,7 @@ namespace Modbus.Core
             {
                 foreach (var field in element.GetType().GetProperties())
                 {
-                    if ((field.PropertyType.IsPublic) &&
+                    if ((field.CanWrite) &&
                         (field.GetCustomAttributes(typeof (ModbusPropertyAttribute), false).Length != 0))
                     {
                         foreach (var attr in field.GetCustomAttributes(typeof(ModbusPropertyAttribute), false))
@@ -55,7 +55,7 @@ namespace Modbus.Core
             UInt32 totalLengthInBytes = 0;
             foreach (var field in obj.GetType().GetProperties())
             {
-                if ((field.PropertyType.IsPublic) &&
+                if ((field.CanWrite) &&
                     (field.GetCustomAttributes(typeof(ModbusPropertyAttribute), false).Length != 0))
                 {
                     foreach (var attr in field.GetCustomAttributes(typeof(ModbusPropertyAttribute), false))

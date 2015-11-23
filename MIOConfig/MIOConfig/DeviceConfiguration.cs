@@ -39,9 +39,9 @@ namespace MIOConfig
         /// Default ctor
         /// </summary>
         public DeviceConfiguration()
-        {                        
-            var deviceConfiguration = this;
-            DeviceHeaderFields = new DeviceHeader(ref deviceConfiguration);                        
+        {
+            var thisDevice = this;
+            DeviceHeaderFields = new DeviceHeader(ref thisDevice);                        
             DeviceLastConfigurationTime = new DeviceConfigurationTime();
             //minimum 1 UART presentin device
             DeviceUartPorts = new List<DeviceUARTPortConfiguration>(3) {new DeviceUARTPortConfiguration()};            
@@ -66,22 +66,7 @@ namespace MIOConfig
         #endregion
 
         #region Methods
-
-        /*public IEnumerator GetEnumerator()
-        {
-            yield return DeviceParts;
-
-            yield return DeviceHeaderFields;
-
-            yield return DeviceLastConfigurationTime;
-
-            foreach (var port in DeviceUartPorts)
-            {
-                yield return port;    
-            }            
-        }*/
-
-
+    
         private List<object> ToList()
         {
             List<object> listOfConfigurationItems = new List<object>();            
@@ -96,20 +81,19 @@ namespace MIOConfig
             if (listOfConfigurationItems.Count < 3)
                 return false;
             int listIndex = 0;
-
-            DeviceHeaderFields = Utility.CloneObject(listOfConfigurationItems[listIndex++]) as DeviceHeader;
-            DeviceLastConfigurationTime = Utility.CloneObject(listOfConfigurationItems[listIndex++]) as DeviceConfigurationTime;       
-            
+            //Header
+            object tempObj = DeviceHeaderFields;
+            Utility.CloneObjectProperties(listOfConfigurationItems[listIndex++], ref tempObj);
+            DeviceHeaderFields = tempObj as DeviceHeader;            
+            //Configuration Time
+            DeviceLastConfigurationTime = listOfConfigurationItems[listIndex++] as DeviceConfigurationTime;//Utility.CloneObject(listOfConfigurationItems[listIndex++]) as DeviceConfigurationTime;
+            //UART ports
+            for (int port = 0; port < DeviceHeaderFields.DeviceUartChannelsCount && listIndex < listOfConfigurationItems.Count; port++)
+            {
+                DeviceUartPorts[port] = listOfConfigurationItems[listIndex++] as DeviceUARTPortConfiguration;
+            }
             return true;
-        }        
-
-        public override string ToString()
-        {
-            StringBuilder resultString = new StringBuilder();            
-            resultString.Append(DeviceHeaderFields);
-            resultString.Append(DeviceLastConfigurationTime);            
-            return resultString.ToString();
-        }
+        }               
 
         /// <summary>
         /// Reads header elements (so arrays will be resized) and checks it's validity
@@ -129,13 +113,18 @@ namespace MIOConfig
                 return false;
             }
 
-            DeviceHeaderFields = listOfConfigurationItems[0] as DeviceHeader ?? new DeviceHeader();
+            //DeviceHeaderFields = listOfConfigurationItems[0] as DeviceHeader ?? new DeviceHeader();
+            object tempObj = DeviceHeaderFields;
+            Utility.CloneObjectProperties(listOfConfigurationItems[0], ref tempObj);
+            DeviceHeaderFields = tempObj as DeviceHeader;
+
             if(!DeviceHeaderFields.IsValidHeader())
             {
                 if (_errorLogger != null)
                     _errorLogger("Ошибочный заголовок конфигруации устройства/другое устройство");
                 return false;
             }
+            //SetDeviceUartPortsSize(DeviceHeaderFields.DeviceUartChannelsCount);
             return true;            
         }
 
@@ -172,6 +161,14 @@ namespace MIOConfig
                 return SetConfigurationFromList(listOfConfigurationItems);                                            
             }            
             return false;
+        }
+
+        public override string ToString()
+        {
+            StringBuilder resultString = new StringBuilder();
+            resultString.Append(DeviceHeaderFields);
+            resultString.Append(DeviceLastConfigurationTime);
+            return resultString.ToString();
         }
 
         #endregion
