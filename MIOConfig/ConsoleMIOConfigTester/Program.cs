@@ -32,7 +32,12 @@ namespace ConsoleMIOConfigTester
             return body.Member.Name;
         }
         private static void ShowObjectPropsAndVals(object obj)
-        {    
+        {
+            if (obj == null)
+            {
+                Console.WriteLine("NULL");
+                return;
+            }                
             PropertyInfo[] props = obj.GetType().GetProperties();
             foreach (var prop in props)
             {
@@ -79,7 +84,10 @@ namespace ConsoleMIOConfigTester
                 {
                     ShowObjectPropsAndVals(item);
                 }
+                Console.WriteLine();
+                ShowObjectPropsAndVals(config.DeviceDIModule);
 
+                config.DeviceHeaderFields.ModuleTS = false;
 
                 Console.WriteLine("SaveConfiguration to {0}", fileSaver.FilePath);
                 Console.WriteLine(config.SaveConfiguration(fileSaver));
@@ -95,17 +103,12 @@ namespace ConsoleMIOConfigTester
                 foreach (var item in config.DeviceUartPorts)
                 {
                     ShowObjectPropsAndVals(item);
-                }    
-                Console.ReadLine();
-
-                config.DeviceHeaderFields.DeviceUartChannelsCount = 4;
-
-                Console.WriteLine(config);
-                foreach (var item in config.DeviceUartPorts)
-                {
-                    ShowObjectPropsAndVals(item);
                 }
+                Console.WriteLine();
+                ShowObjectPropsAndVals(config.DeviceDIModule);
                 Console.ReadLine();
+
+               
 
                 /*Console.WriteLine("Changing config");
                 config.DeviceUartPorts[0].PortOperation = 0;

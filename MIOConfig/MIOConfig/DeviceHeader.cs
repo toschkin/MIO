@@ -64,6 +64,10 @@ namespace MIOConfig
                 {
                     field.SetValue(this, (value & (1 << i++)) != 0);
                 }
+                if ((ModuleTS) && (_deviceConfiguration != null))
+                    _deviceConfiguration.DeviceDIModule = new DeviceModuleDI();
+                else
+                    _deviceConfiguration.DeviceDIModule = null;
             }
         }
         /// <summary>

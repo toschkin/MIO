@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Remoting.Messaging;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using Modbus.Core;
@@ -44,7 +45,8 @@ namespace MIOConfig
             DeviceHeaderFields = new DeviceHeader(ref thisDevice);                        
             DeviceLastConfigurationTime = new DeviceConfigurationTime();
             //minimum 1 UART presentin device
-            DeviceUartPorts = new List<DeviceUARTPortConfiguration>(3) {new DeviceUARTPortConfiguration()};            
+            DeviceUartPorts = new List<DeviceUARTPortConfiguration>(3) {new DeviceUARTPortConfiguration()};
+            DeviceDIModule = null;
         }
 
         #region Fields & Properties              
@@ -62,7 +64,13 @@ namespace MIOConfig
         /// <summary>
         /// Holding regs|addr.: 1007+7*(DevicePortNumber-1)|count: 7| R/W
         /// </summary>        
-        public List<DeviceUARTPortConfiguration> DeviceUartPorts;       
+        public List<DeviceUARTPortConfiguration> DeviceUartPorts;
+
+        /// <summary>
+        /// Holding regs|addr.: 1007+7*DeviceUartPorts.Count |count: 4| R/W
+        /// </summary>     
+        public DeviceModuleDI DeviceDIModule;
+
         #endregion
 
         #region Methods
@@ -73,6 +81,8 @@ namespace MIOConfig
             listOfConfigurationItems.Add(DeviceHeaderFields);
             listOfConfigurationItems.Add(DeviceLastConfigurationTime);
             listOfConfigurationItems.AddRange(DeviceUartPorts);
+            if (DeviceDIModule != null)
+                listOfConfigurationItems.Add(DeviceDIModule);
             return listOfConfigurationItems;
         }
 
@@ -92,6 +102,9 @@ namespace MIOConfig
             {
                 DeviceUartPorts[port] = listOfConfigurationItems[listIndex++] as DeviceUARTPortConfiguration;
             }
+            if (DeviceHeaderFields.ModuleTS && listIndex < listOfConfigurationItems.Count)
+                DeviceDIModule = listOfConfigurationItems[listIndex++] as DeviceModuleDI;
+
             return true;
         }               
 
