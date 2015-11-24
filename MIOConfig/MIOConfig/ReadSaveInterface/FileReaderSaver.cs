@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 using System.Xml.Serialization;
 using System.Text.RegularExpressions;
 using System.Runtime.Serialization.Formatters.Binary;
- 
+using MIOConfig.InternalLayer;
+
 namespace MIOConfig
 {           
     public class FileReaderSaver : IDeviceReaderSaver
@@ -19,7 +20,7 @@ namespace MIOConfig
         public static bool IsValidPath(string path)
         {
             //Simple pattern
-            /*@"^(([a-zA-Z]:)|(\))(\{1}|((\{1})[^\]([^/:*?<>""|]*))+)$"*/
+            //@"^(([a-zA-Z]:)|(\))(\{1}|((\{1})[^\]([^/:*?<>""|]*))+)$"
             string DmitriyBorysovPattern =
                 @"^(([a-zA-Z]:|\\)\\)?(((\.)|(\.\.)|([^\\/:\*\?\|<>\. ](([^\\/:\*\?\|<>\. ])|([^\\/:\*\?\|<>]*[^\\/:\*\?\|<>\. ]))?))\\)*[^\\/:\*\?\|<>\. ](([^\\/:\*\?\|<>\. ])|([^\\/:\*\?\|<>]*[^\\/:\*\?\|<>\. ]))?$";
             Regex r = new Regex(DmitriyBorysovPattern);
@@ -48,38 +49,38 @@ namespace MIOConfig
             }
         }
 
-        public bool SaveDeviceConfiguration(List<object> configurationItems)
+        public ReaderSaverErrors SaveDeviceConfiguration(Device configuration)
         {
             BinaryFormatter formatter = new BinaryFormatter();
            
             try
             {
                 FileStream fs = new FileStream(FilePath, FileMode.OpenOrCreate);
-                formatter.Serialize(fs, configurationItems);   
+                formatter.Serialize(fs, configuration.Configuration);   
                 fs.Close();
             }
             catch (Exception)
             {
-                return false;
+                return ReaderSaverErrors.CodeSerializationError;
             }                            
-            return true;
+            return ReaderSaverErrors.CodeOk;
         }
 
-        public bool ReadDeviceConfiguration(ref List<object> configurationItems)
+        public ReaderSaverErrors ReadDeviceConfiguration(ref Device configuration)
         {            
             BinaryFormatter formatter = new BinaryFormatter();
-            
+                       
             try
             {
                 FileStream fs = new FileStream(FilePath, FileMode.OpenOrCreate);
-                configurationItems = (List<object>)formatter.Deserialize(fs);                
+                configuration.Configuration = (DeviceConfiguration)formatter.Deserialize(fs);                
                 fs.Close();
             }
             catch (Exception)
             {
-                return false;
+                return ReaderSaverErrors.CodeSerializationError;
             }
-            return true;
+            return ReaderSaverErrors.CodeOk;
         }
     }
 }

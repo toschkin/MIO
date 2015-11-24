@@ -8,7 +8,7 @@ namespace MIOConfig
 {
     public interface IDeviceReaderSaver
     {
-        bool SaveDeviceConfiguration(List<object> configurationItems);
-        bool ReadDeviceConfiguration(ref List<object> configurationItems);
+        ReaderSaverErrors SaveDeviceConfiguration(Device configuration);
+        ReaderSaverErrors ReadDeviceConfiguration(ref Device configuration);
     }
 }

@@ -1,11 +1,12 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MIOConfig;
+using MIOConfig.InternalLayer;
 using Modbus.Core;
 
 namespace MIOConfig.Tests
 {
-    [TestClass]
+    /*[TestClass]
     public class DeviceTests
     {
         [TestMethod]
@@ -17,7 +18,7 @@ namespace MIOConfig.Tests
             deviceConfiguration.DeviceHeaderFields.DeviceUartChannelsCount = 0;
             Assert.AreEqual(1, deviceConfiguration.DeviceUartPorts.Count);
         }        
-    }
+    }*/
     [TestClass]
     public class DeviceUARTPortConfigurationTests
     {
@@ -34,7 +35,7 @@ namespace MIOConfig.Tests
         }
     }
 
-    [TestClass]
+    /*[TestClass]
     public class DeviceConfigurationTimeTests
     {
         [TestMethod]
@@ -58,5 +59,5 @@ namespace MIOConfig.Tests
             DeviceConfigurationTime deviceTime = new DeviceConfigurationTime();
             Assert.AreEqual(4u,SizeofHelper.SizeOfPublicPropertiesWithModbusAttribute(deviceTime));
         }
-    }    
+    }  */  
 }

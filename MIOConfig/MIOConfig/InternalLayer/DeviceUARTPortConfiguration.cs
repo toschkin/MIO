@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Modbus.Core;
 
-namespace MIOConfig
+namespace MIOConfig.InternalLayer
 {
     [Serializable]
     public class DeviceUARTPortConfiguration

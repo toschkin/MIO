@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using Modbus.Core;
 
-namespace MIOConfig
+namespace MIOConfig.InternalLayer
 {
     [Serializable]
-    public class DeviceHeader
+    internal class DeviceHeader
     {
         private DeviceConfiguration _deviceConfiguration;
         private UInt16 _deviceUartChannelsCount;
@@ -64,10 +64,12 @@ namespace MIOConfig
                 {
                     field.SetValue(this, (value & (1 << i++)) != 0);
                 }
-                if ((ModuleTS) && (_deviceConfiguration != null))
-                    _deviceConfiguration.DeviceDIModule = new DeviceModuleDI();
-                else
-                    _deviceConfiguration.DeviceDIModule = null;
+                if (_deviceConfiguration != null)
+                {
+                    _deviceConfiguration.DeviceDIModule = ModuleTS ? new DeviceModuleDI() : null;
+
+                    _deviceConfiguration.DeviceDOModule = ModuleTU ? new DeviceModuleDO() : null;
+                }
             }
         }
         /// <summary>

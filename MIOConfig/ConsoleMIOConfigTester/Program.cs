@@ -47,27 +47,64 @@ namespace ConsoleMIOConfigTester
 
         static void Main(string[] args)
         {
-            DeviceConfiguration config = new DeviceConfiguration();
-            config.AddErrorLogger(ShowError);
+            MIOConfig.
+            Device device = new Device();
+            device.AddErrorLogger(ShowError);
 
             ModbusRtuProtocol protocol = new ModbusRtuProtocol();           
             protocol.AddExceptionsLogger(ShowException);
+                      
 
-            FileReaderSaver fileReader = new FileReaderSaver(@"c:\device.dat");
-            FileReaderSaver fileSaver = new FileReaderSaver(@"c:\device.dat");                    
-            
+            FileReaderSaver fileReaderSaver = new FileReaderSaver(@"c:\device.dat");
+            //FileReaderSaver fileSaver = new FileReaderSaver(@"c:\device.dat");                    
+
             if (protocol.Connect("COM6"))
             {
                 protocol.ReadRegistersPerQueryCapacity = 125;
                 protocol.WriteRegistersPerQueryCapacity = 125;
-                ModbusDeviceReaderSaver modbusReader = new ModbusDeviceReaderSaver(protocol,1,1000);
-                ModbusDeviceReaderSaver modbusSaver = new ModbusDeviceReaderSaver(protocol, 1, 1005);
+                ModbusReaderSaver modbusReaderSaver = new ModbusReaderSaver(protocol, 1, 1000, 1005);
 
-                Console.WriteLine("Start...");                
+                
+                Console.WriteLine("ReadConfiguration...");
+
+                Console.WriteLine(device.ReadConfiguration(modbusReaderSaver).GetDescription());                
+                //Console.WriteLine(modbusReaderSaver.ReadDeviceConfiguration(ref device).GetDescription());
+                Console.WriteLine(device);
+                foreach (var item in device.UartPortsConfigurations)
+                {
+                    ShowObjectPropsAndVals(item);
+                }
+                Console.WriteLine();
+
+                device.DiscreetInputModule.ModuleOperation = 0;
+                device.DiscreetInputModule.HysteresisTime = 0xAA55;
+
+                device.DiscreetOutputModule.ModuleOperation = 0;
+                device.DiscreetOutputModule.PulseDurationTime = 0xBB66;                
+
+                Console.WriteLine("SaveConfiguration...Modbus");
+                Console.WriteLine(device.SaveConfiguration(modbusReaderSaver).GetDescription());      
+
+                Console.WriteLine("SaveConfiguration...File");
+                Console.WriteLine(device.SaveConfiguration(fileReaderSaver).GetDescription());
+
+                Console.WriteLine("ReadConfiguration...File");
+                Console.WriteLine(device.ReadConfiguration(fileReaderSaver).GetDescription());
+                Console.WriteLine(device);
+                foreach (var item in device.UartPortsConfigurations)
+                {
+                    ShowObjectPropsAndVals(item);
+                }
+                Console.WriteLine();
+
+                protocol.Disconnect();            
+            }
+            Console.ReadLine();
+            /*Console.WriteLine("Start...");                
                 Console.WriteLine(config);
-                Console.ReadLine();
+               
 
-                /*Console.WriteLine("SaveConfiguration...");
+                Console.WriteLine("SaveConfiguration...");
                 Console.WriteLine(config.SaveConfiguration(modbusSaver));     
                 Console.WriteLine(config);
                 Console.WriteLine();
@@ -86,8 +123,7 @@ namespace ConsoleMIOConfigTester
                 }
                 Console.WriteLine();
                 ShowObjectPropsAndVals(config.DeviceDIModule);
-
-                config.DeviceHeaderFields.ModuleTS = false;
+                
 
                 Console.WriteLine("SaveConfiguration to {0}", fileSaver.FilePath);
                 Console.WriteLine(config.SaveConfiguration(fileSaver));
@@ -95,7 +131,7 @@ namespace ConsoleMIOConfigTester
                 Console.WriteLine("clear Configuration...");
                 config = new DeviceConfiguration();
                 Console.WriteLine(config);
-                Console.ReadLine();*/
+                Console.ReadLine();
 
                 Console.WriteLine("ReadConfiguration from {0}", fileReader.FilePath);
                 Console.WriteLine(config.ReadConfiguration(fileReader));
@@ -193,12 +229,11 @@ namespace ConsoleMIOConfigTester
                     Console.WriteLine(watch.ElapsedMilliseconds);
                     Console.ReadLine();              
                 }
-                */
+                
 
 
 
-                protocol.Disconnect();
-            }            
+                 */
         }
     }
 }

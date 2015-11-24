@@ -1,41 +1,37 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Remoting.Messaging;
-using System.Runtime.Serialization;
 using System.Text;
-using System.Threading.Tasks;
-using Modbus.Core;
 
-namespace MIOConfig
-{    
+namespace MIOConfig.InternalLayer
+{
+    public delegate void ErrorTracer(string errorMessage);   
+
     [Serializable]
-    public class DeviceConfiguration //: IEnumerable
+    internal class DeviceConfiguration
     {
-        #region Tracing & Logging
-        public delegate void TraceError(string errorMessage);        
+        #region Tracing & Logging             
         /// <summary>
         /// Exception saving
         /// </summary>
-        private TraceError _errorLogger;
+        private ErrorTracer _errorTracerLogger;
         /// <summary>
         /// Adds logger to list of errors saving handlers
         /// </summary>
-        /// <param name="logger">delegate of form: void TraceError(string errorMessage); </param>
-        public void AddErrorLogger(TraceError logger)
+        /// <param name="logger">delegate of form: void ErrorTracer(string errorMessage); </param>
+        public void AddErrorLogger(ErrorTracer logger)
         {
-            _errorLogger += logger;           
+            _errorTracerLogger += logger;           
         }
         /// <summary>
         /// Removes logger from current list of errors saving handlers
         /// </summary>
-        /// <param name="logger">delegate of form: void TraceError(string errorMessage); </param>
-        public void RemoveErrorLogger(TraceError logger)
+        /// <param name="logger">delegate of form: void ErrorTracer(string errorMessage); </param>
+        public void RemoveErrorLogger(ErrorTracer logger)
         {
-            _errorLogger -= logger;            
+            _errorTracerLogger -= logger;            
         }
         #endregion
+        
         /// <summary>
         /// Default ctor
         /// </summary>
@@ -47,10 +43,11 @@ namespace MIOConfig
             //minimum 1 UART presentin device
             DeviceUartPorts = new List<DeviceUARTPortConfiguration>(3) {new DeviceUARTPortConfiguration()};
             DeviceDIModule = null;
+            DeviceDOModule = null;
         }
-
+       
         #region Fields & Properties              
-        
+               
         /// <summary>
         /// Holding regs|addr.: 1000|count: 5
         /// </summary>          
@@ -71,11 +68,17 @@ namespace MIOConfig
         /// </summary>     
         public DeviceModuleDI DeviceDIModule;
 
+         /// <summary>
+        /// Holding regs|addr.: 1007+7*DeviceUartPorts.Count+5 |count: 4| R/W
+        /// </summary>     
+        public DeviceModuleDO DeviceDOModule;
+        
+        
         #endregion
 
         #region Methods
-    
-        private List<object> ToList()
+
+        public List<object> ToList()
         {
             List<object> listOfConfigurationItems = new List<object>();            
             listOfConfigurationItems.Add(DeviceHeaderFields);
@@ -83,10 +86,12 @@ namespace MIOConfig
             listOfConfigurationItems.AddRange(DeviceUartPorts);
             if (DeviceDIModule != null)
                 listOfConfigurationItems.Add(DeviceDIModule);
+            if (DeviceDOModule != null)
+                listOfConfigurationItems.Add(DeviceDOModule);
             return listOfConfigurationItems;
         }
 
-        private bool SetConfigurationFromList(List<object> listOfConfigurationItems)
+        public bool FromList(List<object> listOfConfigurationItems)
         {
             if (listOfConfigurationItems.Count < 3)
                 return false;
@@ -102,13 +107,17 @@ namespace MIOConfig
             {
                 DeviceUartPorts[port] = listOfConfigurationItems[listIndex++] as DeviceUARTPortConfiguration;
             }
+
             if (DeviceHeaderFields.ModuleTS && listIndex < listOfConfigurationItems.Count)
                 DeviceDIModule = listOfConfigurationItems[listIndex++] as DeviceModuleDI;
 
-            return true;
-        }               
+            if (DeviceHeaderFields.ModuleTU && listIndex < listOfConfigurationItems.Count)
+                DeviceDOModule = listOfConfigurationItems[listIndex++] as DeviceModuleDO;
 
-        /// <summary>
+            return true;
+        }
+
+        /*/// <summary>
         /// Reads header elements (so arrays will be resized) and checks it's validity
         /// </summary>
         /// <param name="reader">interface to configuration reader</param>
@@ -121,8 +130,8 @@ namespace MIOConfig
             if ((reader.ReadDeviceConfiguration(ref listOfConfigurationItems) == false)
                 ||(listOfConfigurationItems.Count < 1))
             {
-                if (_errorLogger != null)
-                    _errorLogger("Ошибка при чтении заголовка конфигурации устройства");
+                if (_errorTracerLogger != null)
+                    _errorTracerLogger("Ошибка при чтении заголовка конфигурации устройства");
                 return false;
             }
 
@@ -133,8 +142,8 @@ namespace MIOConfig
 
             if(!DeviceHeaderFields.IsValidHeader())
             {
-                if (_errorLogger != null)
-                    _errorLogger("Ошибочный заголовок конфигруации устройства/другое устройство");
+                if (_errorTracerLogger != null)
+                    _errorTracerLogger("Ошибочный заголовок конфигруации устройства/другое устройство");
                 return false;
             }
             //SetDeviceUartPortsSize(DeviceHeaderFields.DeviceUartChannelsCount);
@@ -167,15 +176,15 @@ namespace MIOConfig
                 List<object> listOfConfigurationItems = ToList();
                 if (reader.ReadDeviceConfiguration(ref listOfConfigurationItems) == false)
                 {
-                    if (_errorLogger != null)
-                        _errorLogger("Ошибка при чтении конфигурации устройства");
+                    if (_errorTracerLogger != null)
+                        _errorTracerLogger("Ошибка при чтении конфигурации устройства");
                     return false;
                 }
                 return SetConfigurationFromList(listOfConfigurationItems);                                            
             }            
             return false;
         }
-
+        */
         public override string ToString()
         {
             StringBuilder resultString = new StringBuilder();

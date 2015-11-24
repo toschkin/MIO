@@ -1,15 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Modbus.Core;
 
-namespace MIOConfig
+namespace MIOConfig.InternalLayer
 {
     [Serializable]
     public class DeviceModuleDI
     {
+        public DeviceModuleDI()
+        {
+            HysteresisTime = 10;
+            ModuleOperation = 1;
+        }
         private Byte _moduleOperation;
         /// <summary>
         /// Holding regs|addr.: 1007+7*DeviceUartPorts.Count LoByte|count: 1| R/W
@@ -17,7 +18,7 @@ namespace MIOConfig
         /// <value>0 - out of operation, 1 - in operation</value>
         /// 
         [ModbusProperty(Access = ModbusRegisterAccessType.AccessReadWrite)]
-        public Byte ModuleDIOperation
+        public Byte ModuleOperation
         {
             get { return _moduleOperation; }
             set { _moduleOperation = value > 1 ? (Byte)1 : value; }
@@ -33,7 +34,7 @@ namespace MIOConfig
         /// <summary>
         /// Holding regs|addr.: 1007+7*DeviceUartPorts.Count+2 HiByte|count: 1| R/W
         /// </summary>
-        /// <value>0 - out of operation, 1 - in operation</value>
+        /// <value></value>
         /// 
         [ModbusProperty(Access = ModbusRegisterAccessType.AccessReadWrite)]
         public Byte ResevedByte1 { get; set; }
@@ -41,7 +42,7 @@ namespace MIOConfig
         /// <summary>
         /// Holding regs|addr.: 1007+7*DeviceUartPorts.Count+3|count: 1| R/W
         /// </summary>
-        /// <value>0 - out of operation, 1 - in operation</value>
+        /// <value></value>
         /// 
         [ModbusProperty(Access = ModbusRegisterAccessType.AccessReadWrite)]
         public UInt16 ResevedWord1 { get; set; }
@@ -49,7 +50,7 @@ namespace MIOConfig
         /// <summary>
         /// Holding regs|addr.: 1007+7*DeviceUartPorts.Count+4|count: 1| R/W
         /// </summary>
-        /// <value>0 - out of operation, 1 - in operation</value>
+        /// <value></value>
         /// 
         [ModbusProperty(Access = ModbusRegisterAccessType.AccessReadWrite)]
         public UInt16 ResevedWord2 { get; set; }

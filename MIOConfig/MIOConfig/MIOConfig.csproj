@@ -42,16 +42,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DeviceConfiguration.cs" />
-    <Compile Include="DeviceConfigurationTime.cs" />
-    <Compile Include="DeviceHeader.cs" />
-    <Compile Include="DeviceModuleDI.cs" />
-    <Compile Include="DeviceUARTPortConfiguration.cs" />
-    <Compile Include="FileReaderSaver.cs" />
-    <Compile Include="IDeviceReaderSaver.cs" />
-    <Compile Include="ModbusDeviceReaderSaver.cs" />
+    <Compile Include="InternalLayer\DeviceModuleDO.cs" />
+    <Compile Include="ReadSaveInterface\ReaderSaverErrors.cs" />
+    <Compile Include="InternalLayer\DeviceConfiguration.cs" />
+    <Compile Include="InternalLayer\DeviceConfigurationTime.cs" />
+    <Compile Include="InternalLayer\DeviceHeader.cs" />
+    <Compile Include="InternalLayer\DeviceModuleDI.cs" />
+    <Compile Include="PresentationLayer\Device.cs" />
+    <Compile Include="InternalLayer\DeviceUARTPortConfiguration.cs" />
+    <Compile Include="ReadSaveInterface\FileReaderSaver.cs" />
+    <Compile Include="ReadSaveInterface\IDeviceReaderSaver.cs" />
+    <Compile Include="ReadSaveInterface\ModbusReaderSaver.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Utility.cs" />
+    <Compile Include="InternalLayer\Utility.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
