@@ -12,9 +12,9 @@ namespace MIOConfig.InternalLayer
         private DeviceConfiguration _deviceConfiguration;
         private UInt16 _deviceUartChannelsCount;
         public bool ModuleModbusMaster;
-        public bool ModuleRetranslator;
-        public bool ModuleTS;
-        public bool ModuleTU;
+        public bool ModuleRouter;
+        public bool ModuleDI;
+        public bool ModuleDO;
         public bool ModuleGPS;
         public bool ModuleMAX7219;
         public bool ModuleAdvantage_TY;
@@ -66,9 +66,9 @@ namespace MIOConfig.InternalLayer
                 }
                 if (_deviceConfiguration != null)
                 {
-                    _deviceConfiguration.DeviceDIModule = ModuleTS ? new DeviceModuleDI() : null;
+                    _deviceConfiguration.DeviceDIModule = ModuleDI ? new DeviceModuleDI() : null;
 
-                    _deviceConfiguration.DeviceDOModule = ModuleTU ? new DeviceModuleDO() : null;
+                    _deviceConfiguration.DeviceDOModule = ModuleDO ? new DeviceModuleDO() : null;
                 }
             }
         }
@@ -145,9 +145,9 @@ namespace MIOConfig.InternalLayer
             StringBuilder resultString = new StringBuilder();
             resultString.Append("Состав устройства:\r\n");
             resultString.AppendFormat("\tМодуль Modbus master - {0}\r\n", (ModuleModbusMaster) ? "есть" : "нет");
-            resultString.AppendFormat("\tМодуль ретрансляции - {0}\r\n", (ModuleRetranslator) ? "есть" : "нет");
-            resultString.AppendFormat("\tМодуль ТС - {0}\r\n", (ModuleTS) ? "есть" : "нет");
-            resultString.AppendFormat("\tМодуль ТУ - {0}\r\n", (ModuleTU) ? "есть" : "нет");
+            resultString.AppendFormat("\tМодуль ретрансляции - {0}\r\n", (ModuleRouter) ? "есть" : "нет");
+            resultString.AppendFormat("\tМодуль ТС - {0}\r\n", (ModuleDI) ? "есть" : "нет");
+            resultString.AppendFormat("\tМодуль ТУ - {0}\r\n", (ModuleDO) ? "есть" : "нет");
             resultString.AppendFormat("\tМодуль Modbus slave - {0}\r\n", (ModuleModbusSlave) ? "есть" : "нет");
 
             resultString.AppendFormat("Основные параметры:\r\n", DeviceUartChannelsCount);

@@ -108,83 +108,15 @@ namespace MIOConfig.InternalLayer
                 DeviceUartPorts[port] = listOfConfigurationItems[listIndex++] as DeviceUARTPortConfiguration;
             }
 
-            if (DeviceHeaderFields.ModuleTS && listIndex < listOfConfigurationItems.Count)
+            if (DeviceHeaderFields.ModuleDI && listIndex < listOfConfigurationItems.Count)
                 DeviceDIModule = listOfConfigurationItems[listIndex++] as DeviceModuleDI;
 
-            if (DeviceHeaderFields.ModuleTU && listIndex < listOfConfigurationItems.Count)
+            if (DeviceHeaderFields.ModuleDO && listIndex < listOfConfigurationItems.Count)
                 DeviceDOModule = listOfConfigurationItems[listIndex++] as DeviceModuleDO;
 
             return true;
         }
-
-        /*/// <summary>
-        /// Reads header elements (so arrays will be resized) and checks it's validity
-        /// </summary>
-        /// <param name="reader">interface to configuration reader</param>
-        /// <returns>true on success, false - otherwise</returns>
-        private bool ReadAndCheckConfigurationHeader(IDeviceReaderSaver reader)
-        {            
-            List<object> listOfConfigurationItems = new List<object>();            
-            listOfConfigurationItems.Add(DeviceHeaderFields);            
-            //at first step we will read only header to build all device data map
-            if ((reader.ReadDeviceConfiguration(ref listOfConfigurationItems) == false)
-                ||(listOfConfigurationItems.Count < 1))
-            {
-                if (_errorTracerLogger != null)
-                    _errorTracerLogger("Ошибка при чтении заголовка конфигурации устройства");
-                return false;
-            }
-
-            //DeviceHeaderFields = listOfConfigurationItems[0] as DeviceHeader ?? new DeviceHeader();
-            object tempObj = DeviceHeaderFields;
-            Utility.CloneObjectProperties(listOfConfigurationItems[0], ref tempObj);
-            DeviceHeaderFields = tempObj as DeviceHeader;
-
-            if(!DeviceHeaderFields.IsValidHeader())
-            {
-                if (_errorTracerLogger != null)
-                    _errorTracerLogger("Ошибочный заголовок конфигруации устройства/другое устройство");
-                return false;
-            }
-            //SetDeviceUartPortsSize(DeviceHeaderFields.DeviceUartChannelsCount);
-            return true;            
-        }
-
-        /// <summary>
-        /// Saves configuration to device/file etc.
-        /// </summary>
-        /// <param name="saver">interface to configuration saver</param>
-        /// <returns>true on success, false - otherwise</returns>
-        public bool SaveConfiguration(IDeviceReaderSaver saver)
-        {
-            //seting time to moment of configuration
-            DeviceLastConfigurationTime.ConfigurationTime = DateTime.Now;
-
-            List<object> listOfConfigurationItems = ToList();
-            return saver.SaveDeviceConfiguration(listOfConfigurationItems);
-        }
-
-        /// <summary>
-        /// Reads configuration from device/file etc.
-        /// </summary>
-        /// <param name="reader">interface to configuration reader</param>
-        /// <returns>true on success, false - otherwise</returns>
-        public bool ReadConfiguration(IDeviceReaderSaver reader)
-        {
-            if(ReadAndCheckConfigurationHeader(reader))
-            {
-                List<object> listOfConfigurationItems = ToList();
-                if (reader.ReadDeviceConfiguration(ref listOfConfigurationItems) == false)
-                {
-                    if (_errorTracerLogger != null)
-                        _errorTracerLogger("Ошибка при чтении конфигурации устройства");
-                    return false;
-                }
-                return SetConfigurationFromList(listOfConfigurationItems);                                            
-            }            
-            return false;
-        }
-        */
+       
         public override string ToString()
         {
             StringBuilder resultString = new StringBuilder();

@@ -41,14 +41,14 @@ namespace MIOConfig
 
         internal DeviceConfiguration Configuration;                        
 
-        public bool ModuleTSPresent
+        public bool ModuleDIPresent
         {
-            get { return Configuration.DeviceHeaderFields.ModuleTS; }            
+            get { return Configuration.DeviceHeaderFields.ModuleDI; }            
         }
 
-        public bool ModuleTUPresent
+        public bool ModuleDOPresent
         {
-            get { return Configuration.DeviceHeaderFields.ModuleTU; }            
+            get { return Configuration.DeviceHeaderFields.ModuleDO; }            
         }
 
         public bool ModuleModbusMasterPresent
@@ -61,9 +61,9 @@ namespace MIOConfig
             get { return Configuration.DeviceHeaderFields.ModuleModbusSlave; }            
         }
 
-        public bool ModuleRetranslatorPresent
+        public bool ModuleRouterPresent
         {
-            get { return Configuration.DeviceHeaderFields.ModuleRetranslator; }            
+            get { return Configuration.DeviceHeaderFields.ModuleRouter; }            
         }
 
         public DateTime ConfigurationTime
