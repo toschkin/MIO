@@ -5,7 +5,7 @@ using Modbus.Core;
 namespace MIOConfig.InternalLayer
 {
     [Serializable]
-    internal class DeviceConfigurationTime
+    public class DeviceConfigurationTime
     {
         public DateTime ConfigurationTime { get; set; }
 

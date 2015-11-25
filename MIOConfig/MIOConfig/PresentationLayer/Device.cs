@@ -43,50 +43,63 @@ namespace MIOConfig
 
         public bool ModuleDIPresent
         {
-            get { return Configuration.DeviceHeaderFields.ModuleDI; }            
+            get { return Configuration.HeaderFields.ModuleDI; }            
         }
 
         public bool ModuleDOPresent
         {
-            get { return Configuration.DeviceHeaderFields.ModuleDO; }            
+            get { return Configuration.HeaderFields.ModuleDO; }            
         }
 
         public bool ModuleModbusMasterPresent
         {
-            get { return Configuration.DeviceHeaderFields.ModuleModbusMaster; }            
+            get { return Configuration.HeaderFields.ModuleModbusMaster; }            
         }
 
         public bool ModuleModbusSlavePresent
         {
-            get { return Configuration.DeviceHeaderFields.ModuleModbusSlave; }            
+            get { return Configuration.HeaderFields.ModuleModbusSlave; }            
         }
 
         public bool ModuleRouterPresent
         {
-            get { return Configuration.DeviceHeaderFields.ModuleRouter; }            
+            get { return Configuration.HeaderFields.ModuleRouter; }            
         }
 
         public DateTime ConfigurationTime
         {
-            get { return Configuration.DeviceLastConfigurationTime.ConfigurationTime; }
-            set { Configuration.DeviceLastConfigurationTime.ConfigurationTime = value; }
+            get { return Configuration.LastConfigurationTime.ConfigurationTime; }
+            set { Configuration.LastConfigurationTime.ConfigurationTime = value; }
         }
 
         public ReadOnlyCollection<DeviceUARTPortConfiguration> UartPortsConfigurations
         {
-            get { return new ReadOnlyCollection<DeviceUARTPortConfiguration>(Configuration.DeviceUartPorts); }            
+            get { return new ReadOnlyCollection<DeviceUARTPortConfiguration>(Configuration.UartPorts); }            
         }
 
         public DeviceModuleDI DiscreetInputModule
         {
-            get { return Configuration.DeviceDIModule; }            
+            get { return Configuration.DIModule; }            
         }
 
         public DeviceModuleDO DiscreetOutputModule
         {
-            get { return Configuration.DeviceDOModule; }            
+            get { return Configuration.DOModule; }            
         }
-               
+
+        public bool RoutingEnabled
+        {
+            get { return Configuration.RoutingHeader.RoutingEnabled != 0; }
+            set { Configuration.RoutingHeader.RoutingEnabled = (UInt16)(value ? 1 : 0); }
+        }
+
+        //TODO make it with adding & modifying validation
+        public List<DeviceRoutingTableElement> RoutingMap
+        {
+            get { return Configuration.RoutingTable; }
+            set { Configuration.RoutingTable = value; }
+        }
+
         #endregion
 
         #region Read & Save Methods

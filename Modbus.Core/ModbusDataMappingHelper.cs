@@ -646,40 +646,58 @@ namespace Modbus.Core
                 if (outputValues[val] == null)
                     throw new NullReferenceException();
 
+                //counting total size
                 if (outputValues[val].GetType().IsValueType)//here we will process simple (only numeric) types
                 {
                     if (GetTypeHelper.IsNumericType(outputValues[val].GetType()))
                     {
                         totalLengthInBytesOfRequestedData += (UInt32)Marshal.SizeOf(outputValues[val]);
                         if (totalLengthInBytesOfRequestedData > rawPacketData.Length)
-                            throw new ArgumentOutOfRangeException();
-                        ExtractValueFromArrayByType(rawPacketData,
-                            ref currentIndexInPacketData, ref outputValues[val], bigEndianOrder);
+                            throw new ArgumentOutOfRangeException();                        
                     }
                     else
                         throw new ArgumentException("Neither numeric nor class value in outputValues array");
                 }
                 else//here we will process properties (only numeric) from complex (class) types 
-                {
-                    Type[] arrayOfOutputTypes = GetObjectModbusPropertiesTypeArray(outputValues[val]);
+                {                    
                     totalLengthInBytesOfRequestedData += SizeofHelper.SizeOfPublicPropertiesWithModbusAttribute(outputValues[val]);
                     if (totalLengthInBytesOfRequestedData > 0)
                     {
                         if (totalLengthInBytesOfRequestedData > rawPacketData.Length)
-                            throw new ArgumentOutOfRangeException();
-                        object[] arrayOfValuesForObject =
-                            CreateValuesArrayFromTypesArray(arrayOfOutputTypes);
-
-                        for (int i = 0; i < arrayOfValuesForObject.Length; i++)
-                        {
-                            ExtractValueFromArrayByType(rawPacketData,
-                                ref currentIndexInPacketData, ref arrayOfValuesForObject[i], bigEndianOrder);
-                        }
-                        SetObjectPropertiesValuesFromArray(
-                            ref outputValues[val], arrayOfValuesForObject);
+                            throw new ArgumentOutOfRangeException();                        
                     }
                 }
+                //processing data
+                ProcessDataToObject(rawPacketData, ref outputValues[val], bigEndianOrder,ref currentIndexInPacketData);
             }
+        }
+
+        private static void ProcessDataToObject(byte[] rawPacketData, ref object outputValue, bool bigEndianOrder,
+            ref int currentIndexInPacketData)
+        {            
+            if (outputValue.GetType().IsValueType) //here we will process simple (only numeric) types
+            {
+                if (GetTypeHelper.IsNumericType(outputValue.GetType()))
+                {
+                    ExtractValueFromArrayByType(rawPacketData,
+                        ref currentIndexInPacketData, ref outputValue, bigEndianOrder);
+                }
+            }
+            else //here we will process properties (only numeric) from complex (class) types 
+            {
+                
+                Type[] arrayOfOutputTypes = GetObjectModbusPropertiesTypeArray(outputValue);
+                object[] arrayOfValuesForObject =
+                    CreateValuesArrayFromTypesArray(arrayOfOutputTypes);
+
+                for (int i = 0; i < arrayOfValuesForObject.Length; i++)
+                {
+                    ExtractValueFromArrayByType(rawPacketData,
+                        ref currentIndexInPacketData, ref arrayOfValuesForObject[i], bigEndianOrder);
+                }
+                SetObjectPropertiesValuesFromArray(
+                    ref outputValue, arrayOfValuesForObject);
+            }            
         }
     }    
 }

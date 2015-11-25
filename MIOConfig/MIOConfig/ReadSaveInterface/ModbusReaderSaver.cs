@@ -86,9 +86,7 @@ namespace MIOConfig
 
         public ReaderSaverErrors ReadDeviceConfiguration(ref Device configuration)
         {
-            ReaderSaverErrors retCode = ReaderSaverErrors.CodeOk;
-
-            retCode = CheckDeviceHeaderValidityAndInitConfiguration(configuration);
+            ReaderSaverErrors retCode = CheckDeviceHeaderValidityAndInitConfiguration(configuration);
             if (retCode != ReaderSaverErrors.CodeOk)
                 return retCode;
             List<object> listOfConfigurationItems = configuration.Configuration.ToList();
@@ -151,11 +149,8 @@ namespace MIOConfig
         {
             List<object> listOfConfigurationItems = new List<object>();
             DeviceHeader tempHeader = new DeviceHeader();
-            if (checkOnly)
-                listOfConfigurationItems.Add(tempHeader);
-            else            
-                listOfConfigurationItems.Add(configuration.Configuration.DeviceHeaderFields);
-            
+            listOfConfigurationItems.Add(checkOnly ? tempHeader : configuration.Configuration.HeaderFields);
+
 
             ReaderSaverErrors retCode = PerformReading(ref listOfConfigurationItems);
             if (retCode != ReaderSaverErrors.CodeOk)
@@ -166,19 +161,44 @@ namespace MIOConfig
 
             if (!checkOnly)
             {
-                object tempObj = configuration.Configuration.DeviceHeaderFields;
-                Utility.CloneObjectProperties(listOfConfigurationItems[0], ref tempObj);
-                //TODO ??? can be deleted????
-                //configuration.Configuration.DeviceHeaderFields = tempObj as DeviceHeader;
-                if (!configuration.Configuration.DeviceHeaderFields.IsValidHeader())
+                //object tempObj = configuration.Configuration.HeaderFields;
+                //Utility.CloneObjectProperties(listOfConfigurationItems[0], ref tempObj);                
+                if (!configuration.Configuration.HeaderFields.IsValidHeader())
                     return ReaderSaverErrors.CodeInvalidDeviceHeader;
+
+                if (configuration.Configuration.HeaderFields.ModuleRouter && configuration.Configuration.RoutingHeader != null)
+                {
+                    //save previous reading  offset
+                    UInt16 currentDeviceOffset = RegisterReadAddressOffset;
+                    //calculate offset for reading router header
+                    listOfConfigurationItems.Add(configuration.Configuration.LastConfigurationTime);
+                    listOfConfigurationItems.AddRange(configuration.Configuration.UartPorts);
+                    if (configuration.Configuration.DIModule != null)
+                        listOfConfigurationItems.Add(configuration.Configuration.DIModule);
+                    if (configuration.Configuration.DOModule != null)
+                        listOfConfigurationItems.Add(configuration.Configuration.DOModule);
+                                        
+                    RegisterReadAddressOffset = (UInt16)(currentDeviceOffset + ((SizeofHelper.SizeOfPublicPropertiesWithModbusAttribute(listOfConfigurationItems) + 1) / 2));
+                    listOfConfigurationItems.Clear();
+                   
+                    //read header
+                    listOfConfigurationItems.Add(configuration.Configuration.RoutingHeader);
+                    retCode = PerformReading(ref listOfConfigurationItems);
+                    if (retCode != ReaderSaverErrors.CodeOk)
+                        return retCode;
+                    //initialize header and routing map
+                    //tempObj = configuration.Configuration.RoutingHeader;
+                    //Utility.CloneObjectProperties(listOfConfigurationItems[0], ref tempObj);                    
+                    //restore previous reading  offset
+                    RegisterReadAddressOffset = currentDeviceOffset;
+                }
             }
             else
             {
                 if (!tempHeader.IsValidHeader())
                     return ReaderSaverErrors.CodeInvalidDeviceHeader;
 
-                if (configuration.Configuration.DeviceHeaderFields.DeviceUartChannelsCount !=
+                if (configuration.Configuration.HeaderFields.DeviceUartChannelsCount !=
                     tempHeader.DeviceUartChannelsCount)
                     return ReaderSaverErrors.CodeNotCompliantDevice;                
             }                                   

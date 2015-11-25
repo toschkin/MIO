@@ -75,18 +75,28 @@ namespace ConsoleMIOConfigTester
                     ShowObjectPropsAndVals(item);
                 }
                 Console.WriteLine();
+                Console.ReadLine();
 
                 device.DiscreetInputModule.ModuleOperation = 0;
                 device.DiscreetInputModule.HysteresisTime = 0xAA55;
 
                 device.DiscreetOutputModule.ModuleOperation = 0;
-                device.DiscreetOutputModule.PulseDurationTime = 0xBB66;                
+                device.DiscreetOutputModule.PulseDurationTime = 0xBB66;
+
+                device.RoutingMap[1].RouteFrom = 0x300;
+                device.RoutingMap[1].RouteTo = 0x400;
 
                 Console.WriteLine("SaveConfiguration...Modbus");
-                Console.WriteLine(device.SaveConfiguration(modbusReaderSaver).GetDescription());      
+                Console.WriteLine(device.SaveConfiguration(modbusReaderSaver).GetDescription());
+                Console.ReadLine();
 
                 Console.WriteLine("SaveConfiguration...File");
                 Console.WriteLine(device.SaveConfiguration(fileReaderSaver).GetDescription());
+                Console.ReadLine();
+
+                Console.WriteLine("clearing...");
+                device = new Device();
+                Console.ReadLine();
 
                 Console.WriteLine("ReadConfiguration...File");
                 Console.WriteLine(device.ReadConfiguration(fileReaderSaver).GetDescription());
@@ -117,12 +127,12 @@ namespace ConsoleMIOConfigTester
                 Console.WriteLine("ReadConfiguration...");
                 Console.WriteLine(config.ReadConfiguration(modbusReader));                
                 Console.WriteLine(config);
-                foreach (var item in config.DeviceUartPorts)
+                foreach (var item in config.UartPorts)
                 {
                     ShowObjectPropsAndVals(item);
                 }
                 Console.WriteLine();
-                ShowObjectPropsAndVals(config.DeviceDIModule);
+                ShowObjectPropsAndVals(config.DIModule);
                 
 
                 Console.WriteLine("SaveConfiguration to {0}", fileSaver.FilePath);
@@ -136,30 +146,30 @@ namespace ConsoleMIOConfigTester
                 Console.WriteLine("ReadConfiguration from {0}", fileReader.FilePath);
                 Console.WriteLine(config.ReadConfiguration(fileReader));
                 Console.WriteLine(config);
-                foreach (var item in config.DeviceUartPorts)
+                foreach (var item in config.UartPorts)
                 {
                     ShowObjectPropsAndVals(item);
                 }
                 Console.WriteLine();
-                ShowObjectPropsAndVals(config.DeviceDIModule);
+                ShowObjectPropsAndVals(config.DIModule);
                 Console.ReadLine();
 
                
 
                 /*Console.WriteLine("Changing config");
-                config.DeviceUartPorts[0].PortOperation = 0;
+                config.UartPorts[0].PortOperation = 0;
                 config.DeviceUartPorts[0].PortNumber = 1;
-                config.DeviceUartPorts[0].PortSpeed = 1200;
-                config.DeviceUartPorts[0].PortStopBits = 1;
-                config.DeviceUartPorts[0].PortParity = 2;
-                config.DeviceUartPorts[0].PortByteSize = 9;
-                config.DeviceUartPorts[0].PortFlowControl = 0;
-                config.DeviceUartPorts[0].PortProtocolType = 0;
-                config.DeviceUartPorts[0].PortMasterTimeout = 300;
-                config.DeviceUartPorts[0].PortMasterRequestCount = 1;
-                config.DeviceUartPorts[0].PortRetriesCount = 6;
-                config.DeviceUartPorts[0].PortModbusAddress = 2;                               
-                ShowObjectPropsAndVals(config.DeviceUartPorts[0]);
+                config.UartPorts[0].PortSpeed = 1200;
+                config.UartPorts[0].PortStopBits = 1;
+                config.UartPorts[0].PortParity = 2;
+                config.UartPorts[0].PortByteSize = 9;
+                config.UartPorts[0].PortFlowControl = 0;
+                config.UartPorts[0].PortProtocolType = 0;
+                config.UartPorts[0].PortMasterTimeout = 300;
+                config.UartPorts[0].PortMasterRequestCount = 1;
+                config.UartPorts[0].PortRetriesCount = 6;
+                config.UartPorts[0].PortModbusAddress = 2;                               
+                ShowObjectPropsAndVals(config.UartPorts[0]);
                 Console.WriteLine();                
 
                 
@@ -168,11 +178,11 @@ namespace ConsoleMIOConfigTester
                 Console.WriteLine();
 
 
-                ShowObjectPropsAndVals(config.DeviceHeaderFields);
+                ShowObjectPropsAndVals(config.HeaderFields);
                 Console.WriteLine();    
-                ShowObjectPropsAndVals(config.DeviceUartPorts[0]);
+                ShowObjectPropsAndVals(config.UartPorts[0]);
                                 
-                Console.WriteLine("config.DeviceUartPorts.Count = {0}", config.DeviceUartPorts.Count);    
+                Console.WriteLine("config.UartPorts.Count = {0}", config.UartPorts.Count);    
 
                 /*ModbusDataPoint<Byte> dpB1= new ModbusDataPoint<byte>();
                 ModbusDataPoint<UInt16> dpW1 = new ModbusDataPoint<UInt16>();

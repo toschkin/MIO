@@ -4,10 +4,10 @@ using System.Text;
 
 namespace MIOConfig.InternalLayer
 {
-    public delegate void ErrorTracer(string errorMessage);   
-
+    public delegate void ErrorTracer(string errorMessage);
+    
     [Serializable]
-    internal class DeviceConfiguration
+    public class DeviceConfiguration
     {
         #region Tracing & Logging             
         /// <summary>
@@ -38,12 +38,14 @@ namespace MIOConfig.InternalLayer
         public DeviceConfiguration()
         {
             var thisDevice = this;
-            DeviceHeaderFields = new DeviceHeader(ref thisDevice);                        
-            DeviceLastConfigurationTime = new DeviceConfigurationTime();
+            HeaderFields = new DeviceHeader(ref thisDevice);                        
+            LastConfigurationTime = new DeviceConfigurationTime();
             //minimum 1 UART presentin device
-            DeviceUartPorts = new List<DeviceUARTPortConfiguration>(3) {new DeviceUARTPortConfiguration()};
-            DeviceDIModule = null;
-            DeviceDOModule = null;
+            UartPorts = new List<DeviceUARTPortConfiguration>(3) {new DeviceUARTPortConfiguration()};
+            DIModule = null;
+            DOModule = null;
+            RoutingHeader = null;
+            RoutingTable = null;
         }
        
         #region Fields & Properties              
@@ -51,43 +53,57 @@ namespace MIOConfig.InternalLayer
         /// <summary>
         /// Holding regs|addr.: 1000|count: 5
         /// </summary>          
-        public DeviceHeader DeviceHeaderFields;
+        public DeviceHeader HeaderFields;
         
         /// <summary>
         /// Holding regs|addr.: 1005|count: 2| R/W
         /// </summary>        
-        public DeviceConfigurationTime DeviceLastConfigurationTime;
+        public DeviceConfigurationTime LastConfigurationTime;
        
         /// <summary>
         /// Holding regs|addr.: 1007+7*(DevicePortNumber-1)|count: 7| R/W
         /// </summary>        
-        public List<DeviceUARTPortConfiguration> DeviceUartPorts;
+        public List<DeviceUARTPortConfiguration> UartPorts;
 
         /// <summary>
-        /// Holding regs|addr.: 1007+7*DeviceUartPorts.Count |count: 4| R/W
+        /// Holding regs|addr.: 1007+7*UartPorts.Count |count: 4| R/W
         /// </summary>     
-        public DeviceModuleDI DeviceDIModule;
+        public DeviceModuleDI DIModule;
 
-         /// <summary>
-        /// Holding regs|addr.: 1007+7*DeviceUartPorts.Count+5 |count: 4| R/W
+        /// <summary>
+        /// Holding regs|addr.: 1007+7*UartPorts.Count+5*ModuleDIPresent |count: 4| R/W
         /// </summary>     
-        public DeviceModuleDO DeviceDOModule;
-        
-        
+        public DeviceModuleDO DOModule;
+
+        /// <summary>
+        /// Holding regs|addr.: 1007+7*UartPorts.Count + 5*ModuleDIPresent + 10*ModuleDOPresent |count: 1| R/W
+        /// </summary>
+        public DeviceRoutingHeader RoutingHeader;
+
+        /// <summary>
+        /// Holding regs|addr.: 1007+7*UartPorts.Count + 5*ModuleDIPresent + 10*ModuleDOPresent+2 |count: 2| R/W
+        /// </summary>
+        public List<DeviceRoutingTableElement> RoutingTable;
+
         #endregion
 
         #region Methods
 
         public List<object> ToList()
-        {
+        {                  
             List<object> listOfConfigurationItems = new List<object>();            
-            listOfConfigurationItems.Add(DeviceHeaderFields);
-            listOfConfigurationItems.Add(DeviceLastConfigurationTime);
-            listOfConfigurationItems.AddRange(DeviceUartPorts);
-            if (DeviceDIModule != null)
-                listOfConfigurationItems.Add(DeviceDIModule);
-            if (DeviceDOModule != null)
-                listOfConfigurationItems.Add(DeviceDOModule);
+            listOfConfigurationItems.Add(HeaderFields);
+            listOfConfigurationItems.Add(LastConfigurationTime);
+            listOfConfigurationItems.AddRange(UartPorts);
+            if (DIModule != null)
+                listOfConfigurationItems.Add(DIModule);
+            if (DOModule != null)
+                listOfConfigurationItems.Add(DOModule);
+            if (RoutingHeader != null)
+                listOfConfigurationItems.Add(RoutingHeader);
+            if (RoutingTable != null)
+                listOfConfigurationItems.AddRange(RoutingTable);
+
             return listOfConfigurationItems;
         }
 
@@ -97,31 +113,46 @@ namespace MIOConfig.InternalLayer
                 return false;
             int listIndex = 0;
             //Header
-            object tempObj = DeviceHeaderFields;
+            object tempObj = HeaderFields;
             Utility.CloneObjectProperties(listOfConfigurationItems[listIndex++], ref tempObj);
-            DeviceHeaderFields = tempObj as DeviceHeader;            
+            HeaderFields = tempObj as DeviceHeader;            
             //Configuration Time
-            DeviceLastConfigurationTime = listOfConfigurationItems[listIndex++] as DeviceConfigurationTime;//Utility.CloneObject(listOfConfigurationItems[listIndex++]) as DeviceConfigurationTime;
+            LastConfigurationTime = listOfConfigurationItems[listIndex++] as DeviceConfigurationTime;//Utility.CloneObject(listOfConfigurationItems[listIndex++]) as DeviceConfigurationTime;
             //UART ports
-            for (int port = 0; port < DeviceHeaderFields.DeviceUartChannelsCount && listIndex < listOfConfigurationItems.Count; port++)
+            for (int port = 0; port < HeaderFields.DeviceUartChannelsCount && listIndex < listOfConfigurationItems.Count; port++)
             {
-                DeviceUartPorts[port] = listOfConfigurationItems[listIndex++] as DeviceUARTPortConfiguration;
+                UartPorts[port] = listOfConfigurationItems[listIndex++] as DeviceUARTPortConfiguration;
             }
 
-            if (DeviceHeaderFields.ModuleDI && listIndex < listOfConfigurationItems.Count)
-                DeviceDIModule = listOfConfigurationItems[listIndex++] as DeviceModuleDI;
+            if (DIModule != null && HeaderFields.ModuleDI && listIndex < listOfConfigurationItems.Count)
+                DIModule = listOfConfigurationItems[listIndex++] as DeviceModuleDI;
 
-            if (DeviceHeaderFields.ModuleDO && listIndex < listOfConfigurationItems.Count)
-                DeviceDOModule = listOfConfigurationItems[listIndex++] as DeviceModuleDO;
+            if (DOModule != null && HeaderFields.ModuleDO && listIndex < listOfConfigurationItems.Count)
+                DOModule = listOfConfigurationItems[listIndex++] as DeviceModuleDO;
 
+            if (RoutingHeader != null && HeaderFields.ModuleRouter && listIndex < listOfConfigurationItems.Count)
+            {
+                tempObj = RoutingHeader;                
+                Utility.CloneObjectProperties(listOfConfigurationItems[listIndex++], ref tempObj);
+                RoutingHeader = tempObj as DeviceRoutingHeader;  
+            }
+                
+
+            if (HeaderFields.ModuleRouter && RoutingTable != null)
+            {
+                for (int route = 0; route < RoutingHeader.RoutingTableSize && listIndex < listOfConfigurationItems.Count; route++)
+                {
+                    RoutingTable[route] = listOfConfigurationItems[listIndex++] as DeviceRoutingTableElement;
+                }    
+            }            
             return true;
         }
        
         public override string ToString()
         {
             StringBuilder resultString = new StringBuilder();
-            resultString.Append(DeviceHeaderFields);
-            resultString.Append(DeviceLastConfigurationTime);
+            resultString.Append(HeaderFields);
+            resultString.Append(LastConfigurationTime);
             return resultString.ToString();
         }
 

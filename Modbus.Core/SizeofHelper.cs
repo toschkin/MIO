@@ -11,7 +11,7 @@ namespace Modbus.Core
         /// </summary>
         /// <param name="array">array which total element's properties sizes should be calculated</param>
         /// <returns>size in bytes of all public properties of an object's in array</returns>
-        public static UInt32 SizeOfPublicPropertiesWithModbusAttribute(object[] array, ModbusRegisterAccessType accessType = ModbusRegisterAccessType.AccessRead)
+        public static UInt32 SizeOfPublicPropertiesWithModbusAttribute(object[] array, ModbusRegisterAccessType accessType = ModbusRegisterAccessType.AccessRead, bool processSubproperties = false)
         {
             if (array == null)
                 throw new ArgumentNullException();
@@ -33,7 +33,19 @@ namespace Modbus.Core
                             } 
                         }                                                    
                     }
-                        
+                    else
+                    {
+                        if ((processSubproperties) && (field.CanWrite))
+                        {
+                            if (!field.PropertyType.IsValueType && !field.PropertyType.IsEnum &&
+                            field.PropertyType == typeof(String))
+                            {
+                                Type typeSource = field.GetType();
+                                object objTarget = Activator.CreateInstance(typeSource);
+                                totalLengthInBytes += SizeOfPublicPropertiesWithModbusAttribute(objTarget, accessType);
+                            }
+                        }
+                    }  
                 }
             }            
             return totalLengthInBytes;
@@ -44,7 +56,7 @@ namespace Modbus.Core
         /// </summary>
         /// <param name="obj">object which properties size should be calculated</param>
         /// <returns>size in bytes of all public properties of an object</returns>
-        public static UInt32 SizeOfPublicPropertiesWithModbusAttribute(object obj, ModbusRegisterAccessType accessType = ModbusRegisterAccessType.AccessRead)
+        public static UInt32 SizeOfPublicPropertiesWithModbusAttribute(object obj, ModbusRegisterAccessType accessType = ModbusRegisterAccessType.AccessRead, bool processSubproperties = false)
         {
             if (obj is List<object>)
                 return SizeOfPublicPropertiesWithModbusAttribute(((List<object>)obj).ToArray(), accessType);
@@ -55,6 +67,7 @@ namespace Modbus.Core
             UInt32 totalLengthInBytes = 0;
             foreach (var field in obj.GetType().GetProperties())
             {
+
                 if ((field.CanWrite) &&
                     (field.GetCustomAttributes(typeof(ModbusPropertyAttribute), false).Length != 0))
                 {
@@ -66,6 +79,19 @@ namespace Modbus.Core
                             break;
                         }
                     }
+                }
+                else
+                {
+                    if ((processSubproperties)&&(field.CanWrite))
+                    {
+                        if (!field.PropertyType.IsValueType && !field.PropertyType.IsEnum &&
+                        field.PropertyType == typeof(String))
+                        {
+                            Type typeSource = field.GetType();
+                            object objTarget = Activator.CreateInstance(typeSource);
+                            totalLengthInBytes += SizeOfPublicPropertiesWithModbusAttribute(objTarget, accessType);
+                        }    
+                    }                    
                 }
             }
             return totalLengthInBytes;

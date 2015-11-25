@@ -7,7 +7,7 @@ using Modbus.Core;
 namespace MIOConfig.InternalLayer
 {
     [Serializable]
-    internal class DeviceHeader
+    public class DeviceHeader
     {
         private DeviceConfiguration _deviceConfiguration;
         private UInt16 _deviceUartChannelsCount;
@@ -66,9 +66,32 @@ namespace MIOConfig.InternalLayer
                 }
                 if (_deviceConfiguration != null)
                 {
-                    _deviceConfiguration.DeviceDIModule = ModuleDI ? new DeviceModuleDI() : null;
+                    if (ModuleDI)
+                    {
+                        if (_deviceConfiguration.DIModule == null) _deviceConfiguration.DIModule = new DeviceModuleDI();
+                    }
+                    else
+                        _deviceConfiguration.DIModule = null;
 
-                    _deviceConfiguration.DeviceDOModule = ModuleDO ? new DeviceModuleDO() : null;
+                    if (ModuleDO)
+                    {
+                        if (_deviceConfiguration.DOModule == null) _deviceConfiguration.DOModule = new DeviceModuleDO();
+                    }
+                    else
+                        _deviceConfiguration.DOModule = null;
+
+                    if (ModuleRouter)
+                    {
+                        if (_deviceConfiguration.RoutingHeader == null)
+                            _deviceConfiguration.RoutingHeader = new DeviceRoutingHeader(ref _deviceConfiguration);
+                        if (_deviceConfiguration.RoutingTable == null)
+                            _deviceConfiguration.RoutingTable = new List<DeviceRoutingTableElement>();
+                    }
+                    else
+                    {
+                        _deviceConfiguration.RoutingTable = null;
+                        _deviceConfiguration.RoutingHeader = null;
+                    }                   
                 }
             }
         }
@@ -85,16 +108,16 @@ namespace MIOConfig.InternalLayer
                     value = 1;                 
                 if (_deviceConfiguration != null)
                 {
-                    if (value > _deviceConfiguration.DeviceUartPorts.Count)
+                    if (value > _deviceConfiguration.UartPorts.Count)
                     {
-                        int addCount = value - _deviceConfiguration.DeviceUartPorts.Count;
+                        int addCount = value - _deviceConfiguration.UartPorts.Count;
 
                         for (int i = 0; i < addCount; i++)
-                            _deviceConfiguration.DeviceUartPorts.Add(new DeviceUARTPortConfiguration());
+                            _deviceConfiguration.UartPorts.Add(new DeviceUARTPortConfiguration());
                     }
 
-                    if (value < _deviceConfiguration.DeviceUartPorts.Count)
-                        _deviceConfiguration.DeviceUartPorts.RemoveRange(value, _deviceConfiguration.DeviceUartPorts.Count - value); 
+                    if (value < _deviceConfiguration.UartPorts.Count)
+                        _deviceConfiguration.UartPorts.RemoveRange(value, _deviceConfiguration.UartPorts.Count - value); 
                 }
                 _deviceUartChannelsCount = value;
             }

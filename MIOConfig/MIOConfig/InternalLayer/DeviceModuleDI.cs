@@ -13,7 +13,7 @@ namespace MIOConfig.InternalLayer
         }
         private Byte _moduleOperation;
         /// <summary>
-        /// Holding regs|addr.: 1007+7*DeviceUartPorts.Count LoByte|count: 1| R/W
+        /// Holding regs|addr.: 1007+7*UartPorts.Count LoByte|count: 1| R/W
         /// </summary>
         /// <value>0 - out of operation, 1 - in operation</value>
         /// 
@@ -25,14 +25,14 @@ namespace MIOConfig.InternalLayer
         }
 
         /// <summary>
-        /// Holding regs|addr.: 1007+7*DeviceUartPorts.Count+1 HiByte + 1007+7*DeviceUartPorts.Count+2 LoByte |count: 2| R/W
+        /// Holding regs|addr.: 1007+7*UartPorts.Count+1 HiByte + 1007+7*UartPorts.Count+2 LoByte |count: 2| R/W
         /// </summary>
         /// <value>range: 0..65535</value>
         [ModbusProperty(Access = ModbusRegisterAccessType.AccessReadWrite)]
         public UInt16 HysteresisTime { get; set; }
 
         /// <summary>
-        /// Holding regs|addr.: 1007+7*DeviceUartPorts.Count+2 HiByte|count: 1| R/W
+        /// Holding regs|addr.: 1007+7*UartPorts.Count+2 HiByte|count: 1| R/W
         /// </summary>
         /// <value></value>
         /// 
@@ -40,7 +40,7 @@ namespace MIOConfig.InternalLayer
         public Byte ResevedByte1 { get; set; }
 
         /// <summary>
-        /// Holding regs|addr.: 1007+7*DeviceUartPorts.Count+3|count: 1| R/W
+        /// Holding regs|addr.: 1007+7*UartPorts.Count+3|count: 1| R/W
         /// </summary>
         /// <value></value>
         /// 
@@ -48,7 +48,7 @@ namespace MIOConfig.InternalLayer
         public UInt16 ResevedWord1 { get; set; }
 
         /// <summary>
-        /// Holding regs|addr.: 1007+7*DeviceUartPorts.Count+4|count: 1| R/W
+        /// Holding regs|addr.: 1007+7*UartPorts.Count+4|count: 1| R/W
         /// </summary>
         /// <value></value>
         /// 

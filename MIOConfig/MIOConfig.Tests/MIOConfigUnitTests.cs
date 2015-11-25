@@ -13,10 +13,10 @@ namespace MIOConfig.Tests
         public void DeviceUartChannelsCount_Property_Set_ShouldResizeDeviceUartPortsList()
         {
             DeviceConfiguration deviceConfiguration = new DeviceConfiguration();
-            deviceConfiguration.DeviceHeaderFields.DeviceUartChannelsCount = 5;
-            Assert.AreEqual(5, deviceConfiguration.DeviceUartPorts.Count);
-            deviceConfiguration.DeviceHeaderFields.DeviceUartChannelsCount = 0;
-            Assert.AreEqual(1, deviceConfiguration.DeviceUartPorts.Count);
+            deviceConfiguration.HeaderFields.DeviceUartChannelsCount = 5;
+            Assert.AreEqual(5, deviceConfiguration.UartPorts.Count);
+            deviceConfiguration.HeaderFields.DeviceUartChannelsCount = 0;
+            Assert.AreEqual(1, deviceConfiguration.UartPorts.Count);
         }        
     }*/
     [TestClass]

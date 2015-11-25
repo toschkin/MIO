@@ -21,7 +21,7 @@ namespace MIOConfig.InternalLayer
         }
         private Byte _moduleOperation;
         /// <summary>
-        /// Holding regs|addr.: 1007+7*DeviceUartPorts.Count+5 LoByte|count: 1| R/W
+        /// Holding regs|addr.: 1007+7*UartPorts.Count+5*ModuleDIPresent LoByte|count: 1| R/W
         /// </summary>
         /// <value>0 - out of operation, 1 - in operation</value>
         /// 
@@ -33,14 +33,14 @@ namespace MIOConfig.InternalLayer
         }
 
         /// <summary>
-        /// Holding regs|addr.: 1007+7*DeviceUartPorts.Count+5 HiByte + 1007+7*DeviceUartPorts.Count+6 LoByte |count: 2| R/W
+        /// Holding regs|addr.: 1007+7*UartPorts.Count+5*ModuleDIPresent HiByte + 1007+7*UartPorts.Count+5*ModuleDIPresent+1 LoByte |count: 2| R/W
         /// </summary>
         /// <value>range: 0..65535</value>
         [ModbusProperty(Access = ModbusRegisterAccessType.AccessReadWrite)]
         public UInt16 PulseDurationTime { get; set; }
 
         /// <summary>
-        /// Holding regs|addr.: 1007+7*DeviceUartPorts.Count+6 HiByte|count: 1| R/W
+        /// Holding regs|addr.: 1007+7*UartPorts.Count+5*ModuleDIPresent+1 HiByte|count: 1| R/W
         /// </summary>
         /// <value>0 - out of operation, 1 - in operation</value>
         /// 
@@ -48,7 +48,7 @@ namespace MIOConfig.InternalLayer
         public Byte ResevedByte1 { get; set; }
 
         /// <summary>
-        /// Holding regs|addr.: 1007+7*DeviceUartPorts.Count+7 LoByte|count: 1| R/W
+        /// Holding regs|addr.: 1007+7*UartPorts.Count+5*ModuleDIPresent+2 LoByte|count: 1| R/W
         /// </summary>
         /// <value>0 - not in operation, 1 - SP, 2 - DP, 3-parallel</value>
         /// 
@@ -57,7 +57,7 @@ namespace MIOConfig.InternalLayer
 
         private Byte _parallelChannelPresentForOutput1;
         /// <summary>
-        /// Holding regs|addr.: 1007+7*DeviceUartPorts.Count+7 HiByte|count: 1| R/W
+        /// Holding regs|addr.: 1007+7*UartPorts.Count+5*ModuleDIPresent+2 HiByte|count: 1| R/W
         /// </summary>
         /// <value>0 - not present, 1 - present</value>
         /// 
@@ -69,7 +69,7 @@ namespace MIOConfig.InternalLayer
         } 
 
         /// <summary>
-        /// Holding regs|addr.: 1007+7*DeviceUartPorts.Count+8|count: 1| R/W
+        /// Holding regs|addr.: 1007+7*UartPorts.Count+5*ModuleDIPresent+3|count: 1| R/W
         /// </summary>
         /// <value>0..65535 acording to data map</value>
         /// 
@@ -77,7 +77,7 @@ namespace MIOConfig.InternalLayer
         public UInt16 AddressOfParallelChannelForOutput1 { get; set; }
 
         /// <summary>
-        /// Holding regs|addr.: 1007+7*DeviceUartPorts.Count+9 LoByte|count: 1| R/W
+        /// Holding regs|addr.: 1007+7*UartPorts.Count+5*ModuleDIPresent+4 LoByte|count: 1| R/W
         /// </summary>
         /// <value>0 - not in operation, 1 - SP, 2 - DP, 3-parallel</value>
         /// 
@@ -86,7 +86,7 @@ namespace MIOConfig.InternalLayer
 
         private Byte _parallelChannelPresentForOutput2;
         /// <summary>
-        /// Holding regs|addr.: 1007+7*DeviceUartPorts.Count+9 HiByte|count: 1| R/W
+        /// Holding regs|addr.: 1007+7*UartPorts.Count+5*ModuleDIPresent+4 HiByte|count: 1| R/W
         /// </summary>
         /// <value>0 - not present, 1 - present</value>
         /// 
@@ -98,7 +98,7 @@ namespace MIOConfig.InternalLayer
         }
 
         /// <summary>
-        /// Holding regs|addr.: 1007+7*DeviceUartPorts.Count+10|count: 1| R/W
+        /// Holding regs|addr.: 1007+7*UartPorts.Count+5*ModuleDIPresent+5|count: 1| R/W
         /// </summary>
         /// <value>0..65535 acording to data map</value>
         /// 
@@ -106,7 +106,7 @@ namespace MIOConfig.InternalLayer
         public UInt16 AddressOfParallelChannelForOutput2 { get; set; }
 
         /// <summary>
-        /// Holding regs|addr.: 1007+7*DeviceUartPorts.Count+11 LoByte|count: 1| R/W
+        /// Holding regs|addr.: 1007+7*UartPorts.Count+5*ModuleDIPresent+6 LoByte|count: 1| R/W
         /// </summary>
         /// <value>0 - not in operation, 1 - SP, 2 - DP, 3-parallel</value>
         /// 
@@ -115,7 +115,7 @@ namespace MIOConfig.InternalLayer
 
         private Byte _parallelChannelPresentForOutput3;
         /// <summary>
-        /// Holding regs|addr.: 1007+7*DeviceUartPorts.Count+11 HiByte|count: 1| R/W
+        /// Holding regs|addr.: 1007+7*UartPorts.Count+5*ModuleDIPresent+6 HiByte|count: 1| R/W
         /// </summary>
         /// <value>0 - not present, 1 - present</value>
         /// 
@@ -127,7 +127,7 @@ namespace MIOConfig.InternalLayer
         }
 
         /// <summary>
-        /// Holding regs|addr.: 1007+7*DeviceUartPorts.Count+12|count: 1| R/W
+        /// Holding regs|addr.: 1007+7*UartPorts.Count+5*ModuleDIPresent+7|count: 1| R/W
         /// </summary>
         /// <value>0..65535 acording to data map</value>
         /// 
@@ -135,7 +135,7 @@ namespace MIOConfig.InternalLayer
         public UInt16 AddressOfParallelChannelForOutput3 { get; set; }
 
         /// <summary>
-        /// Holding regs|addr.: 1007+7*DeviceUartPorts.Count+13 LoByte|count: 1| R/W
+        /// Holding regs|addr.: 1007+7*UartPorts.Count+5*ModuleDIPresent+8 LoByte|count: 1| R/W
         /// </summary>
         /// <value>0 - not in operation, 1 - SP, 2 - DP, 3-parallel</value>
         /// 
@@ -144,7 +144,7 @@ namespace MIOConfig.InternalLayer
 
         private Byte _parallelChannelPresentForOutput4;
         /// <summary>
-        /// Holding regs|addr.: 1007+7*DeviceUartPorts.Count+13 HiByte|count: 1| R/W
+        /// Holding regs|addr.: 1007+7*UartPorts.Count+5*ModuleDIPresent+8 HiByte|count: 1| R/W
         /// </summary>
         /// <value>0 - not present, 1 - present</value>
         /// 
@@ -156,7 +156,7 @@ namespace MIOConfig.InternalLayer
         }
 
         /// <summary>
-        /// Holding regs|addr.: 1007+7*DeviceUartPorts.Count+14|count: 1| R/W
+        /// Holding regs|addr.: 1007+7*UartPorts.Count+5*ModuleDIPresent+9|count: 1| R/W
         /// </summary>
         /// <value>0..65535 acording to data map</value>
         /// 
