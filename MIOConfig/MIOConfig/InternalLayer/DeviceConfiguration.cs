@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace MIOConfig.InternalLayer
-{
-    public delegate void ErrorTracer(string errorMessage);
-    
+{       
     [Serializable]
     public class DeviceConfiguration
     {

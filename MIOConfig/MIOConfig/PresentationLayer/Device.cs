@@ -7,7 +7,9 @@ using System.Threading.Tasks;
 using MIOConfig.InternalLayer;
 
 namespace MIOConfig
-{
+{   
+    public delegate void ErrorTracer(string errorMessage);
+
     public class Device
     {
         public Device()
@@ -15,7 +17,31 @@ namespace MIOConfig
             Configuration = new DeviceConfiguration();            
         }
 
-        #region Tracing & Logging        
+        public override string ToString()
+        {
+            return Configuration.ToString();
+        }
+
+        #region Error Tracing & Logging       
+ 
+        private ErrorTracer _validationMessager;
+        /// <summary>
+        /// Adds message callback to list 
+        /// </summary>
+        /// <param name="logger">delegate of form: void ErrorTracer(string errorMessage); </param>
+        public void AddValidationMessager(ErrorTracer logger)
+        {
+            _validationMessager += logger;
+        }
+        /// <summary>
+        /// Removes message callback current list 
+        /// </summary>
+        /// <param name="logger">delegate of form: void ErrorTracer(string errorMessage); </param>
+        public void RemoveValidationMessager(ErrorTracer logger)
+        {
+            _validationMessager -= logger;
+        }
+
         /// <summary>
         /// Exception saving
         /// </summary>       
@@ -35,9 +61,12 @@ namespace MIOConfig
         {
             Configuration.RemoveErrorLogger(logger); 
         }
+
         #endregion
 
-        #region Public properties
+        #region Configuration 
+
+        #region Configuration Properties
 
         internal DeviceConfiguration Configuration;                        
 
@@ -92,8 +121,7 @@ namespace MIOConfig
             get { return Configuration.RoutingHeader.RoutingEnabled != 0; }
             set { Configuration.RoutingHeader.RoutingEnabled = (UInt16)(value ? 1 : 0); }
         }
-
-        //TODO make it with adding & modifying validation
+        
         public List<DeviceRoutingTableElement> RoutingMap
         {
             get { return Configuration.RoutingTable; }
@@ -102,24 +130,54 @@ namespace MIOConfig
 
         #endregion
 
+        #region Validation Methods
+
+        public bool ValidateRotingMapElement(DeviceRoutingTableElement element)
+        {
+            if (element.RouteTo > Configuration.HeaderFields.DeviceUserRegistersCount - 1)
+            {
+                if (_validationMessager != null)
+                {
+                    _validationMessager(String.Format("Целевой регистр за пределами области пользовательских регистров: 0..{0}", Configuration.HeaderFields.DeviceUserRegistersCount - 1));
+                }
+                return false;
+            }
+            for (int route = 0; route < RoutingMap.Count; route++)
+            {
+                if (element.RouteTo == RoutingMap[route].RouteTo)                    
+                {
+                    if (_validationMessager != null)
+                    {                        
+                        _validationMessager(String.Format("Наложение целевого регистра с маршрутом №{0}", route + 1));
+                    }
+                    return false;
+                }                
+            }                        
+            return true;           
+        }
+        //TODO 
+        /*public bool IsValidUartPortConfiguration(DeviceUARTPortConfiguration uartPort)
+        {
+            return;
+        }*/
+
+        #endregion
+
         #region Read & Save Methods
 
         public ReaderSaverErrors SaveConfiguration(IDeviceReaderSaver saver)
         {
-            return saver.SaveDeviceConfiguration(this);            
+            return saver.SaveDeviceConfiguration(this);
         }
 
         public ReaderSaverErrors ReadConfiguration(IDeviceReaderSaver reader)
         {
-            var _config = this;
-            return reader.ReadDeviceConfiguration(ref _config);
+            var config = this;
+            return reader.ReadDeviceConfiguration(ref config);
         }
-        
+
         #endregion
 
-        public override string ToString()
-        {
-            return Configuration.ToString();
-        }
+        #endregion               
     }
 }

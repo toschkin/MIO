@@ -93,8 +93,8 @@ namespace MIOConfig.InternalLayer
         [ModbusProperty(Access = ModbusRegisterAccessType.AccessReadWrite)]
         public Byte ParallelChannelPresentForOutput2
         {
-            get { return _parallelChannelPresentForOutput1; }
-            set { _parallelChannelPresentForOutput1 = value > 1 ? (Byte)1 : value; }
+            get { return _parallelChannelPresentForOutput2; }
+            set { _parallelChannelPresentForOutput2 = value > 1 ? (Byte)1 : value; }
         }
 
         /// <summary>
@@ -122,8 +122,8 @@ namespace MIOConfig.InternalLayer
         [ModbusProperty(Access = ModbusRegisterAccessType.AccessReadWrite)]
         public Byte ParallelChannelPresentForOutput3
         {
-            get { return _parallelChannelPresentForOutput1; }
-            set { _parallelChannelPresentForOutput1 = value > 1 ? (Byte)1 : value; }
+            get { return _parallelChannelPresentForOutput3; }
+            set { _parallelChannelPresentForOutput3 = value > 1 ? (Byte)1 : value; }
         }
 
         /// <summary>
@@ -151,8 +151,8 @@ namespace MIOConfig.InternalLayer
         [ModbusProperty(Access = ModbusRegisterAccessType.AccessReadWrite)]
         public Byte ParallelChannelPresentForOutput4
         {
-            get { return _parallelChannelPresentForOutput1; }
-            set { _parallelChannelPresentForOutput1 = value > 1 ? (Byte)1 : value; }
+            get { return _parallelChannelPresentForOutput4; }
+            set { _parallelChannelPresentForOutput4 = value > 1 ? (Byte)1 : value; }
         }
 
         /// <summary>

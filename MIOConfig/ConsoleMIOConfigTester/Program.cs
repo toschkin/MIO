@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using MIOConfig;
 using Modbus.Core;
 using EnumExtension;
+using MIOConfig.InternalLayer;
 
 namespace ConsoleMIOConfigTester
 {
@@ -23,6 +24,11 @@ namespace ConsoleMIOConfigTester
         public static void ShowError(string error)
         {
             Console.WriteLine("DeviceConfiguration: {0}",error);
+        }
+
+        public static void ShowValidationError(string error)
+        {
+            Console.WriteLine("Validation: {0}", error);
         }
 
         static string GetVariableName<T>(Expression<Func<T>> expr)
@@ -50,9 +56,12 @@ namespace ConsoleMIOConfigTester
             MIOConfig.
             Device device = new Device();
             device.AddErrorLogger(ShowError);
+            device.AddValidationMessager(ShowValidationError);
 
             ModbusRtuProtocol protocol = new ModbusRtuProtocol();           
             protocol.AddExceptionsLogger(ShowException);
+
+            
                       
 
             FileReaderSaver fileReaderSaver = new FileReaderSaver(@"c:\device.dat");
@@ -81,10 +90,18 @@ namespace ConsoleMIOConfigTester
                 device.DiscreetInputModule.HysteresisTime = 0xAA55;
 
                 device.DiscreetOutputModule.ModuleOperation = 0;
-                device.DiscreetOutputModule.PulseDurationTime = 0xBB66;
+                device.DiscreetOutputModule.PulseDurationTime = 0xBB66;                                
 
-                device.RoutingMap[1].RouteFrom = 0x300;
-                device.RoutingMap[1].RouteTo = 0x400;
+                DeviceRoutingTableElement route = new DeviceRoutingTableElement();
+                route.RouteFrom = 0x300;
+                route.RouteTo = 0x400;
+                device.ValidateRotingMapElement(route);
+
+                route.RouteFrom = 0x0411;
+                route.RouteTo = 0x04;
+                device.ValidateRotingMapElement(route);
+
+                Console.ReadLine();
 
                 Console.WriteLine("SaveConfiguration...Modbus");
                 Console.WriteLine(device.SaveConfiguration(modbusReaderSaver).GetDescription());
