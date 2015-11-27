@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using Modbus.Core;
 
 namespace MIOConfig.InternalLayer
@@ -6,13 +8,12 @@ namespace MIOConfig.InternalLayer
     [Serializable]
     public class DeviceUARTPortConfiguration
     {
-        /// <summary>
-        /// Default ctor
-        /// </summary>
-        public DeviceUARTPortConfiguration()
+        private DeviceConfiguration _deviceConfiguration;
+            
+        public DeviceUARTPortConfiguration(ref DeviceConfiguration deviceConfiguration)
         {
+            _deviceConfiguration = deviceConfiguration;
             PortOperation = 1;
-            PortNumber = 1;
             PortSpeed = 9600;
             PortStopBits = 2;
             PortParity = 0;
@@ -22,29 +23,22 @@ namespace MIOConfig.InternalLayer
             PortMasterTimeout = 200;
             PortMasterRequestCount = 0;
             PortRetriesCount = 5;
-            PortModbusAddress = 1;
+            PortModbusAddress = 1;            
+            
         }
-
-        private Byte _portOperation;
+        private UInt16 _portOperation;
         /// <summary>
-        /// Holding regs|addr.: 1007+7*(DevicePortNumber-1) LoByte|count: 1| R/W
+        /// Holding regs|addr.: 1007+7*(DevicePortNumber-1) |count: 1| R/W
         /// </summary>
         /// <value>0 - out of operation, 1 - in operation</value>
         /// 
         [ModbusProperty(Access = ModbusRegisterAccessType.AccessReadWrite)] 
-        public Byte PortOperation 
+        public UInt16 PortOperation 
         {
             get { return _portOperation; }
-            set { _portOperation = value > 1 ? (Byte)1 : value; }
+            set { _portOperation = value > 1 ? (UInt16)1 : value; }
         }
-
-        /// <summary>
-        /// Holding regs|addr.: 1007+7*(DevicePortNumber-1) HiByte|count: 1| R/W
-        /// </summary>
-        /// <value>range: 1..DeviceConfiguration.DeviceUartChannelsCount</value>
-        [ModbusProperty(Access = ModbusRegisterAccessType.AccessReadWrite)]
-        public Byte PortNumber { get; set; }
-
+        
         /// <summary>
         /// Holding regs|addr.: 1008+7*(DevicePortNumber-1) |count: 1| R/W
         /// </summary>
@@ -134,7 +128,14 @@ namespace MIOConfig.InternalLayer
         public Byte PortProtocolType
         {
             get { return _portProtocolType; }
-            set { _portProtocolType = value > 1 ? (Byte)1 : value; }
+            set
+            {
+                //check if master present
+                if (_deviceConfiguration != null && value == 0 && _deviceConfiguration.HeaderFields.ModuleModbusMaster == false)                
+                    value = 1;               
+                
+                _portProtocolType = value > 1 ? (Byte)1 : value;
+            }
         }
 
         /// <summary>
@@ -143,13 +144,31 @@ namespace MIOConfig.InternalLayer
         /// <value>range: 0..65535 ms</value>
         [ModbusProperty(Access = ModbusRegisterAccessType.AccessReadWrite)]
         public UInt16 PortMasterTimeout { get; set; }
-
+       
         /// <summary>
         /// Holding regs|addr.: 1012+7*(DevicePortNumber-1) HiByte|count: 1| R/W
         /// </summary>
         /// <value>range: 1..DeviceConfiguration.DeviceMaximumModbusMasterRequestsToSubDeviceCount</value>
         [ModbusProperty(Access = ModbusRegisterAccessType.AccessReadWrite)]
-        public Byte PortMasterRequestCount { get; set; }
+        public Byte PortMasterRequestCount 
+        {            
+            get
+            {                
+                if (_deviceConfiguration != null)               
+                    return  (Byte)_deviceConfiguration.ModbusMasterQueriesOnUartPorts[_deviceConfiguration.UartPorts.IndexOf(this)].Aggregate(0, (current, query) => query.QueryConfigured ? current + 1 : current);                                 
+                return 0;
+            }
+            set
+            {                               
+                if (_deviceConfiguration != null)
+                {
+                    for (int query = 0; query < value; query++)
+                    {
+                        _deviceConfiguration.ModbusMasterQueriesOnUartPorts[_deviceConfiguration.UartPorts.IndexOf(this)][query].QueryConfigured = true;
+                    }
+                }                
+            }
+        }
 
         /// <summary>
         /// Holding regs|addr.: 1013+7*(DevicePortNumber-1) LoByte|count: 1| R/W
@@ -171,7 +190,7 @@ namespace MIOConfig.InternalLayer
             {
                 if ((value > 247) || (value < 1))
                 {
-                    _portModbusAddress = 8;
+                    _portModbusAddress = 1;
                 }
                 else
                 {

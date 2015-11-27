@@ -101,9 +101,13 @@ namespace MIOConfig
             set { Configuration.LastConfigurationTime.ConfigurationTime = value; }
         }
 
-        public ReadOnlyCollection<DeviceUARTPortConfiguration> UartPortsConfigurations
-        {
-            get { return new ReadOnlyCollection<DeviceUARTPortConfiguration>(Configuration.UartPorts); }            
+        //diskuss with Sasha
+        //public ReadOnlyCollection<DeviceUARTPortConfiguration> UartPortsConfigurations
+        public List<DeviceUARTPortConfiguration> UartPortsConfigurations
+        { 
+            //get { return new List<DeviceUARTPortConfiguration>(Configuration.UartPorts); }     
+            get { return Configuration.UartPorts; }   
+            set { Configuration.UartPorts = value; }   
         }
 
         public DeviceModuleDI DiscreetInputModule
@@ -126,6 +130,12 @@ namespace MIOConfig
         {
             get { return Configuration.RoutingTable; }
             set { Configuration.RoutingTable = value; }
+        }
+
+        public List<List<DeviceModbusMasterQuery>> ModbusMasterPortsQueries
+        {
+            get { return Configuration.ModbusMasterQueriesOnUartPorts; }
+            set { Configuration.ModbusMasterQueriesOnUartPorts = value; }
         }
 
         #endregion
@@ -155,12 +165,40 @@ namespace MIOConfig
             }                        
             return true;           
         }
-        //TODO 
-        /*public bool IsValidUartPortConfiguration(DeviceUARTPortConfiguration uartPort)
-        {
-            return;
-        }*/
+        
+        public bool ValidateUartPortConfiguration(DeviceUARTPortConfiguration uartPort)
+        {            
+            for (int port = 0; port < UartPortsConfigurations.Count; port++)
+            {               
+                if (uartPort.PortMasterRequestCount >
+                    Configuration.HeaderFields.DeviceMaximumModbusMasterRequestsToSubDeviceCount)
+                {
+                    if (_validationMessager != null)
+                        _validationMessager(String.Format("Количество запросов не более {0}", Configuration.HeaderFields.DeviceMaximumModbusMasterRequestsToSubDeviceCount));
+                    return false;
+                }
 
+                if (uartPort.PortProtocolType == 1 &&
+                    Configuration.HeaderFields.ModuleModbusSlave == false)
+                {
+                    if (_validationMessager != null)
+                        _validationMessager("Данный протокол не поддерживается.");
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public bool ValidateRotingMap()
+        {
+            return RoutingMap.All(ValidateRotingMapElement);
+        }
+
+        public bool ValidateUartPort()
+        {
+            return UartPortsConfigurations.All(ValidateUartPortConfiguration);
+        }
+        
         #endregion
 
         #region Read & Save Methods

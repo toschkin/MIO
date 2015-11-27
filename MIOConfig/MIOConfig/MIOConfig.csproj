@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="InternalLayer\DeviceModbusMasterQuery.cs" />
     <Compile Include="InternalLayer\DeviceRoutingHeader.cs" />
     <Compile Include="InternalLayer\DeviceModuleDO.cs" />
     <Compile Include="InternalLayer\DeviceRoutingTableElement.cs" />

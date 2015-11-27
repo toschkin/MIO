@@ -9,11 +9,7 @@ namespace MIOConfig.InternalLayer
 {
     [Serializable]
     public class DeviceRoutingTableElement
-    {        
-        public DeviceRoutingTableElement()
-        {                      
-        }
-        
+    {               
         /// <summary>
         /// Holding regs|addr.: 1007+7*UartPorts.Count + 5*ModuleDIPresent + 10*ModuleDOPresent+2+[index]*2 |count: 1| R/W
         /// </summary>

@@ -52,17 +52,13 @@ namespace ConsoleMIOConfigTester
         }
 
         static void Main(string[] args)
-        {
-            MIOConfig.
+        {          
             Device device = new Device();
             device.AddErrorLogger(ShowError);
             device.AddValidationMessager(ShowValidationError);
 
             ModbusRtuProtocol protocol = new ModbusRtuProtocol();           
-            protocol.AddExceptionsLogger(ShowException);
-
-            
-                      
+            protocol.AddExceptionsLogger(ShowException);                                  
 
             FileReaderSaver fileReaderSaver = new FileReaderSaver(@"c:\device.dat");
             //FileReaderSaver fileSaver = new FileReaderSaver(@"c:\device.dat");                    
@@ -92,16 +88,12 @@ namespace ConsoleMIOConfigTester
                 device.DiscreetOutputModule.ModuleOperation = 0;
                 device.DiscreetOutputModule.PulseDurationTime = 0xBB66;                                
 
-                DeviceRoutingTableElement route = new DeviceRoutingTableElement();
-                route.RouteFrom = 0x300;
-                route.RouteTo = 0x400;
-                device.ValidateRotingMapElement(route);
-
-                route.RouteFrom = 0x0411;
-                route.RouteTo = 0x04;
-                device.ValidateRotingMapElement(route);
-
-                Console.ReadLine();
+                
+                /*DeviceRoutingTableElement route = new DeviceRoutingTableElement();
+                route.RouteFrom = 0x07;
+                route.RouteTo = 0x08;
+                device.RoutingMap.Add(route);
+                Console.ReadLine();*/
 
                 Console.WriteLine("SaveConfiguration...Modbus");
                 Console.WriteLine(device.SaveConfiguration(modbusReaderSaver).GetDescription());

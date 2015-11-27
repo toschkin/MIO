@@ -166,6 +166,29 @@ namespace MIOConfig
                 if (!configuration.Configuration.HeaderFields.IsValidHeader())
                     return ReaderSaverErrors.CodeInvalidDeviceHeader;
 
+                /*if (configuration.Configuration.HeaderFields.ModuleModbusMaster && configuration.Configuration.UartPorts != null)
+                {
+                    //save previous reading  offset
+                    UInt16 currentDeviceOffset = RegisterReadAddressOffset;
+                    //calculate offset for reading router header
+                    listOfConfigurationItems.Add(configuration.Configuration.LastConfigurationTime);
+                    listOfConfigurationItems.AddRange(configuration.Configuration.UartPorts);                   
+
+                    RegisterReadAddressOffset = (UInt16)(currentDeviceOffset + ((SizeofHelper.SizeOfPublicPropertiesWithModbusAttribute(listOfConfigurationItems) + 1) / 2));
+                    listOfConfigurationItems.Clear();
+
+                    //read header
+                    listOfConfigurationItems.AddRange(configuration.Configuration.UartPorts);
+                    retCode = PerformReading(ref listOfConfigurationItems);
+                    if (retCode != ReaderSaverErrors.CodeOk)
+                        return retCode;
+                    //initialize header and routing map
+                    //tempObj = configuration.Configuration.RoutingHeader;
+                    //Utility.CloneObjectProperties(listOfConfigurationItems[0], ref tempObj);                    
+                    //restore previous reading  offset
+                    RegisterReadAddressOffset = currentDeviceOffset;
+                }*/
+
                 if (configuration.Configuration.HeaderFields.ModuleRouter && configuration.Configuration.RoutingHeader != null)
                 {
                     //save previous reading  offset

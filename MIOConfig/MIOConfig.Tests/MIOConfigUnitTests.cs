@@ -19,7 +19,7 @@ namespace MIOConfig.Tests
             Assert.AreEqual(1, deviceConfiguration.UartPorts.Count);
         }        
     }*/
-    [TestClass]
+    /*[TestClass]
     public class DeviceUARTPortConfigurationTests
     {
         [TestMethod]

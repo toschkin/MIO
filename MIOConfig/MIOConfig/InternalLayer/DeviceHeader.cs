@@ -9,8 +9,7 @@ namespace MIOConfig.InternalLayer
     [Serializable]
     public class DeviceHeader
     {
-        private DeviceConfiguration _deviceConfiguration;
-        private UInt16 _deviceUartChannelsCount;
+        private DeviceConfiguration _deviceConfiguration;        
         public bool ModuleModbusMaster;
         public bool ModuleRouter;
         public bool ModuleDI;
@@ -30,14 +29,12 @@ namespace MIOConfig.InternalLayer
        
         public DeviceHeader()
         {
-            _deviceConfiguration = null;
-            _deviceUartChannelsCount = 1;
+            _deviceConfiguration = null;                
         }
 
         public DeviceHeader(ref DeviceConfiguration deviceConfiguration)
-        {
-            _deviceConfiguration = deviceConfiguration;
-            _deviceUartChannelsCount = 1;
+        {            
+            _deviceConfiguration = deviceConfiguration;           
         } 
         /// <summary>
         /// Holding regs|addr.: 1000|count: 1
@@ -79,7 +76,7 @@ namespace MIOConfig.InternalLayer
                     }
                     else
                         _deviceConfiguration.DOModule = null;
-
+                    
                     if (ModuleRouter)
                     {
                         if (_deviceConfiguration.RoutingHeader == null)
@@ -101,7 +98,12 @@ namespace MIOConfig.InternalLayer
         [ModbusProperty(Access = ModbusRegisterAccessType.AccessRead)]   
         public UInt16 DeviceUartChannelsCount 
         {
-            get { return _deviceUartChannelsCount; }
+            get
+            {
+                if (_deviceConfiguration != null)
+                    return (UInt16)_deviceConfiguration.UartPorts.Count;
+                return 1;
+            }
             set
             {
                 if (value < 1)
@@ -113,13 +115,21 @@ namespace MIOConfig.InternalLayer
                         int addCount = value - _deviceConfiguration.UartPorts.Count;
 
                         for (int i = 0; i < addCount; i++)
-                            _deviceConfiguration.UartPorts.Add(new DeviceUARTPortConfiguration());
+                        {
+                            _deviceConfiguration.UartPorts.Add(new DeviceUARTPortConfiguration(ref _deviceConfiguration));
+                            if (_deviceConfiguration.ModbusMasterQueriesOnUartPorts != null)
+                                _deviceConfiguration.ModbusMasterQueriesOnUartPorts.Add(new List<DeviceModbusMasterQuery>());
+                        }
                     }
 
                     if (value < _deviceConfiguration.UartPorts.Count)
+                    {
                         _deviceConfiguration.UartPorts.RemoveRange(value, _deviceConfiguration.UartPorts.Count - value); 
-                }
-                _deviceUartChannelsCount = value;
+                        if (_deviceConfiguration.ModbusMasterQueriesOnUartPorts != null)
+                            _deviceConfiguration.ModbusMasterQueriesOnUartPorts.RemoveRange(value, _deviceConfiguration.UartPorts.Count - value); 
+                    }
+                        
+                }                
             }
         }       
 
@@ -132,8 +142,40 @@ namespace MIOConfig.InternalLayer
         /// <summary>
         /// Holding regs|addr.: 1003|count: 1| R/O
         /// </summary>  
-        [ModbusProperty(Access = ModbusRegisterAccessType.AccessRead)]      
-        public UInt16 DeviceMaximumModbusMasterRequestsToSubDeviceCount { get; set; }
+        [ModbusProperty(Access = ModbusRegisterAccessType.AccessRead)]
+        public UInt16 DeviceMaximumModbusMasterRequestsToSubDeviceCount
+        {
+            get
+            {
+                if (_deviceConfiguration != null && _deviceConfiguration.ModbusMasterQueriesOnUartPorts != null && _deviceConfiguration.ModbusMasterQueriesOnUartPorts.Count > 0)
+                    return (UInt16)_deviceConfiguration.ModbusMasterQueriesOnUartPorts[0].Count;
+                return 1;
+            }
+            set
+            {
+                if (value < 1)
+                    value = 1;
+                if (_deviceConfiguration == null || _deviceConfiguration.ModbusMasterQueriesOnUartPorts == null ||
+                    _deviceConfiguration.ModbusMasterQueriesOnUartPorts.Count <= 0) return;
+                if (value > _deviceConfiguration.ModbusMasterQueriesOnUartPorts[0].Count)
+                {
+                    int addCount = value - _deviceConfiguration.ModbusMasterQueriesOnUartPorts[0].Count;
+
+                    foreach (var port in _deviceConfiguration.ModbusMasterQueriesOnUartPorts)
+                    {
+                        for (int i = 0; i < addCount; i++)
+                        {
+                            port.Add(new DeviceModbusMasterQuery());                                
+                        }
+                    }                                                
+                }
+                if (value >= _deviceConfiguration.ModbusMasterQueriesOnUartPorts[0].Count) return;
+                foreach (var port in _deviceConfiguration.ModbusMasterQueriesOnUartPorts)
+                {
+                    port.RemoveRange(value, _deviceConfiguration.UartPorts.Count - value);
+                }
+            }
+        }
 
         /// <summary>
         /// Holding regs|addr.: 1004|count: 1| R/O
@@ -144,6 +186,8 @@ namespace MIOConfig.InternalLayer
         #region Methods        
         public bool IsValidHeader()
         {
+            //by now 
+            return true;
             List<Byte> byteRepresentationOfHeader = new List<byte>
             {
                 BitConverter.GetBytes(DeviceConsistenceRegister).ElementAt(1),

@@ -39,11 +39,12 @@ namespace MIOConfig.InternalLayer
             HeaderFields = new DeviceHeader(ref thisDevice);                        
             LastConfigurationTime = new DeviceConfigurationTime();
             //minimum 1 UART presentin device
-            UartPorts = new List<DeviceUARTPortConfiguration>(3) {new DeviceUARTPortConfiguration()};
+            UartPorts = new List<DeviceUARTPortConfiguration>(3) { new DeviceUARTPortConfiguration(ref thisDevice) };
             DIModule = null;
             DOModule = null;
             RoutingHeader = null;
             RoutingTable = null;
+            ModbusMasterQueriesOnUartPorts = new List<List<DeviceModbusMasterQuery>>() { new List<DeviceModbusMasterQuery>() };
         }
        
         #region Fields & Properties              
@@ -83,6 +84,11 @@ namespace MIOConfig.InternalLayer
         /// </summary>
         public List<DeviceRoutingTableElement> RoutingTable;
 
+        /// <summary>
+        /// Holding regs|addr.: 1007+7*UartPorts.Count + 5*ModuleDIPresent + 10*ModuleDOPresent+2 |count: 2| R/W
+        /// </summary>
+        public List<List<DeviceModbusMasterQuery>> ModbusMasterQueriesOnUartPorts;
+
         #endregion
 
         #region Methods
@@ -101,7 +107,10 @@ namespace MIOConfig.InternalLayer
                 listOfConfigurationItems.Add(RoutingHeader);
             if (RoutingTable != null)
                 listOfConfigurationItems.AddRange(RoutingTable);
-
+            foreach (var queriesList in ModbusMasterQueriesOnUartPorts)
+            {
+                listOfConfigurationItems.AddRange(queriesList);
+            }
             return listOfConfigurationItems;
         }
 
@@ -135,14 +144,24 @@ namespace MIOConfig.InternalLayer
                 RoutingHeader = tempObj as DeviceRoutingHeader;  
             }
                 
-
             if (HeaderFields.ModuleRouter && RoutingTable != null)
             {
                 for (int route = 0; route < RoutingHeader.RoutingTableSize && listIndex < listOfConfigurationItems.Count; route++)
                 {
                     RoutingTable[route] = listOfConfigurationItems[listIndex++] as DeviceRoutingTableElement;
                 }    
-            }            
+            }
+            if (HeaderFields.ModuleModbusMaster)
+            {
+                foreach (List<DeviceModbusMasterQuery> portQueriesList in ModbusMasterQueriesOnUartPorts)
+                {
+                    for (int query = 0; query < portQueriesList.Count && listIndex < listOfConfigurationItems.Count; query++)
+                    {
+                        portQueriesList[query] = listOfConfigurationItems[listIndex++] as DeviceModbusMasterQuery;
+                    }
+                }
+            }
+            
             return true;
         }
        
