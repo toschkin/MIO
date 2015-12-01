@@ -92,9 +92,11 @@ namespace MIOConfig.InternalLayer
                 }
             }
         }
+
+        private UInt16 _deviceUartChannelsCount;
         /// <summary>
         /// Holding regs|addr.: 1001|count: 1
-        /// </summary>     
+        /// </summary>             
         [ModbusProperty(Access = ModbusRegisterAccessType.AccessRead)]   
         public UInt16 DeviceUartChannelsCount 
         {
@@ -102,12 +104,13 @@ namespace MIOConfig.InternalLayer
             {
                 if (_deviceConfiguration != null)
                     return (UInt16)_deviceConfiguration.UartPorts.Count;
-                return 1;
+                return _deviceUartChannelsCount;
             }
             set
             {
                 if (value < 1)
-                    value = 1;                 
+                    _deviceUartChannelsCount = 1;                 
+
                 if (_deviceConfiguration != null)
                 {
                     if (value > _deviceConfiguration.UartPorts.Count)
@@ -127,9 +130,9 @@ namespace MIOConfig.InternalLayer
                         _deviceConfiguration.UartPorts.RemoveRange(value, _deviceConfiguration.UartPorts.Count - value); 
                         if (_deviceConfiguration.ModbusMasterQueriesOnUartPorts != null)
                             _deviceConfiguration.ModbusMasterQueriesOnUartPorts.RemoveRange(value, _deviceConfiguration.UartPorts.Count - value); 
-                    }
-                        
-                }                
+                    }                        
+                }
+                _deviceUartChannelsCount = value;
             }
         }       
 

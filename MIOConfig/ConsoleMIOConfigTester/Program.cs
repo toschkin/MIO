@@ -54,8 +54,7 @@ namespace ConsoleMIOConfigTester
         static void Main(string[] args)
         {          
             Device device = new Device();
-            device.AddErrorLogger(ShowError);
-            device.AddValidationMessager(ShowValidationError);
+            device.AddErrorLogger(ShowError);            
 
             ModbusRtuProtocol protocol = new ModbusRtuProtocol();           
             protocol.AddExceptionsLogger(ShowException);                                  
@@ -69,6 +68,12 @@ namespace ConsoleMIOConfigTester
                 protocol.WriteRegistersPerQueryCapacity = 125;
                 ModbusReaderSaver modbusReaderSaver = new ModbusReaderSaver(protocol, 1, 1000, 1005);
 
+                bool[] coils =
+                {
+                    true, true, true, true
+                };
+                Console.WriteLine(protocol.ForceMultipleCoils(1, 0, coils).GetDescription());
+                Console.ReadLine();
                 
                 Console.WriteLine("ReadConfiguration...");
 
@@ -87,6 +92,7 @@ namespace ConsoleMIOConfigTester
 
                 device.DiscreetOutputModule.ModuleOperation = 0;
                 device.DiscreetOutputModule.PulseDurationTime = 0xBB66;                                
+
 
                 
                 /*DeviceRoutingTableElement route = new DeviceRoutingTableElement();

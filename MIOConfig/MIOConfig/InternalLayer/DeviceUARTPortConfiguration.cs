@@ -144,7 +144,8 @@ namespace MIOConfig.InternalLayer
         /// <value>range: 0..65535 ms</value>
         [ModbusProperty(Access = ModbusRegisterAccessType.AccessReadWrite)]
         public UInt16 PortMasterTimeout { get; set; }
-       
+
+        private Byte _portMasterRequestCount;
         /// <summary>
         /// Holding regs|addr.: 1012+7*(DevicePortNumber-1) HiByte|count: 1| R/W
         /// </summary>
@@ -155,18 +156,19 @@ namespace MIOConfig.InternalLayer
             get
             {                
                 if (_deviceConfiguration != null)               
-                    return  (Byte)_deviceConfiguration.ModbusMasterQueriesOnUartPorts[_deviceConfiguration.UartPorts.IndexOf(this)].Aggregate(0, (current, query) => query.QueryConfigured ? current + 1 : current);                                 
-                return 0;
+                    return  (Byte)_deviceConfiguration.ModbusMasterQueriesOnUartPorts[_deviceConfiguration.UartPorts.IndexOf(this)].Aggregate(0, (current, query) => query.QueryConfigured ? current + 1 : current);
+                return _portMasterRequestCount;
             }
             set
-            {                               
-                if (_deviceConfiguration != null)
+            {
+                _portMasterRequestCount = value;//only stub for modbus
+                /*if (_deviceConfiguration != null)
                 {
                     for (int query = 0; query < value; query++)
                     {
                         _deviceConfiguration.ModbusMasterQueriesOnUartPorts[_deviceConfiguration.UartPorts.IndexOf(this)][query].QueryConfigured = true;
                     }
-                }                
+                } */
             }
         }
 

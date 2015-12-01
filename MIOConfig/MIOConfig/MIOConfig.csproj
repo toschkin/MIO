@@ -46,6 +46,9 @@
     <Compile Include="InternalLayer\DeviceRoutingHeader.cs" />
     <Compile Include="InternalLayer\DeviceModuleDO.cs" />
     <Compile Include="InternalLayer\DeviceRoutingTableElement.cs" />
+    <Compile Include="InternalLayer\UserRegistersMapBuilder.cs" />
+    <Compile Include="PresentationLayer\DeviceValidator.cs" />
+    <Compile Include="InternalLayer\DeviceUserRegister.cs" />
     <Compile Include="ReadSaveInterface\ReaderSaverErrors.cs" />
     <Compile Include="InternalLayer\DeviceConfiguration.cs" />
     <Compile Include="InternalLayer\DeviceConfigurationTime.cs" />

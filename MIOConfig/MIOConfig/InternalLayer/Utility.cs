@@ -5,6 +5,20 @@ namespace MIOConfig.InternalLayer
 {
     public class Utility
     {
+
+        public static bool IsIntersect(int Start1, int End1, int Start2, int End2)
+        {
+            if ((Start2 >= Start1) && (Start2 <= End1))
+                return true;
+            if ((Start1 >= Start2) && (Start1 <= End2))
+                return true;
+            if ((End2 >= Start1) && (End2 <= End1))
+                return true;
+            if ((End1 >= Start2) && (End1 <= End2))
+                return true;
+            return true;
+        }
+
         public static object CloneObject(object objSource)
         {
             if (objSource == null)

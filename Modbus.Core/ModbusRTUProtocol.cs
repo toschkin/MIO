@@ -824,24 +824,29 @@ namespace Modbus.Core
             if (startIndex + objectsCount > values.Length)
                 return ModbusErrorCode.CodeInvalidRequestedSize;
 
-            ushort[] forcedValues;
-            Type firstElementType;
+            ModbusDataPoint<UInt16>[] forcedValues;
+            Type firstElementType = values[0].GetType();
 
-            for (Int32 i = (Int32)(objectsCount + startIndex - 1); i >= startIndex; i--)
+            if (firstElementType != typeof (bool))
             {
-                if (
-                    SizeofHelper.SizeOfPublicPropertiesWithModbusAttribute(values[i],
-                        ModbusRegisterAccessType.AccessReadWrite) == 0)
+                for (Int32 i = (Int32) (objectsCount + startIndex - 1); i >= startIndex; i--)
                 {
-                    values = values.Where((val, idx) => idx != i).ToArray();
-                    objectsCount--;
+                    if (
+                        SizeofHelper.SizeOfPublicPropertiesWithModbusAttribute(values[i],
+                            ModbusRegisterAccessType.AccessReadWrite) == 0)
+                    {
+                        values = values.Where((val, idx) => idx != i).ToArray();
+                        objectsCount--;
+                    }
                 }
-            }            
-           
+                if (objectsCount == 0)
+                    return ModbusErrorCode.CodeInvalidRequestedSize;
+            }
+
             try
             {
                 ModbusDataMappingHelper.ConvertObjectsVaulesToRegisters(values, startIndex, objectsCount,
-                    bigEndianOrder, out forcedValues, out firstElementType);
+                    bigEndianOrder, out forcedValues, firstElementType);
             }
             catch (Exception)
             {
@@ -855,8 +860,13 @@ namespace Modbus.Core
             Byte[] recievedPacket = null;           
 
             try
-            {
-                Byte[] sendPacket = MakePacket(rtuAddress, functionNumber, forceAddress, (firstElementType == typeof(bool)) ? (UInt16)(startIndex + objectsCount) : (UInt16)forcedValues.Length, forcedValues, true, firstElementType == typeof(bool), bigEndianOrder);
+            {                
+                Byte[] sendPacket = MakePacket(rtuAddress, functionNumber, forceAddress, 
+                    (firstElementType == typeof(bool)) ? (UInt16)(startIndex + objectsCount) : (UInt16)forcedValues.Length, 
+                    Array.ConvertAll(forcedValues, b => (UInt16) b), 
+                    true, 
+                    firstElementType == typeof(bool), 
+                    bigEndianOrder);
                 
                 if (TxRxMessage(sendPacket, ref recievedPacket, 8))
                 {
@@ -914,7 +924,7 @@ namespace Modbus.Core
             get { return _writeRegistersPerQueryCapacity; }
             set
             {
-                if (value > 125) _writeRegistersPerQueryCapacity = 125;
+                if (value > 123) _writeRegistersPerQueryCapacity = 123;
                 else if (value == 0) _readRegistersPerQueryCapacity = 1;
                 else _writeRegistersPerQueryCapacity = value;
             }

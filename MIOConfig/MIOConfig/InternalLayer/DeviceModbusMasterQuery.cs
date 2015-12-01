@@ -16,7 +16,13 @@ namespace MIOConfig.InternalLayer
             SlaveAddress = 1;
             ModbusFuctionCode = 1;
         }
-        internal bool QueryConfigured;
+
+        private bool _queryConfigured;
+        internal bool QueryConfigured
+        {
+            get { return RegistersCount > 0; }
+            set { _queryConfigured = value; }
+        }
    
         [ModbusProperty(Access = ModbusRegisterAccessType.AccessReadWrite)]
         public UInt16 Reserved1 { get; set; }

@@ -43,6 +43,7 @@ namespace MIOConfig
 
                 configuration.ConfigurationTime = DateTime.Now;
                 List<object> configurationItems = configuration.Configuration.ToList();
+                configurationItems.RemoveRange(0,1);//remove readonly header
                 
                 UInt16 registerNumberNeeded = (UInt16)((SizeofHelper.SizeOfPublicPropertiesWithModbusAttribute(configurationItems,
                     ModbusRegisterAccessType.AccessReadWrite) + 1) / 2);
@@ -58,12 +59,14 @@ namespace MIOConfig
                     }
 
                     UInt16 currentDeviceOffset = RegisterWriteAddressOffset;
-                    ushort[] forcedValues;
-                    Type firstElementType;
-                    object[] tempArray = configurationItems.ToArray();
+                    ModbusDataPoint<UInt16>[] forcedValues;
+                                       
+                    object[] tempArray = configurationItems.ToArray();                    
+                    Type firstElementType = tempArray[0].GetType();
+                                        
                     ModbusDataMappingHelper.ConvertObjectsVaulesToRegisters(tempArray, 0,
                         (UInt32) configurationItems.Count,
-                        BigEndianOrder, out forcedValues, out firstElementType);
+                        BigEndianOrder, out forcedValues, firstElementType);
                                                
                     for (UInt16 query = 0; query < (UInt16)((registerNumberNeeded + _protocol.WriteRegistersPerQueryCapacity - 1) / _protocol.WriteRegistersPerQueryCapacity); query++)
                     {

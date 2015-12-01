@@ -33,5 +33,10 @@ namespace Modbus.Core
         }
         [ModbusProperty(Access = ModbusRegisterAccessType.AccessReadWrite)]
         public T Value { get; set; }       
+
+        public static implicit operator T(ModbusDataPoint<T> value)
+        {
+            return value.Value;
+        }
     }
 }

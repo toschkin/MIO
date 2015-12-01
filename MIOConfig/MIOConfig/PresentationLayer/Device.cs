@@ -10,11 +10,18 @@ namespace MIOConfig
 {   
     public delegate void ErrorTracer(string errorMessage);
 
-    public class Device
+    public static class Definitions
     {
+        public const Byte MODBUS_MASTER_PRTOCOL = 0;
+        public const Byte MODBUS_SLAVE_PRTOCOL = 1;
+    }
+
+    public class Device
+    {        
         public Device()
         {
-            Configuration = new DeviceConfiguration();            
+            Configuration = new DeviceConfiguration();    
+            UserRegisters = new List<DeviceUserRegister>();
         }
 
         public override string ToString()
@@ -22,26 +29,7 @@ namespace MIOConfig
             return Configuration.ToString();
         }
 
-        #region Error Tracing & Logging       
- 
-        private ErrorTracer _validationMessager;
-        /// <summary>
-        /// Adds message callback to list 
-        /// </summary>
-        /// <param name="logger">delegate of form: void ErrorTracer(string errorMessage); </param>
-        public void AddValidationMessager(ErrorTracer logger)
-        {
-            _validationMessager += logger;
-        }
-        /// <summary>
-        /// Removes message callback current list 
-        /// </summary>
-        /// <param name="logger">delegate of form: void ErrorTracer(string errorMessage); </param>
-        public void RemoveValidationMessager(ErrorTracer logger)
-        {
-            _validationMessager -= logger;
-        }
-
+        #region Error Tracing & Logging                
         /// <summary>
         /// Exception saving
         /// </summary>       
@@ -101,7 +89,7 @@ namespace MIOConfig
             set { Configuration.LastConfigurationTime.ConfigurationTime = value; }
         }
 
-        //diskuss with Sasha
+        //diskuss with Sasha about fixed slave port
         //public ReadOnlyCollection<DeviceUARTPortConfiguration> UartPortsConfigurations
         public List<DeviceUARTPortConfiguration> UartPortsConfigurations
         { 
@@ -138,68 +126,7 @@ namespace MIOConfig
             set { Configuration.ModbusMasterQueriesOnUartPorts = value; }
         }
 
-        #endregion
-
-        #region Validation Methods
-
-        public bool ValidateRotingMapElement(DeviceRoutingTableElement element)
-        {
-            if (element.RouteTo > Configuration.HeaderFields.DeviceUserRegistersCount - 1)
-            {
-                if (_validationMessager != null)
-                {
-                    _validationMessager(String.Format("Целевой регистр за пределами области пользовательских регистров: 0..{0}", Configuration.HeaderFields.DeviceUserRegistersCount - 1));
-                }
-                return false;
-            }
-            for (int route = 0; route < RoutingMap.Count; route++)
-            {
-                if (element.RouteTo == RoutingMap[route].RouteTo)                    
-                {
-                    if (_validationMessager != null)
-                    {                        
-                        _validationMessager(String.Format("Наложение целевого регистра с маршрутом №{0}", route + 1));
-                    }
-                    return false;
-                }                
-            }                        
-            return true;           
-        }
-        
-        public bool ValidateUartPortConfiguration(DeviceUARTPortConfiguration uartPort)
-        {            
-            for (int port = 0; port < UartPortsConfigurations.Count; port++)
-            {               
-                if (uartPort.PortMasterRequestCount >
-                    Configuration.HeaderFields.DeviceMaximumModbusMasterRequestsToSubDeviceCount)
-                {
-                    if (_validationMessager != null)
-                        _validationMessager(String.Format("Количество запросов не более {0}", Configuration.HeaderFields.DeviceMaximumModbusMasterRequestsToSubDeviceCount));
-                    return false;
-                }
-
-                if (uartPort.PortProtocolType == 1 &&
-                    Configuration.HeaderFields.ModuleModbusSlave == false)
-                {
-                    if (_validationMessager != null)
-                        _validationMessager("Данный протокол не поддерживается.");
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        public bool ValidateRotingMap()
-        {
-            return RoutingMap.All(ValidateRotingMapElement);
-        }
-
-        public bool ValidateUartPort()
-        {
-            return UartPortsConfigurations.All(ValidateUartPortConfiguration);
-        }
-        
-        #endregion
+        #endregion       
 
         #region Read & Save Methods
 
@@ -211,11 +138,23 @@ namespace MIOConfig
         public ReaderSaverErrors ReadConfiguration(IDeviceReaderSaver reader)
         {
             var config = this;
-            return reader.ReadDeviceConfiguration(ref config);
+            ReaderSaverErrors error = reader.ReadDeviceConfiguration(ref config);
+            if (error == ReaderSaverErrors.CodeOk)
+            {
+                UserRegistersMapBuilder userMapBuilder = new UserRegistersMapBuilder(Configuration);
+                userMapBuilder.BuildRegistersMap(ref UserRegisters);
+            }
+            return error;
         }
 
         #endregion
 
         #endregion               
+
+        #region User registers map
+
+        public List<DeviceUserRegister> UserRegisters;
+        
+        #endregion
     }
 }

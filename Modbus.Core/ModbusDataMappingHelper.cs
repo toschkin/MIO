@@ -522,13 +522,10 @@ namespace Modbus.Core
         }
 
         public static void ConvertObjectsVaulesToRegisters(object[] values, uint startIndex, uint objectsCount,
-            bool bigEndianOrder, out ushort[] forcedValues, out Type firstElementType, ModbusRegisterAccessType accessType = ModbusRegisterAccessType.AccessRead)
+            bool bigEndianOrder, out ModbusDataPoint<UInt16>[] forcedValues, Type firstElementType, ModbusRegisterAccessType accessType = ModbusRegisterAccessType.AccessRead)
         {
             //array of output 16bit values
-            forcedValues = null;
-
-            //only for determine if we need to preset multiple coils
-            firstElementType = values[0].GetType();
+            forcedValues = null;            
             bool[] boolValues = null;
             //if firstElementType is boolean then all elements of array are considered to be boolean type also
             if (firstElementType == typeof(bool))
@@ -582,12 +579,21 @@ namespace Modbus.Core
             {
                 Byte[] temp = new Byte[forcedValues.Length * 2];
                 new BitArray(boolValues).CopyTo(temp, 0);
-                Buffer.BlockCopy(temp, 0, forcedValues, 0, temp.Length);
+                for (int valIndex = 0, byteIndex = 0; valIndex < forcedValues.Length && byteIndex < temp.Length; valIndex++, byteIndex += 2)
+                {
+                    forcedValues[valIndex] = new ModbusDataPoint<UInt16>();
+                    forcedValues[valIndex].Value = (UInt16)(temp[byteIndex] | temp[byteIndex + 1] << 8);
+                }               
+                //Buffer.BlockCopy(temp, 0, forcedValues, 0, temp.Length);
             }
             else
             {
                 Array.Resize(ref forcedValues, (tempArrayOfBytes.Length + 1) / 2);
-                Buffer.BlockCopy(tempArrayOfBytes, 0, forcedValues, 0, tempArrayOfBytes.Length);
+                for (int valIndex = 0, byteIndex = 0; valIndex < forcedValues.Length && byteIndex < tempArrayOfBytes.Length; valIndex++, byteIndex += 2)
+                {
+                    forcedValues[valIndex] = new ModbusDataPoint<UInt16>();
+                    forcedValues[valIndex].Value = (UInt16)(tempArrayOfBytes[byteIndex] | tempArrayOfBytes[byteIndex+1] << 8);
+                }               
             }            
         }
 
