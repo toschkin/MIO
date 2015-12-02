@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using MIOConfig.InternalLayer;
 using Modbus.Core;
@@ -104,10 +105,24 @@ namespace MIOConfig
             return retCode;
         }
 
-        public ReaderSaverErrors ReadUserRegisters(ref List<DeviceUserRegister> userRegisters)
+        internal ReaderSaverErrors ReadUserRegisters(ref List<DeviceUserRegister> userRegisters)
         {
             List<object> tempList = Array.ConvertAll(userRegisters.ToArray(), o => (object) o).ToList();
             return PerformReading(ref tempList);
+        }
+
+        internal ReaderSaverErrors ReadStatusRegisters(ref DeviceStatuses statuses)
+        {
+            List<object> listOfConfigurationItems = statuses.ToList();
+
+            ReaderSaverErrors retCode = PerformReading(ref listOfConfigurationItems);
+            if (retCode != ReaderSaverErrors.CodeOk)
+                return retCode;
+
+            if (!statuses.FromList(listOfConfigurationItems))
+                return ReaderSaverErrors.CodeInvalidStatusesSize;
+
+            return retCode;
         }
 
         private ReaderSaverErrors PerformReading(ref List<object> configurationItems)
@@ -209,6 +224,23 @@ namespace MIOConfig
                     return ReaderSaverErrors.CodeNotCompliantDevice;                
             }                                   
             return ReaderSaverErrors.CodeOk;
+        }
+
+        internal ReaderSaverErrors RestartDevice()
+        {
+            if (_protocol.IsConnected)
+            {                
+                if (_protocol.PresetSingleRegister(SlaveAddress, RegisterWriteAddressOffset, (UInt16)0x55FF) != ModbusErrorCode.CodeOk)
+                            return ReaderSaverErrors.CodeModbusCommunicationError;
+                
+                Thread.Sleep(800);
+
+                if (_protocol.PresetSingleRegister(SlaveAddress, RegisterWriteAddressOffset, (UInt16)0xFF55) != ModbusErrorCode.CodeOk)
+                    return ReaderSaverErrors.CodeModbusCommunicationError;
+
+                return ReaderSaverErrors.CodeOk;
+            }
+            return ReaderSaverErrors.CodeComPortNotConnected;
         }
     }
 }

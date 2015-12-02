@@ -24,13 +24,20 @@ namespace MIOConfig.InternalLayer
                 return registerValue;
             }
             set
-            {               
-                ConfigurationTime = new DateTime((int)((value & 0x00007E00) >> 9) + 2000,
+            {
+                try
+                {
+                    ConfigurationTime = new DateTime((int)((value & 0x00007E00) >> 9) + 2000,
                                                         (int)(value & 0x000001E0) >> 5,
                                                         (int)(value & 0x0000001F),
                                                         (int)(value & 0x000F8000) >> 15,
-                                                        (int)(value & 0x03F00000)>>20,
+                                                        (int)(value & 0x03F00000) >> 20,
                                                         (int)((value & 0xFC000000) >> 26));                
+                }
+                catch (Exception)
+                {
+                    ConfigurationTime = DateTime.MinValue;                    
+                }                
             }
         }
 

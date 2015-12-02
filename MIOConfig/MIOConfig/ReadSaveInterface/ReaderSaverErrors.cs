@@ -21,9 +21,11 @@ namespace MIOConfig
         CodeComPortNotConnected = 4,
         [EnumDescription("Unknown Error")]
         CodeUnknownError = 5,
-        [EnumDescription("Invalid Configuration Size")]
+        [EnumDescription("Invalid Configuration Map Size")]
         CodeInvalidConfigurationSize = 6,
         [EnumDescription("Serialization Error")]
         CodeSerializationError = 7,
+        [EnumDescription("Invalid Statuses Map Size")]
+        CodeInvalidStatusesSize = 8,
     }
 }

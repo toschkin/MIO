@@ -94,6 +94,10 @@ namespace ConsoleMIOConfigTester
                 device.DiscreetOutputModule.PulseDurationTime = 0xBB66;
 
                 device.ReadUserRegistersFromDevice(modbusReaderSaver);
+
+                device.ReadSatusRegistersFromDevice(modbusReaderSaver);
+
+                Console.WriteLine(device.RestartDevice(modbusReaderSaver).GetDescription());
                 
                 /*DeviceRoutingTableElement route = new DeviceRoutingTableElement();
                 route.RouteFrom = 0x07;

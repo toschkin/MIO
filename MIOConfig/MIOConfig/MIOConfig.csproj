@@ -46,7 +46,10 @@
     <Compile Include="InternalLayer\DeviceRoutingHeader.cs" />
     <Compile Include="InternalLayer\DeviceModuleDO.cs" />
     <Compile Include="InternalLayer\DeviceRoutingTableElement.cs" />
-    <Compile Include="InternalLayer\UserRegistersMapBuilder.cs" />
+    <Compile Include="InternalLayer\DeviceStatuses.cs" />
+    <Compile Include="InternalLayer\DeviceStatusesHeader.cs" />
+    <Compile Include="InternalLayer\RegistersMapBuilder.cs" />
+    <Compile Include="InternalLayer\UARTPortStatus.cs" />
     <Compile Include="PresentationLayer\DeviceValidator.cs" />
     <Compile Include="InternalLayer\DeviceUserRegister.cs" />
     <Compile Include="ReadSaveInterface\ReaderSaverErrors.cs" />

@@ -6,17 +6,17 @@ using System.Threading.Tasks;
 
 namespace MIOConfig.InternalLayer
 {
-    internal class UserRegistersMapBuilder
+    internal class RegistersMapBuilder
     {
         
         private DeviceConfiguration _configuration;
 
-        public UserRegistersMapBuilder(DeviceConfiguration configuration)
+        public RegistersMapBuilder(DeviceConfiguration configuration)
         {
             _configuration = configuration;
         }
 
-        public void BuildRegistersMap(ref List<DeviceUserRegister> userRegisters)
+        public void BuildUserRegistersMap(ref List<DeviceUserRegister> userRegisters)
         {
             userRegisters.Clear();
             for (var reg = 0; reg < _configuration.HeaderFields.DeviceUserRegistersCount; reg++)
@@ -37,6 +37,13 @@ namespace MIOConfig.InternalLayer
                 }
                 userRegisters.Add(register);
             }            
+        }
+
+        public void BuildStatusRegistersMap(ref DeviceStatuses statuses)
+        {
+            statuses.UartPortStatuses.Clear();
+            for (var reg = 0; reg < _configuration.HeaderFields.DeviceUartChannelsCount; reg++)            
+                statuses.UartPortStatuses.Add(new UARTPortStatus());                            
         }
     }
 }

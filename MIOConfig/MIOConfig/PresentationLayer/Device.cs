@@ -22,6 +22,7 @@ namespace MIOConfig
         {
             Configuration = new DeviceConfiguration();    
             UserRegisters = new List<DeviceUserRegister>();
+            Statuses = new DeviceStatuses();
         }
 
         public override string ToString()
@@ -140,8 +141,9 @@ namespace MIOConfig
             ReaderSaverErrors code = reader.ReadDeviceConfiguration(ref Configuration);
             if (code == ReaderSaverErrors.CodeOk)
             {
-                UserRegistersMapBuilder userMapBuilder = new UserRegistersMapBuilder(Configuration);
-                userMapBuilder.BuildRegistersMap(ref UserRegisters);
+                RegistersMapBuilder mapBuilder = new RegistersMapBuilder(Configuration);
+                mapBuilder.BuildUserRegistersMap(ref UserRegisters);
+                mapBuilder.BuildStatusRegistersMap(ref Statuses);
             }
             return code;
         }
@@ -162,6 +164,37 @@ namespace MIOConfig
             reader.RegisterReadAddressOffset = oldOffset;
             return code;
         }
+        #endregion
+
+        #region Device Statuses And Control
+
+        internal DeviceStatuses Statuses;
+
+        public ReadOnlyCollection<UARTPortStatus> UartPortStatuses
+        {
+            get { return new ReadOnlyCollection<UARTPortStatus>(Statuses.UartPortStatuses); }
+        }
+
+        public ReaderSaverErrors ReadSatusRegistersFromDevice(ModbusReaderSaver reader)
+        {
+            UInt16 oldOffset = reader.RegisterReadAddressOffset;
+            reader.RegisterReadAddressOffset = 500;
+            ReaderSaverErrors code = reader.ReadStatusRegisters(ref Statuses);
+            reader.RegisterReadAddressOffset = oldOffset;
+            return code;
+        }
+
+        public ReaderSaverErrors RestartDevice(ModbusReaderSaver saver)
+        {
+            UInt16 oldOffset = saver.RegisterReadAddressOffset;
+            saver.RegisterWriteAddressOffset = 500;
+            ReaderSaverErrors code = saver.RestartDevice();
+            saver.RegisterWriteAddressOffset = oldOffset;
+            return code;
+        }
+
+        //TODO add global status when it will be ready
+
         #endregion
     }
 }
