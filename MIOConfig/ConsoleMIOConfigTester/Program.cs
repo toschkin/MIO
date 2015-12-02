@@ -91,9 +91,9 @@ namespace ConsoleMIOConfigTester
                 device.DiscreetInputModule.HysteresisTime = 0xAA55;
 
                 device.DiscreetOutputModule.ModuleOperation = 0;
-                device.DiscreetOutputModule.PulseDurationTime = 0xBB66;                                
+                device.DiscreetOutputModule.PulseDurationTime = 0xBB66;
 
-
+                device.ReadUserRegistersFromDevice(modbusReaderSaver);
                 
                 /*DeviceRoutingTableElement route = new DeviceRoutingTableElement();
                 route.RouteFrom = 0x07;

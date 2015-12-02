@@ -132,19 +132,18 @@ namespace MIOConfig
 
         public ReaderSaverErrors SaveConfiguration(IDeviceReaderSaver saver)
         {
-            return saver.SaveDeviceConfiguration(this);
+            return saver.SaveDeviceConfiguration(Configuration);
         }
 
         public ReaderSaverErrors ReadConfiguration(IDeviceReaderSaver reader)
         {
-            var config = this;
-            ReaderSaverErrors error = reader.ReadDeviceConfiguration(ref config);
-            if (error == ReaderSaverErrors.CodeOk)
+            ReaderSaverErrors code = reader.ReadDeviceConfiguration(ref Configuration);
+            if (code == ReaderSaverErrors.CodeOk)
             {
                 UserRegistersMapBuilder userMapBuilder = new UserRegistersMapBuilder(Configuration);
                 userMapBuilder.BuildRegistersMap(ref UserRegisters);
             }
-            return error;
+            return code;
         }
 
         #endregion
@@ -154,7 +153,15 @@ namespace MIOConfig
         #region User registers map
 
         public List<DeviceUserRegister> UserRegisters;
-        
+
+        public ReaderSaverErrors ReadUserRegistersFromDevice(ModbusReaderSaver reader)
+        {
+            UInt16 oldOffset = reader.RegisterReadAddressOffset;
+            reader.RegisterReadAddressOffset = 0;
+            ReaderSaverErrors code =  reader.ReadUserRegisters(ref UserRegisters);
+            reader.RegisterReadAddressOffset = oldOffset;
+            return code;
+        }
         #endregion
     }
 }

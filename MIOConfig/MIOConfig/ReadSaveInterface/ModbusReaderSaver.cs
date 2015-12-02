@@ -33,7 +33,7 @@ namespace MIOConfig
         public UInt16 RegisterWriteAddressOffset { get; set; }
         public bool   BigEndianOrder { get; set; }
 
-        public ReaderSaverErrors SaveDeviceConfiguration(Device configuration)
+        public ReaderSaverErrors SaveDeviceConfiguration(DeviceConfiguration configuration)
         {                    
             if (_protocol.IsConnected)
             {
@@ -41,8 +41,8 @@ namespace MIOConfig
                 if (retCode != ReaderSaverErrors.CodeOk)
                     return retCode;
 
-                configuration.ConfigurationTime = DateTime.Now;
-                List<object> configurationItems = configuration.Configuration.ToList();
+                configuration.LastConfigurationTime.ConfigurationTime = DateTime.Now;
+                List<object> configurationItems = configuration.ToList();
                 configurationItems.RemoveRange(0,1);//remove readonly header
                 
                 UInt16 registerNumberNeeded = (UInt16)((SizeofHelper.SizeOfPublicPropertiesWithModbusAttribute(configurationItems,
@@ -87,21 +87,27 @@ namespace MIOConfig
             return ReaderSaverErrors.CodeComPortNotConnected;
         }
 
-        public ReaderSaverErrors ReadDeviceConfiguration(ref Device configuration)
+        public ReaderSaverErrors ReadDeviceConfiguration(ref DeviceConfiguration configuration)
         {
             ReaderSaverErrors retCode = CheckDeviceHeaderValidityAndInitConfiguration(configuration);
             if (retCode != ReaderSaverErrors.CodeOk)
                 return retCode;
-            List<object> listOfConfigurationItems = configuration.Configuration.ToList();
+            List<object> listOfConfigurationItems = configuration.ToList();
 
             retCode = PerformReading(ref listOfConfigurationItems);
             if (retCode != ReaderSaverErrors.CodeOk)
                 return retCode;
 
-            if(! configuration.Configuration.FromList(listOfConfigurationItems))
+            if(! configuration.FromList(listOfConfigurationItems))
                 return ReaderSaverErrors.CodeInvalidConfigurationSize;
 
             return retCode;
+        }
+
+        public ReaderSaverErrors ReadUserRegisters(ref List<DeviceUserRegister> userRegisters)
+        {
+            List<object> tempList = Array.ConvertAll(userRegisters.ToArray(), o => (object) o).ToList();
+            return PerformReading(ref tempList);
         }
 
         private ReaderSaverErrors PerformReading(ref List<object> configurationItems)
@@ -148,11 +154,11 @@ namespace MIOConfig
             return ReaderSaverErrors.CodeComPortNotConnected;
         }
 
-        private ReaderSaverErrors CheckDeviceHeaderValidityAndInitConfiguration(Device configuration,bool checkOnly = false)
+        private ReaderSaverErrors CheckDeviceHeaderValidityAndInitConfiguration(DeviceConfiguration configuration, bool checkOnly = false)
         {
             List<object> listOfConfigurationItems = new List<object>();
             DeviceHeader tempHeader = new DeviceHeader();
-            listOfConfigurationItems.Add(checkOnly ? tempHeader : configuration.Configuration.HeaderFields);
+            listOfConfigurationItems.Add(checkOnly ? tempHeader : configuration.HeaderFields);
 
 
             ReaderSaverErrors retCode = PerformReading(ref listOfConfigurationItems);
@@ -166,55 +172,29 @@ namespace MIOConfig
             {
                 //object tempObj = configuration.Configuration.HeaderFields;
                 //Utility.CloneObjectProperties(listOfConfigurationItems[0], ref tempObj);                
-                if (!configuration.Configuration.HeaderFields.IsValidHeader())
-                    return ReaderSaverErrors.CodeInvalidDeviceHeader;
+                if (!configuration.HeaderFields.IsValidHeader())
+                    return ReaderSaverErrors.CodeInvalidDeviceHeader;                
 
-                /*if (configuration.Configuration.HeaderFields.ModuleModbusMaster && configuration.Configuration.UartPorts != null)
+                if (configuration.HeaderFields.ModuleRouter && configuration.RoutingHeader != null)
                 {
                     //save previous reading  offset
                     UInt16 currentDeviceOffset = RegisterReadAddressOffset;
                     //calculate offset for reading router header
-                    listOfConfigurationItems.Add(configuration.Configuration.LastConfigurationTime);
-                    listOfConfigurationItems.AddRange(configuration.Configuration.UartPorts);                   
-
-                    RegisterReadAddressOffset = (UInt16)(currentDeviceOffset + ((SizeofHelper.SizeOfPublicPropertiesWithModbusAttribute(listOfConfigurationItems) + 1) / 2));
-                    listOfConfigurationItems.Clear();
-
-                    //read header
-                    listOfConfigurationItems.AddRange(configuration.Configuration.UartPorts);
-                    retCode = PerformReading(ref listOfConfigurationItems);
-                    if (retCode != ReaderSaverErrors.CodeOk)
-                        return retCode;
-                    //initialize header and routing map
-                    //tempObj = configuration.Configuration.RoutingHeader;
-                    //Utility.CloneObjectProperties(listOfConfigurationItems[0], ref tempObj);                    
-                    //restore previous reading  offset
-                    RegisterReadAddressOffset = currentDeviceOffset;
-                }*/
-
-                if (configuration.Configuration.HeaderFields.ModuleRouter && configuration.Configuration.RoutingHeader != null)
-                {
-                    //save previous reading  offset
-                    UInt16 currentDeviceOffset = RegisterReadAddressOffset;
-                    //calculate offset for reading router header
-                    listOfConfigurationItems.Add(configuration.Configuration.LastConfigurationTime);
-                    listOfConfigurationItems.AddRange(configuration.Configuration.UartPorts);
-                    if (configuration.Configuration.DIModule != null)
-                        listOfConfigurationItems.Add(configuration.Configuration.DIModule);
-                    if (configuration.Configuration.DOModule != null)
-                        listOfConfigurationItems.Add(configuration.Configuration.DOModule);
+                    listOfConfigurationItems.Add(configuration.LastConfigurationTime);
+                    listOfConfigurationItems.AddRange(configuration.UartPorts);
+                    if (configuration.DIModule != null)
+                        listOfConfigurationItems.Add(configuration.DIModule);
+                    if (configuration.DOModule != null)
+                        listOfConfigurationItems.Add(configuration.DOModule);
                                         
                     RegisterReadAddressOffset = (UInt16)(currentDeviceOffset + ((SizeofHelper.SizeOfPublicPropertiesWithModbusAttribute(listOfConfigurationItems) + 1) / 2));
                     listOfConfigurationItems.Clear();
                    
                     //read header
-                    listOfConfigurationItems.Add(configuration.Configuration.RoutingHeader);
+                    listOfConfigurationItems.Add(configuration.RoutingHeader);
                     retCode = PerformReading(ref listOfConfigurationItems);
                     if (retCode != ReaderSaverErrors.CodeOk)
-                        return retCode;
-                    //initialize header and routing map
-                    //tempObj = configuration.Configuration.RoutingHeader;
-                    //Utility.CloneObjectProperties(listOfConfigurationItems[0], ref tempObj);                    
+                        return retCode;                                 
                     //restore previous reading  offset
                     RegisterReadAddressOffset = currentDeviceOffset;
                 }
@@ -224,7 +204,7 @@ namespace MIOConfig
                 if (!tempHeader.IsValidHeader())
                     return ReaderSaverErrors.CodeInvalidDeviceHeader;
 
-                if (configuration.Configuration.HeaderFields.DeviceUartChannelsCount !=
+                if (configuration.HeaderFields.DeviceUartChannelsCount !=
                     tempHeader.DeviceUartChannelsCount)
                     return ReaderSaverErrors.CodeNotCompliantDevice;                
             }                                   
