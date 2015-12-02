@@ -20,7 +20,7 @@ namespace MIOConfig
         /// <param name="slaveAddress"></param>
         /// <param name="registerReadAddressOffset"></param>
         /// <param name="registerWriteAddressOffset"></param>
-        public ModbusReaderSaver(IModbus protocol, Byte slaveAddress = 1, UInt16 registerReadAddressOffset = 1000, UInt16 registerWriteAddressOffset = 1005, bool bigEndianOrder = false)
+        public ModbusReaderSaver(IModbus protocol, Byte slaveAddress = 1, UInt16 registerReadAddressOffset = Definitions.CONFIGURATION_READ_OFFSET, UInt16 registerWriteAddressOffset = Definitions.CONFIGURATION_WRITE_OFFSET, bool bigEndianOrder = false)
         {
             _protocol = protocol;
             SlaveAddress = slaveAddress;
@@ -120,6 +120,20 @@ namespace MIOConfig
                 return retCode;
 
             if (!statuses.FromList(listOfConfigurationItems))
+                return ReaderSaverErrors.CodeInvalidStatusesSize;
+
+            return retCode;
+        }
+
+        internal ReaderSaverErrors ReadDIModuleRegisters(ref DeviceDIModule diModule)
+        {
+            List<object> listOfConfigurationItems = diModule.ToList();
+
+            ReaderSaverErrors retCode = PerformReading(ref listOfConfigurationItems);
+            if (retCode != ReaderSaverErrors.CodeOk)
+                return retCode;
+
+            if (!diModule.FromList(listOfConfigurationItems))
                 return ReaderSaverErrors.CodeInvalidStatusesSize;
 
             return retCode;

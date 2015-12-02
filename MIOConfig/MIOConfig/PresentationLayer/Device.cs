@@ -14,6 +14,10 @@ namespace MIOConfig
     {
         public const Byte MODBUS_MASTER_PRTOCOL = 0;
         public const Byte MODBUS_SLAVE_PRTOCOL = 1;
+        public const UInt16 USER_REGISTERS_OFFSET = 0;
+        public const UInt16 DEVICE_STATE_OFFSET = 500;
+        public const UInt16 CONFIGURATION_READ_OFFSET = 1000;
+        public const UInt16 CONFIGURATION_WRITE_OFFSET = 1005;       
     }
 
     public class Device
@@ -23,6 +27,7 @@ namespace MIOConfig
             Configuration = new DeviceConfiguration();    
             UserRegisters = new List<DeviceUserRegister>();
             Statuses = new DeviceStatuses();
+            DIModule = null;
         }
 
         public override string ToString()
@@ -55,9 +60,9 @@ namespace MIOConfig
 
         #region Configuration 
 
-        #region Configuration Properties
-
-        internal DeviceConfiguration Configuration;                        
+        internal DeviceConfiguration Configuration;    
+        
+        #region Configuration Properties                            
 
         public bool ModuleDIPresent
         {
@@ -99,26 +104,42 @@ namespace MIOConfig
             set { Configuration.UartPorts = value; }   
         }
 
-        public DeviceModuleDI DiscreetInputModule
+        public DeviceModuleDIConfiguration DiscreetInputModuleConfiguration
         {
-            get { return Configuration.DIModule; }            
+            get { return ModuleDIPresent?Configuration.DIModule:null; }            
         }
 
-        public DeviceModuleDO DiscreetOutputModule
+        public DeviceModuleDOConfiguration DiscreetOutputModuleConfiguration
         {
-            get { return Configuration.DOModule; }            
+            get { return ModuleDOPresent?Configuration.DOModule:null; }            
         }
 
         public bool RoutingEnabled
         {
-            get { return Configuration.RoutingHeader.RoutingEnabled != 0; }
-            set { Configuration.RoutingHeader.RoutingEnabled = (UInt16)(value ? 1 : 0); }
+            get
+            {
+                if (Configuration.RoutingHeader != null)
+                    return Configuration.RoutingHeader.RoutingEnabled != 0;                
+                return false;
+            }
+            set
+            {
+                if (Configuration.RoutingHeader != null)
+                    Configuration.RoutingHeader.RoutingEnabled = (UInt16)(value ? 1 : 0);
+            }
         }
         
         public List<DeviceRoutingTableElement> RoutingMap
         {
-            get { return Configuration.RoutingTable; }
-            set { Configuration.RoutingTable = value; }
+            get
+            {
+                return ModuleRouterPresent?Configuration.RoutingTable:null;
+            }
+            set
+            {
+                if (Configuration.RoutingTable != null)
+                    Configuration.RoutingTable = value;
+            }
         }
 
         public List<List<DeviceModbusMasterQuery>> ModbusMasterPortsQueries
@@ -129,7 +150,7 @@ namespace MIOConfig
 
         #endregion       
 
-        #region Read & Save Methods
+        #region Methods
 
         public ReaderSaverErrors SaveConfiguration(IDeviceReaderSaver saver)
         {
@@ -144,6 +165,7 @@ namespace MIOConfig
                 RegistersMapBuilder mapBuilder = new RegistersMapBuilder(Configuration);
                 mapBuilder.BuildUserRegistersMap(ref UserRegisters);
                 mapBuilder.BuildStatusRegistersMap(ref Statuses);
+                mapBuilder.BuildDIModuleRegistersMap(ref DIModule);
             }
             return code;
         }
@@ -156,29 +178,33 @@ namespace MIOConfig
 
         public List<DeviceUserRegister> UserRegisters;
 
+        #region Methods
         public ReaderSaverErrors ReadUserRegistersFromDevice(ModbusReaderSaver reader)
         {
             UInt16 oldOffset = reader.RegisterReadAddressOffset;
-            reader.RegisterReadAddressOffset = 0;
+            reader.RegisterReadAddressOffset = Definitions.USER_REGISTERS_OFFSET;
             ReaderSaverErrors code =  reader.ReadUserRegisters(ref UserRegisters);
             reader.RegisterReadAddressOffset = oldOffset;
             return code;
         }
+        #endregion
         #endregion
 
         #region Device Statuses And Control
 
         internal DeviceStatuses Statuses;
 
-        public ReadOnlyCollection<UARTPortStatus> UartPortStatuses
+        public ReadOnlyCollection<DeviceUartPortStatus> UartPortStatuses
         {
-            get { return new ReadOnlyCollection<UARTPortStatus>(Statuses.UartPortStatuses); }
+            get { return new ReadOnlyCollection<DeviceUartPortStatus>(Statuses.UartPortStatuses); }
         }
+        //TODO add global status when it will be ready
 
+        #region Methods
         public ReaderSaverErrors ReadSatusRegistersFromDevice(ModbusReaderSaver reader)
         {
             UInt16 oldOffset = reader.RegisterReadAddressOffset;
-            reader.RegisterReadAddressOffset = 500;
+            reader.RegisterReadAddressOffset = Definitions.DEVICE_STATE_OFFSET;
             ReaderSaverErrors code = reader.ReadStatusRegisters(ref Statuses);
             reader.RegisterReadAddressOffset = oldOffset;
             return code;
@@ -187,13 +213,33 @@ namespace MIOConfig
         public ReaderSaverErrors RestartDevice(ModbusReaderSaver saver)
         {
             UInt16 oldOffset = saver.RegisterReadAddressOffset;
-            saver.RegisterWriteAddressOffset = 500;
+            saver.RegisterWriteAddressOffset = Definitions.DEVICE_STATE_OFFSET;
             ReaderSaverErrors code = saver.RestartDevice();
             saver.RegisterWriteAddressOffset = oldOffset;
             return code;
         }
+        #endregion
+        #endregion
 
-        //TODO add global status when it will be ready
+        #region Device Discreete Input Module
+
+        internal DeviceDIModule DIModule;
+
+        public DeviceDIModule DiscreeteInputModule
+        {
+            get { return ModuleDIPresent?DIModule:null; }
+        }
+
+        public ReaderSaverErrors ReadDIModuleRegistersFromDevice(ModbusReaderSaver reader)
+        {
+            if (DIModule == null)
+                return ReaderSaverErrors.CodeModuleIsAbsent;
+            UInt16 oldOffset = reader.RegisterReadAddressOffset;
+            reader.RegisterReadAddressOffset = (UInt16)(Definitions.DEVICE_STATE_OFFSET + Statuses.Size);
+            ReaderSaverErrors code = reader.ReadDIModuleRegisters(ref DIModule);
+            reader.RegisterReadAddressOffset = oldOffset;
+            return code;
+        }
 
         #endregion
     }

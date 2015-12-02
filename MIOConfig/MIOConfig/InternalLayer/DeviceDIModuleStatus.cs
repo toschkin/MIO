@@ -7,11 +7,11 @@ using Modbus.Core;
 
 namespace MIOConfig.InternalLayer
 {
-    public class UARTPortStatus
+    public class DeviceDIModuleStatus
     {
-        public bool TotalTimeout;
-        public bool Reserve1;
-        public bool Reserve2;
+        public bool ErrorI;
+        public bool ErrorU;
+        public bool ErrorCheck;
         public bool Reserve3;
         public bool Reserve4;
         public bool Reserve5;
@@ -24,9 +24,9 @@ namespace MIOConfig.InternalLayer
         public bool Reserve12;
         public bool Reserve13;
         public bool Reserve14;
-        public bool Reserve15;   
+        public bool Reserve15;
         /// <summary>
-        /// Holding regs|addr.: 502...|count: 1
+        /// Holding regs|addr.: 505|count: 1
         /// </summary>     
         [ModbusProperty(Access = ModbusRegisterAccessType.AccessRead)]
         public UInt16 StatusRegister
@@ -49,7 +49,7 @@ namespace MIOConfig.InternalLayer
                 foreach (var field in GetType().GetFields())
                 {
                     field.SetValue(this, (value & (1 << i++)) != 0);
-                }                
+                }
             }
         }
     }

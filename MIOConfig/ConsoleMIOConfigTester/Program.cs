@@ -66,7 +66,7 @@ namespace ConsoleMIOConfigTester
             {
                 protocol.ReadRegistersPerQueryCapacity = 125;
                 protocol.WriteRegistersPerQueryCapacity = 125;
-                ModbusReaderSaver modbusReaderSaver = new ModbusReaderSaver(protocol, 1, 1000, 1005);
+                ModbusReaderSaver modbusReaderSaver = new ModbusReaderSaver(protocol, 1);
 
                 bool[] coils =
                 {
@@ -87,15 +87,17 @@ namespace ConsoleMIOConfigTester
                 Console.WriteLine();
                 Console.ReadLine();
 
-                device.DiscreetInputModule.ModuleOperation = 0;
-                device.DiscreetInputModule.HysteresisTime = 0xAA55;
+                device.DiscreetInputModuleConfiguration.ModuleOperation = 0;
+                device.DiscreetInputModuleConfiguration.HysteresisTime = 0xAA55;
 
-                device.DiscreetOutputModule.ModuleOperation = 0;
-                device.DiscreetOutputModule.PulseDurationTime = 0xBB66;
+                device.DiscreetOutputModuleConfiguration.ModuleOperation = 0;
+                device.DiscreetOutputModuleConfiguration.PulseDurationTime = 0xBB66;
 
                 device.ReadUserRegistersFromDevice(modbusReaderSaver);
 
                 device.ReadSatusRegistersFromDevice(modbusReaderSaver);
+
+                device.ReadDIModuleRegistersFromDevice(modbusReaderSaver);
 
                 Console.WriteLine(device.RestartDevice(modbusReaderSaver).GetDescription());
                 

@@ -43,7 +43,17 @@ namespace MIOConfig.InternalLayer
         {
             statuses.UartPortStatuses.Clear();
             for (var reg = 0; reg < _configuration.HeaderFields.DeviceUartChannelsCount; reg++)            
-                statuses.UartPortStatuses.Add(new UARTPortStatus());                            
+                statuses.UartPortStatuses.Add(new DeviceUartPortStatus());                            
         }
+
+        public void BuildDIModuleRegistersMap(ref DeviceDIModule diModule)
+        {
+            if (_configuration.HeaderFields.ModuleDI && diModule == null)
+                diModule = new DeviceDIModule();
+            if (_configuration.HeaderFields.ModuleDI == false && diModule != null)
+                diModule = null;
+        }
+
+        
     }
 }

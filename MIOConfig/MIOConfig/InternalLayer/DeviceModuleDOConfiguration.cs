@@ -8,9 +8,9 @@ using Modbus.Core;
 namespace MIOConfig.InternalLayer
 {
     [Serializable]
-    public class DeviceModuleDO
+    public class DeviceModuleDOConfiguration
     {
-        public DeviceModuleDO()
+        public DeviceModuleDOConfiguration()
         {
             ModuleOperation = 1;
             PulseDurationTime = 10;

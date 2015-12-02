@@ -67,12 +67,12 @@ namespace MIOConfig.InternalLayer
         /// <summary>
         /// Holding regs|addr.: 1007+7*UartPorts.Count |count: 4| R/W
         /// </summary>     
-        public DeviceModuleDI DIModule;
+        public DeviceModuleDIConfiguration DIModule;
 
         /// <summary>
         /// Holding regs|addr.: 1007+7*UartPorts.Count+5*ModuleDIPresent |count: 4| R/W
         /// </summary>     
-        public DeviceModuleDO DOModule;
+        public DeviceModuleDOConfiguration DOModule;
 
         /// <summary>
         /// Holding regs|addr.: 1007+7*UartPorts.Count + 5*ModuleDIPresent + 10*ModuleDOPresent |count: 1| R/W
@@ -132,10 +132,10 @@ namespace MIOConfig.InternalLayer
             }
 
             if (DIModule != null && HeaderFields.ModuleDI && listIndex < listOfConfigurationItems.Count)
-                DIModule = listOfConfigurationItems[listIndex++] as DeviceModuleDI;
+                DIModule = listOfConfigurationItems[listIndex++] as DeviceModuleDIConfiguration;
 
             if (DOModule != null && HeaderFields.ModuleDO && listIndex < listOfConfigurationItems.Count)
-                DOModule = listOfConfigurationItems[listIndex++] as DeviceModuleDO;
+                DOModule = listOfConfigurationItems[listIndex++] as DeviceModuleDOConfiguration;
 
             if (RoutingHeader != null && HeaderFields.ModuleRouter && listIndex < listOfConfigurationItems.Count)
             {

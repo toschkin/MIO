@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Modbus.Core;
 
 namespace MIOConfig.InternalLayer
 {
@@ -10,12 +11,12 @@ namespace MIOConfig.InternalLayer
     {
         public DeviceStatuses()
         {
-            UartPortStatuses = new List<UARTPortStatus> {new UARTPortStatus()};
+            UartPortStatuses = new List<DeviceUartPortStatus> {new DeviceUartPortStatus()};
             Header = new DeviceStatusesHeader();
         }       
         public DeviceStatusesHeader Header { get; set; }
 
-        public List<UARTPortStatus> UartPortStatuses;
+        public List<DeviceUartPortStatus> UartPortStatuses;
 
         public List<object> ToList()
         {
@@ -37,9 +38,18 @@ namespace MIOConfig.InternalLayer
             //UART ports
             for (int port = 0; port < UartPortStatuses.Count && listIndex < listOfConfigurationItems.Count; port++)
             {
-                UartPortStatuses[port] = listOfConfigurationItems[listIndex++] as UARTPortStatus;
+                UartPortStatuses[port] = listOfConfigurationItems[listIndex++] as DeviceUartPortStatus;
             }            
             return true;
+        }
+
+        public ushort Size {
+            get
+            {
+                return (UInt16)(((SizeofHelper.SizeOfPublicPropertiesWithModbusAttribute(Header) +
+                       UartPortStatuses.Aggregate(0,
+                           (total, port) => (UInt16)(total + SizeofHelper.SizeOfPublicPropertiesWithModbusAttribute(port))))+1)/2);
+            }
         }
     }
 

@@ -4,9 +4,9 @@ using Modbus.Core;
 namespace MIOConfig.InternalLayer
 {
     [Serializable]
-    public class DeviceModuleDI
+    public class DeviceModuleDIConfiguration
     {
-        public DeviceModuleDI()
+        public DeviceModuleDIConfiguration()
         {
             HysteresisTime = 10;
             ModuleOperation = 1;

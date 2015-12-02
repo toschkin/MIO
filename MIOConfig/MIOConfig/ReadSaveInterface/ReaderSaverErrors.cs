@@ -27,5 +27,7 @@ namespace MIOConfig
         CodeSerializationError = 7,
         [EnumDescription("Invalid Statuses Map Size")]
         CodeInvalidStatusesSize = 8,
+        [EnumDescription("Module Is Absent")]
+        CodeModuleIsAbsent = 9,
     }
 }
