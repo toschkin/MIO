@@ -65,17 +65,17 @@ namespace MIOConfig.InternalLayer
                 {
                     if (ModuleDI)
                     {
-                        if (_deviceConfiguration.DIModule == null) _deviceConfiguration.DIModule = new DeviceModuleDIConfiguration();
+                        if (_deviceConfiguration.DIModuleConfiguration == null) _deviceConfiguration.DIModuleConfiguration = new DeviceModuleDIConfiguration();
                     }
                     else
-                        _deviceConfiguration.DIModule = null;
+                        _deviceConfiguration.DIModuleConfiguration = null;
 
                     if (ModuleDO)
                     {
-                        if (_deviceConfiguration.DOModule == null) _deviceConfiguration.DOModule = new DeviceModuleDOConfiguration();
+                        if (_deviceConfiguration.DOModuleConfiguration == null) _deviceConfiguration.DOModuleConfiguration = new DeviceModuleDOConfiguration();
                     }
                     else
-                        _deviceConfiguration.DOModule = null;
+                        _deviceConfiguration.DOModuleConfiguration = null;
                     
                     if (ModuleRouter)
                     {

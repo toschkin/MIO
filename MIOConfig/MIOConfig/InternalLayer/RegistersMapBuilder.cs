@@ -54,6 +54,12 @@ namespace MIOConfig.InternalLayer
                 diModule = null;
         }
 
-        
+        public void BuildDOModuleRegistersMap(ref DeviceDOModule doModule)
+        {
+            if (_configuration.HeaderFields.ModuleDO && doModule == null)
+                doModule = new DeviceDOModule();
+            if (_configuration.HeaderFields.ModuleDO == false && doModule != null)
+                doModule = null;
+        }        
     }
 }

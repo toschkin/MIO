@@ -98,6 +98,8 @@ namespace ConsoleMIOConfigTester
                 device.ReadSatusRegistersFromDevice(modbusReaderSaver);
 
                 device.ReadDIModuleRegistersFromDevice(modbusReaderSaver);
+                
+                device.ReadDOModuleRegistersFromDevice(modbusReaderSaver);
 
                 Console.WriteLine(device.RestartDevice(modbusReaderSaver).GetDescription());
                 
@@ -153,7 +155,7 @@ namespace ConsoleMIOConfigTester
                     ShowObjectPropsAndVals(item);
                 }
                 Console.WriteLine();
-                ShowObjectPropsAndVals(config.DIModule);
+                ShowObjectPropsAndVals(config.DIModuleConfiguration);
                 
 
                 Console.WriteLine("SaveConfiguration to {0}", fileSaver.FilePath);
@@ -172,7 +174,7 @@ namespace ConsoleMIOConfigTester
                     ShowObjectPropsAndVals(item);
                 }
                 Console.WriteLine();
-                ShowObjectPropsAndVals(config.DIModule);
+                ShowObjectPropsAndVals(config.DIModuleConfiguration);
                 Console.ReadLine();
 
                

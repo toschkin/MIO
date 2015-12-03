@@ -44,14 +44,18 @@
   <ItemGroup>
     <Compile Include="InternalLayer\DeviceDIModule.cs" />
     <Compile Include="InternalLayer\DeviceDIModuleStatus.cs" />
+    <Compile Include="InternalLayer\DeviceDOModule.cs" />
+    <Compile Include="InternalLayer\DeviceDOModuleStatus.cs" />
     <Compile Include="InternalLayer\DeviceModbusMasterQuery.cs" />
     <Compile Include="InternalLayer\DeviceRoutingHeader.cs" />
     <Compile Include="InternalLayer\DeviceModuleDOConfiguration.cs" />
     <Compile Include="InternalLayer\DeviceRoutingTableElement.cs" />
     <Compile Include="InternalLayer\DeviceStatuses.cs" />
     <Compile Include="InternalLayer\DeviceStatusesHeader.cs" />
+    <Compile Include="InternalLayer\IDeviceModule.cs" />
     <Compile Include="InternalLayer\RegistersMapBuilder.cs" />
     <Compile Include="InternalLayer\DeviceUartPortStatus.cs" />
+    <Compile Include="PresentationLayer\Definitions.cs" />
     <Compile Include="PresentationLayer\DeviceValidator.cs" />
     <Compile Include="InternalLayer\DeviceUserRegister.cs" />
     <Compile Include="ReadSaveInterface\ReaderSaverErrors.cs" />

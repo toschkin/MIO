@@ -7,7 +7,7 @@ using Modbus.Core;
 
 namespace MIOConfig.InternalLayer
 {
-    public class DeviceStatuses
+    public class DeviceStatuses : IDeviceModule
     {
         public DeviceStatuses()
         {
@@ -31,19 +31,17 @@ namespace MIOConfig.InternalLayer
             if (listOfConfigurationItems.Count < 2)
                 return false;
             int listIndex = 0;
-            //Header
-            object tempObj = Header;
-            Utility.CloneObjectProperties(listOfConfigurationItems[listIndex++], ref tempObj);
-            Header = tempObj as DeviceStatusesHeader;            
+            //Header           
+            Header = listOfConfigurationItems[listIndex++] as DeviceStatusesHeader ?? new DeviceStatusesHeader();            
             //UART ports
             for (int port = 0; port < UartPortStatuses.Count && listIndex < listOfConfigurationItems.Count; port++)
             {
-                UartPortStatuses[port] = listOfConfigurationItems[listIndex++] as DeviceUartPortStatus;
+                UartPortStatuses[port] = listOfConfigurationItems[listIndex++] as DeviceUartPortStatus ?? new DeviceUartPortStatus();
             }            
             return true;
         }
 
-        public ushort Size {
+        public UInt16 Size {
             get
             {
                 return (UInt16)(((SizeofHelper.SizeOfPublicPropertiesWithModbusAttribute(Header) +

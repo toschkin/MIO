@@ -40,8 +40,8 @@ namespace MIOConfig.InternalLayer
             LastConfigurationTime = new DeviceConfigurationTime();
             //minimum 1 UART presentin device
             UartPorts = new List<DeviceUARTPortConfiguration>(3) { new DeviceUARTPortConfiguration(ref thisDevice) };
-            DIModule = null;
-            DOModule = null;
+            DIModuleConfiguration = null;
+            DOModuleConfiguration = null;
             RoutingHeader = null;
             RoutingTable = null;
             ModbusMasterQueriesOnUartPorts = new List<List<DeviceModbusMasterQuery>>() { new List<DeviceModbusMasterQuery>() };
@@ -67,12 +67,12 @@ namespace MIOConfig.InternalLayer
         /// <summary>
         /// Holding regs|addr.: 1007+7*UartPorts.Count |count: 4| R/W
         /// </summary>     
-        public DeviceModuleDIConfiguration DIModule;
+        public DeviceModuleDIConfiguration DIModuleConfiguration;
 
         /// <summary>
         /// Holding regs|addr.: 1007+7*UartPorts.Count+5*ModuleDIPresent |count: 4| R/W
         /// </summary>     
-        public DeviceModuleDOConfiguration DOModule;
+        public DeviceModuleDOConfiguration DOModuleConfiguration;
 
         /// <summary>
         /// Holding regs|addr.: 1007+7*UartPorts.Count + 5*ModuleDIPresent + 10*ModuleDOPresent |count: 1| R/W
@@ -99,10 +99,10 @@ namespace MIOConfig.InternalLayer
             listOfConfigurationItems.Add(HeaderFields);
             listOfConfigurationItems.Add(LastConfigurationTime);
             listOfConfigurationItems.AddRange(UartPorts);
-            if (DIModule != null)
-                listOfConfigurationItems.Add(DIModule);
-            if (DOModule != null)
-                listOfConfigurationItems.Add(DOModule);
+            if (DIModuleConfiguration != null)
+                listOfConfigurationItems.Add(DIModuleConfiguration);
+            if (DOModuleConfiguration != null)
+                listOfConfigurationItems.Add(DOModuleConfiguration);
             if (RoutingHeader != null)
                 listOfConfigurationItems.Add(RoutingHeader);
             if (RoutingTable != null)
@@ -131,11 +131,11 @@ namespace MIOConfig.InternalLayer
                 UartPorts[port] = listOfConfigurationItems[listIndex++] as DeviceUARTPortConfiguration;
             }
 
-            if (DIModule != null && HeaderFields.ModuleDI && listIndex < listOfConfigurationItems.Count)
-                DIModule = listOfConfigurationItems[listIndex++] as DeviceModuleDIConfiguration;
+            if (DIModuleConfiguration != null && HeaderFields.ModuleDI && listIndex < listOfConfigurationItems.Count)
+                DIModuleConfiguration = listOfConfigurationItems[listIndex++] as DeviceModuleDIConfiguration;
 
-            if (DOModule != null && HeaderFields.ModuleDO && listIndex < listOfConfigurationItems.Count)
-                DOModule = listOfConfigurationItems[listIndex++] as DeviceModuleDOConfiguration;
+            if (DOModuleConfiguration != null && HeaderFields.ModuleDO && listIndex < listOfConfigurationItems.Count)
+                DOModuleConfiguration = listOfConfigurationItems[listIndex++] as DeviceModuleDOConfiguration;
 
             if (RoutingHeader != null && HeaderFields.ModuleRouter && listIndex < listOfConfigurationItems.Count)
             {

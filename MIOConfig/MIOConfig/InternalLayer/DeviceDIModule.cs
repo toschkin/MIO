@@ -8,7 +8,7 @@ using Modbus.Core;
 
 namespace MIOConfig.InternalLayer
 {
-    public class DeviceDIModule
+    public class DeviceDIModule : IDeviceModule
     {
         public DeviceDIModule()
         {
@@ -37,19 +37,26 @@ namespace MIOConfig.InternalLayer
 
         public bool FromList(List<object> listOfConfigurationItems)
         {
-            if (listOfConfigurationItems.Count < 2)
+            if (listOfConfigurationItems.Count < Size)
                 return false;
             int listIndex = 0;
-            //Header
-            object tempObj = ModuleStatus;
-            Utility.CloneObjectProperties(listOfConfigurationItems[listIndex++], ref tempObj);
-            ModuleStatus = tempObj as DeviceDIModuleStatus;
+            //Header           
+            ModuleStatus = listOfConfigurationItems[listIndex++] as DeviceDIModuleStatus ?? new DeviceDIModuleStatus();
             //UART ports
             for (int reg = 0; reg < InputsRegisters.Count && listIndex < listOfConfigurationItems.Count; reg++)
             {
-                InputsRegisters[reg] = listOfConfigurationItems[listIndex++] as ModbusDataPoint<UInt16>;
+                InputsRegisters[reg] = listOfConfigurationItems[listIndex++] as ModbusDataPoint<UInt16> ?? new ModbusDataPoint<UInt16>();
             }
             return true;
+        }
+        public UInt16 Size
+        {
+            get
+            {
+                return (UInt16)(((SizeofHelper.SizeOfPublicPropertiesWithModbusAttribute(ModuleStatus) +
+                       InputsRegisters.Aggregate(0,
+                           (total, reg) => (UInt16)(total + SizeofHelper.SizeOfPublicPropertiesWithModbusAttribute(reg)))) + 1) / 2);
+            }
         }
     }
 }

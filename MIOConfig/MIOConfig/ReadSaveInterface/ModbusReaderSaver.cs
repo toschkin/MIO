@@ -111,33 +111,19 @@ namespace MIOConfig
             return PerformReading(ref tempList);
         }
 
-        internal ReaderSaverErrors ReadStatusRegisters(ref DeviceStatuses statuses)
+        internal ReaderSaverErrors ReadModuleRegisters(IDeviceModule module)
         {
-            List<object> listOfConfigurationItems = statuses.ToList();
+            List<object> listOfConfigurationItems = module.ToList();
 
             ReaderSaverErrors retCode = PerformReading(ref listOfConfigurationItems);
             if (retCode != ReaderSaverErrors.CodeOk)
                 return retCode;
 
-            if (!statuses.FromList(listOfConfigurationItems))
+            if (!module.FromList(listOfConfigurationItems))
                 return ReaderSaverErrors.CodeInvalidStatusesSize;
 
             return retCode;
-        }
-
-        internal ReaderSaverErrors ReadDIModuleRegisters(ref DeviceDIModule diModule)
-        {
-            List<object> listOfConfigurationItems = diModule.ToList();
-
-            ReaderSaverErrors retCode = PerformReading(ref listOfConfigurationItems);
-            if (retCode != ReaderSaverErrors.CodeOk)
-                return retCode;
-
-            if (!diModule.FromList(listOfConfigurationItems))
-                return ReaderSaverErrors.CodeInvalidStatusesSize;
-
-            return retCode;
-        }
+        }        
 
         private ReaderSaverErrors PerformReading(ref List<object> configurationItems)
         {
@@ -211,10 +197,10 @@ namespace MIOConfig
                     //calculate offset for reading router header
                     listOfConfigurationItems.Add(configuration.LastConfigurationTime);
                     listOfConfigurationItems.AddRange(configuration.UartPorts);
-                    if (configuration.DIModule != null)
-                        listOfConfigurationItems.Add(configuration.DIModule);
-                    if (configuration.DOModule != null)
-                        listOfConfigurationItems.Add(configuration.DOModule);
+                    if (configuration.DIModuleConfiguration != null)
+                        listOfConfigurationItems.Add(configuration.DIModuleConfiguration);
+                    if (configuration.DOModuleConfiguration != null)
+                        listOfConfigurationItems.Add(configuration.DOModuleConfiguration);
                                         
                     RegisterReadAddressOffset = (UInt16)(currentDeviceOffset + ((SizeofHelper.SizeOfPublicPropertiesWithModbusAttribute(listOfConfigurationItems) + 1) / 2));
                     listOfConfigurationItems.Clear();

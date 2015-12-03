@@ -7,16 +7,16 @@ using Modbus.Core;
 
 namespace MIOConfig.InternalLayer
 {
-    public class DeviceDIModuleStatus
+    public class DeviceDOModuleStatus
     {
-        public bool ErrorCurrent;
-        public bool ErrorVoltage;
-        public bool ErrorCheck;
-        public bool Reserve3;
-        public bool Reserve4;
-        public bool Reserve5;
-        public bool Reserve6;
-        public bool Reserve7;
+        public bool Reserve0;
+        public bool ErrorContactsSticking;
+        public bool ErrorNoVoltage;
+        public bool ErrorRelayContactsNotClosed;
+        public bool ErrorPowerSwitchNotClosed;
+        public bool ErrorPowerSwitchNotOpened;
+        public bool ErrorRelayContactsNotOpened;
+        public bool ErrorRelayCoils;
         public bool Reserve8;
         public bool Reserve9;
         public bool Reserve10;
@@ -26,7 +26,7 @@ namespace MIOConfig.InternalLayer
         public bool Reserve14;
         public bool Reserve15;
         /// <summary>
-        /// Holding regs|addr.: 505|count: 1
+        /// Holding regs|addr.: 514,523-526|count: 1
         /// </summary>     
         [ModbusProperty(Access = ModbusRegisterAccessType.AccessRead)]
         public UInt16 StatusRegister

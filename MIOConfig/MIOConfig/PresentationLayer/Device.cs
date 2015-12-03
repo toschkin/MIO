@@ -7,19 +7,7 @@ using System.Threading.Tasks;
 using MIOConfig.InternalLayer;
 
 namespace MIOConfig
-{   
-    public delegate void ErrorTracer(string errorMessage);
-
-    public static class Definitions
-    {
-        public const Byte MODBUS_MASTER_PRTOCOL = 0;
-        public const Byte MODBUS_SLAVE_PRTOCOL = 1;
-        public const UInt16 USER_REGISTERS_OFFSET = 0;
-        public const UInt16 DEVICE_STATE_OFFSET = 500;
-        public const UInt16 CONFIGURATION_READ_OFFSET = 1000;
-        public const UInt16 CONFIGURATION_WRITE_OFFSET = 1005;       
-    }
-
+{       
     public class Device
     {        
         public Device()
@@ -28,6 +16,7 @@ namespace MIOConfig
             UserRegisters = new List<DeviceUserRegister>();
             Statuses = new DeviceStatuses();
             DIModule = null;
+            DOModule = null;
         }
 
         public override string ToString()
@@ -106,12 +95,12 @@ namespace MIOConfig
 
         public DeviceModuleDIConfiguration DiscreetInputModuleConfiguration
         {
-            get { return ModuleDIPresent?Configuration.DIModule:null; }            
+            get { return ModuleDIPresent?Configuration.DIModuleConfiguration:null; }            
         }
 
         public DeviceModuleDOConfiguration DiscreetOutputModuleConfiguration
         {
-            get { return ModuleDOPresent?Configuration.DOModule:null; }            
+            get { return ModuleDOPresent?Configuration.DOModuleConfiguration:null; }            
         }
 
         public bool RoutingEnabled
@@ -166,6 +155,7 @@ namespace MIOConfig
                 mapBuilder.BuildUserRegistersMap(ref UserRegisters);
                 mapBuilder.BuildStatusRegistersMap(ref Statuses);
                 mapBuilder.BuildDIModuleRegistersMap(ref DIModule);
+                mapBuilder.BuildDOModuleRegistersMap(ref DOModule);                
             }
             return code;
         }
@@ -205,7 +195,7 @@ namespace MIOConfig
         {
             UInt16 oldOffset = reader.RegisterReadAddressOffset;
             reader.RegisterReadAddressOffset = Definitions.DEVICE_STATE_OFFSET;
-            ReaderSaverErrors code = reader.ReadStatusRegisters(ref Statuses);
+            ReaderSaverErrors code = reader.ReadModuleRegisters(Statuses);
             reader.RegisterReadAddressOffset = oldOffset;
             return code;
         }
@@ -236,7 +226,29 @@ namespace MIOConfig
                 return ReaderSaverErrors.CodeModuleIsAbsent;
             UInt16 oldOffset = reader.RegisterReadAddressOffset;
             reader.RegisterReadAddressOffset = (UInt16)(Definitions.DEVICE_STATE_OFFSET + Statuses.Size);
-            ReaderSaverErrors code = reader.ReadDIModuleRegisters(ref DIModule);
+            ReaderSaverErrors code = reader.ReadModuleRegisters(DIModule);
+            reader.RegisterReadAddressOffset = oldOffset;
+            return code;
+        }
+
+        #endregion
+
+        #region Device Discreete Output Module
+
+        internal DeviceDOModule DOModule;
+
+        public DeviceDOModule DiscreeteOutputModule
+        {
+            get { return ModuleDOPresent ? DOModule : null; }
+        }
+
+        public ReaderSaverErrors ReadDOModuleRegistersFromDevice(ModbusReaderSaver reader)
+        {
+            if (DOModule == null)
+                return ReaderSaverErrors.CodeModuleIsAbsent;
+            UInt16 oldOffset = reader.RegisterReadAddressOffset;
+            reader.RegisterReadAddressOffset = (UInt16)(Definitions.DEVICE_STATE_OFFSET + Statuses.Size + DIModule.Size);
+            ReaderSaverErrors code = reader.ReadModuleRegisters(DOModule);
             reader.RegisterReadAddressOffset = oldOffset;
             return code;
         }
