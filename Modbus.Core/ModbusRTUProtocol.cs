@@ -12,12 +12,18 @@ namespace Modbus.Core
     /// </summary>
     public class ModbusRtuProtocol : RawSerialProtocol, IModbus
     {
+        ~ModbusRtuProtocol()
+        {
+            if(IsConnected)
+                Disconnect();
+        }
+
         /// <summary>
         /// Default ctor
         /// </summary>
         public ModbusRtuProtocol()
         {
-            _writeRegistersPerQueryCapacity = 125;
+            _writeRegistersPerQueryCapacity = 123;
             _readRegistersPerQueryCapacity = 125;
         }
 
