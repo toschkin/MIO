@@ -188,7 +188,8 @@ namespace Modbus.Core
                         smthRead = true;
                         Array.Resize<Byte>(ref packet, bytesTotallyRecieved + bytesRecieved);
                         _comPort.Read(packet, bytesTotallyRecieved, bytesRecieved);
-                        bytesTotallyRecieved += bytesRecieved;                        
+                        bytesTotallyRecieved += bytesRecieved;
+                        continue;
                     }
                     else 
                     {
