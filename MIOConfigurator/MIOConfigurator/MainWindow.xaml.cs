@@ -36,9 +36,10 @@ namespace MIOConfigurator
             ProtocolConfigWindow connectionConfigWindow = new ProtocolConfigWindow(protocol);            
             connectionConfigWindow.Owner = this;
             if (connectionConfigWindow.ShowDialog() == true)
-            {
+            {                
                 cmdConnect.IsEnabled = false;
-                cmdDisconnect.IsEnabled = true;            
+                cmdDisconnect.IsEnabled = true;
+                СonnectionStatus.Text = "Подключено: "+protocol.GetConnectionParametersString();
             }            
         }
 
@@ -47,13 +48,14 @@ namespace MIOConfigurator
             if (protocol.IsConnected)
                 protocol.Disconnect();
             cmdConnect.IsEnabled = true;
-            cmdDisconnect.IsEnabled = false;            
+            cmdDisconnect.IsEnabled = false;
+            СonnectionStatus.Text = "Отключено";
         }
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             if (MessageBoxResult.No ==
-                MessageBox.Show("Выйти из программы?", "Конфигуратор", MessageBoxButton.YesNo, MessageBoxImage.Question))
+                MessageBox.Show("Выйти из программы?", Constants.messageBoxTitle, MessageBoxButton.YesNo, MessageBoxImage.Question))
                 e.Cancel = true;
         }
     }

@@ -10,10 +10,39 @@
                         <Image Height="16" Width="16" Source="Images/connected.png" />
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem x:Name="cmdDisconnect" Header="_Отключиться" Click="CmdDisconnect_OnClick" IsEnabled="False"/>               
+                <MenuItem x:Name="cmdDisconnect" Header="_Отключиться" Click="CmdDisconnect_OnClick" IsEnabled="False"/>
             </MenuItem>
         </Menu>
-        <StackPanel></StackPanel>
+        <StatusBar DockPanel.Dock ="Bottom">
+            <StatusBar.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="100" />
+                        </Grid.ColumnDefinitions>
+                    </Grid>
+                </ItemsPanelTemplate>
+            </StatusBar.ItemsPanel>            
+            <StatusBarItem>
+                <TextBlock x:Name="СonnectionStatus" Text="Отключено"/>
+            </StatusBarItem>
+            <Separator Grid.Column="1" />
+            <StatusBarItem Grid.Column="2">
+                <TextBlock x:Name="СurrentlyProcessed"/>
+            </StatusBarItem>
+            <Separator Grid.Column="3" />
+            <StatusBarItem Grid.Column="4">
+                <ProgressBar x:Name="ProcessingProgress" Value="0" Width="90" Height="16" />
+            </StatusBarItem>
+        </StatusBar>
+        
+        <StackPanel> <!-- here we will change it -->           
+        </StackPanel>        
     </DockPanel>
+
 
 </Window>

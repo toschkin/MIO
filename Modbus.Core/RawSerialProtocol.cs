@@ -126,6 +126,12 @@ namespace Modbus.Core
         #endregion
 
         #region Connect/Disconnect procedures
+
+        public string GetConnectionParametersString()
+        {
+            return String.Format("{0} {1} {2}{3}{4}", _comPort.PortName, _comPort.BaudRate, _comPort.DataBits, _comPort.Parity.ToString()[0],(int)_comPort.StopBits);
+        }
+
         public bool Connect(string portName, int baudRate=9600, int byteSize = 8, StopBits stopBits=StopBits.Two, Parity parity=Parity.None, int timeout=1000,Handshake handShake=Handshake.None)
         {
             if (_comPort.IsOpen)

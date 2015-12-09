@@ -8,6 +8,7 @@ namespace MIOConfigurator
 {
     public class Constants
     {
-        public const string registryAppNode = @"SOFTWARE\MIOConfig";   
+        public const string registryAppNode = @"SOFTWARE\MIOConfig";
+        public const string messageBoxTitle = @"Настройка МВВ";   
     }
 }
