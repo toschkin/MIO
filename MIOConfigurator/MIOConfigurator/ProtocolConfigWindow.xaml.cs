@@ -17,16 +17,14 @@ using Microsoft.Win32;
 using Modbus.Core;
 
 namespace MIOConfigurator
-{
-
-    
+{    
     /// <summary>
     /// Логика взаимодействия для ProtocolConfigWindow.xaml
     /// </summary>
     public partial class ProtocolConfigWindow : Window
     {
-        ModbusRtuProtocol _protocol = new ModbusRtuProtocol();
-        ModbusCommunicationParameters currentCommunicationParameters = new ModbusCommunicationParameters(Constants.registryAppNode);
+        readonly ModbusRtuProtocol _protocol = new ModbusRtuProtocol();
+        readonly ModbusCommunicationParameters currentCommunicationParameters = new ModbusCommunicationParameters(Constants.registryAppNode);
         public ProtocolConfigWindow()
         {
             InitializeComponent();            
@@ -41,20 +39,20 @@ namespace MIOConfigurator
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             
-            if (_protocol.Connect((string)comPorts.SelectedItem, (int)comSpeed.SelectedItem, (Byte)comByteSize.SelectedItem, (StopBits)comStopBits.SelectedItem, (Parity)comParity.SelectedItem, Convert.ToInt32(modbusTimeout.Text)) == false)
+            if (_protocol.Connect((string)ComPorts.SelectedItem, (int)ComSpeed.SelectedItem, (Byte)ComByteSize.SelectedItem, (StopBits)ComStopBits.SelectedItem, (Parity)ComParity.SelectedItem, Convert.ToInt32(ModbusTimeout.Text)) == false)
             {
-                MessageBox.Show("Не удалось подключиться на выбранный СОМ-порт: "+comPorts.Text);
+                MessageBox.Show("Не удалось подключиться на выбранный СОМ-порт: "+ComPorts.Text);
                 return;
             }
-            _protocol.SilentInterval = Convert.ToInt32(modbusSilentInterval.Text);
+            _protocol.SilentInterval = Convert.ToInt32(ModbusSilentInterval.Text);
 
-            currentCommunicationParameters.DefaultComPort = (string)comPorts.SelectedItem;
-            currentCommunicationParameters.DefaultComSpeed = (int)comSpeed.SelectedItem;
-            currentCommunicationParameters.DefaultComByteSize = (Byte)comByteSize.SelectedItem;
-            currentCommunicationParameters.DefaultComParity = (Parity) comParity.SelectedItem;
-            currentCommunicationParameters.DefaultComStopBits = (StopBits) comStopBits.SelectedItem;
-            currentCommunicationParameters.DefaultModbusTimeOut = Convert.ToInt32(modbusTimeout.Text);
-            currentCommunicationParameters.DefaultModbusSilentInterval = Convert.ToInt32(modbusSilentInterval.Text);
+            currentCommunicationParameters.DefaultComPort = (string)ComPorts.SelectedItem;
+            currentCommunicationParameters.DefaultComSpeed = (int)ComSpeed.SelectedItem;
+            currentCommunicationParameters.DefaultComByteSize = (Byte)ComByteSize.SelectedItem;
+            currentCommunicationParameters.DefaultComParity = (Parity) ComParity.SelectedItem;
+            currentCommunicationParameters.DefaultComStopBits = (StopBits) ComStopBits.SelectedItem;
+            currentCommunicationParameters.DefaultModbusTimeOut = Convert.ToInt32(ModbusTimeout.Text);
+            currentCommunicationParameters.DefaultModbusSilentInterval = Convert.ToInt32(ModbusSilentInterval.Text);
             DialogResult = true;            
         }
 
@@ -65,27 +63,27 @@ namespace MIOConfigurator
 
         private void ProtocolConfig_Loaded(object sender, RoutedEventArgs e)
         {
-            comPorts.ItemsSource = ModbusCommunicationParameters.AvailableComPorts;
-            comPorts.SelectedItem = currentCommunicationParameters.DefaultComPort;
+            ComPorts.ItemsSource = ModbusCommunicationParameters.AvailableComPorts;
+            ComPorts.SelectedItem = currentCommunicationParameters.DefaultComPort;
 
-            comSpeed.ItemsSource = from speed in ModbusCommunicationParameters.AvailableComSpeeds where speed >=1200 && speed <=57600 select speed;
-            comSpeed.SelectedItem = currentCommunicationParameters.DefaultComSpeed; 
+            ComSpeed.ItemsSource = from speed in ModbusCommunicationParameters.AvailableComSpeeds where speed >= 1200 && speed <= 57600 select speed;
+            ComSpeed.SelectedItem = currentCommunicationParameters.DefaultComSpeed; 
             
-            comByteSize.ItemsSource = from size in ModbusCommunicationParameters.AvailableComByteSizes where size ==8  select size;
-            comByteSize.SelectedItem = currentCommunicationParameters.DefaultComByteSize;
-
-            comParity.ItemsSource = from parity in ModbusCommunicationParameters.AvailableComParities
+            ComByteSize.ItemsSource = from size in ModbusCommunicationParameters.AvailableComByteSizes where size ==8  select size;
+            ComByteSize.SelectedItem = currentCommunicationParameters.DefaultComByteSize;
+            
+            ComParity.ItemsSource = from parity in ModbusCommunicationParameters.AvailableComParities
                 where parity >= Parity.None && parity <= Parity.Even
                 select parity;
-            comParity.SelectedItem = currentCommunicationParameters.DefaultComParity;
+            ComParity.SelectedItem = currentCommunicationParameters.DefaultComParity;
 
-            comStopBits.ItemsSource = from bits in ModbusCommunicationParameters.AvailableComStopBits
+            ComStopBits.ItemsSource = from bits in ModbusCommunicationParameters.AvailableComStopBits
                 where bits == StopBits.One || bits == StopBits.Two
                 select bits;
-            comStopBits.SelectedItem = currentCommunicationParameters.DefaultComStopBits;
+            ComStopBits.SelectedItem = currentCommunicationParameters.DefaultComStopBits;
 
-            modbusTimeout.Text = currentCommunicationParameters.DefaultModbusTimeOut.ToString();
-            modbusSilentInterval.Text = currentCommunicationParameters.DefaultModbusSilentInterval.ToString();
+            ModbusTimeout.Text = currentCommunicationParameters.DefaultModbusTimeOut.ToString();
+            ModbusSilentInterval.Text = currentCommunicationParameters.DefaultModbusSilentInterval.ToString();
         }
     }
 }

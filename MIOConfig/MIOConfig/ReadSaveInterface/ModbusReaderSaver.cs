@@ -169,7 +169,7 @@ namespace MIOConfig
             return ReaderSaverErrors.CodeComPortNotConnected;
         }
 
-        private ReaderSaverErrors CheckDeviceHeaderValidityAndInitConfiguration(DeviceConfiguration configuration, bool checkOnly = false)
+        internal ReaderSaverErrors CheckDeviceHeaderValidityAndInitConfiguration(DeviceConfiguration configuration, bool checkOnly = false)
         {
             List<object> listOfConfigurationItems = new List<object>();
             DeviceHeader tempHeader = new DeviceHeader();

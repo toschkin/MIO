@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Microsoft.Win32;
+using MIOConfig.PresentationLayer;
 using Modbus.Core;
 using MIOConfigurator;
 
@@ -23,7 +24,7 @@ namespace MIOConfigurator
     /// </summary>
     public partial class MainWindow : Window
     {
-        ModbusRtuProtocol protocol = new ModbusRtuProtocol();
+        readonly ModbusRtuProtocol protocol = new ModbusRtuProtocol();
         public MainWindow()
         {
             InitializeComponent();   
@@ -38,7 +39,7 @@ namespace MIOConfigurator
             if (connectionConfigWindow.ShowDialog() == true)
             {                
                 cmdConnect.IsEnabled = false;
-                cmdDisconnect.IsEnabled = true;
+                cmdDisconnect.IsEnabled = true;               
                 СonnectionStatus.Text = "Подключено: "+protocol.GetConnectionParametersString();
             }            
         }
@@ -49,7 +50,8 @@ namespace MIOConfigurator
                 protocol.Disconnect();
             cmdConnect.IsEnabled = true;
             cmdDisconnect.IsEnabled = false;
-            СonnectionStatus.Text = "Отключено";
+            СonnectionStatus.Text = "Отключено";            
+            //Todo need to reset list
         }
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -57,6 +59,11 @@ namespace MIOConfigurator
             if (MessageBoxResult.No ==
                 MessageBox.Show("Выйти из программы?", Constants.messageBoxTitle, MessageBoxButton.YesNo, MessageBoxImage.Question))
                 e.Cancel = true;
+        }
+
+        private void CmdFindDevices_OnClick(object sender, RoutedEventArgs e)
+        {
+            //DeviceFinder finder
         }
     }
 }
