@@ -84,9 +84,16 @@
     </ApplicationDefinition>
     <Compile Include="Data\Constants.cs" />
     <Compile Include="Data\ModbusCommunicationParameters.cs" />
+    <Compile Include="DevicesFinderConfigWindow.xaml.cs">
+      <DependentUpon>DevicesFinderConfigWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ProtocolConfigWindow.xaml.cs">
       <DependentUpon>ProtocolConfigWindow.xaml</DependentUpon>
     </Compile>
+    <Page Include="DevicesFinderConfigWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

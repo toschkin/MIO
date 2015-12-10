@@ -24,12 +24,15 @@ namespace MIOConfigurator
     /// </summary>
     public partial class MainWindow : Window
     {
-        readonly ModbusRtuProtocol protocol = new ModbusRtuProtocol();
+        private ModbusRtuProtocol protocol;
+        private DeviceFinder finder;
         public MainWindow()
         {
             InitializeComponent();   
             if(Registry.CurrentUser.OpenSubKey(Constants.registryAppNode) == null)
                 Registry.CurrentUser.CreateSubKey(Constants.registryAppNode);
+            protocol = new ModbusRtuProtocol();
+            finder = new DeviceFinder(protocol);            
         }
 
         private void CmdConnect_OnClick(object sender, RoutedEventArgs e)
@@ -63,7 +66,12 @@ namespace MIOConfigurator
 
         private void CmdFindDevices_OnClick(object sender, RoutedEventArgs e)
         {
-            //DeviceFinder finder
+            DevicesFinderConfigWindow finderConfigWindow = new DevicesFinderConfigWindow(finder);
+            finderConfigWindow.Owner = this;
+            if (finderConfigWindow.ShowDialog() == true)
+            {
+                //todo start searching
+            }
         }
     }
 }

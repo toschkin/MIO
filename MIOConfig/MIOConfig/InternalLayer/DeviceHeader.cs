@@ -182,6 +182,12 @@ namespace MIOConfig.InternalLayer
 
         /// <summary>
         /// Holding regs|addr.: 1004|count: 1| R/O
+        /// </summary>  
+        [ModbusProperty(Access = ModbusRegisterAccessType.AccessRead)]
+        public UInt16 DeviceVersion{get;set;}
+
+        /// <summary>
+        /// Holding regs|addr.: 1005|count: 1| R/O
         /// </summary> 
         [ModbusProperty(Access = ModbusRegisterAccessType.AccessRead)]       
         public UInt16 DeviceHeaderCrc16 { get; set; }
@@ -201,6 +207,8 @@ namespace MIOConfig.InternalLayer
                 BitConverter.GetBytes(DeviceUserRegistersCount).ElementAt(0),
                 BitConverter.GetBytes(DeviceMaximumModbusMasterRequestsToSubDeviceCount).ElementAt(1),
                 BitConverter.GetBytes(DeviceMaximumModbusMasterRequestsToSubDeviceCount).ElementAt(0),
+                BitConverter.GetBytes(DeviceVersion).ElementAt(1),
+                BitConverter.GetBytes(DeviceVersion).ElementAt(0),
                 //need to ask gerasimchuk and test
                 BitConverter.GetBytes(DeviceHeaderCrc16).ElementAt(0),
                 BitConverter.GetBytes(DeviceHeaderCrc16).ElementAt(1)

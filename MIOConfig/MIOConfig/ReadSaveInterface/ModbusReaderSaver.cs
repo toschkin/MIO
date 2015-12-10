@@ -169,6 +169,28 @@ namespace MIOConfig
             return ReaderSaverErrors.CodeComPortNotConnected;
         }
 
+        internal ReaderSaverErrors ReadDeviceHeader(DeviceConfiguration configuration)
+        {
+            List<object> listOfConfigurationItems = new List<object>();
+            DeviceHeader tempHeader = new DeviceHeader();
+            listOfConfigurationItems.Add(tempHeader);
+
+
+            ReaderSaverErrors retCode = PerformReading(ref listOfConfigurationItems);
+            if (retCode != ReaderSaverErrors.CodeOk)
+                return retCode;
+
+            if (listOfConfigurationItems.Count < 1)
+                return ReaderSaverErrors.CodeUnknownError;
+
+            if (!tempHeader.IsValidHeader())
+                    return ReaderSaverErrors.CodeInvalidDeviceHeader;
+
+            configuration.HeaderFields.DeviceVersion = tempHeader.DeviceVersion;
+                                           
+            return ReaderSaverErrors.CodeOk;
+        }
+
         internal ReaderSaverErrors CheckDeviceHeaderValidityAndInitConfiguration(DeviceConfiguration configuration, bool checkOnly = false)
         {
             List<object> listOfConfigurationItems = new List<object>();
