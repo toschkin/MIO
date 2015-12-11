@@ -21,7 +21,31 @@ namespace MIOConfig
 
         public Byte ModbusAddress { get; set; }
 
-        public string ShortDescription { get { return String.Format("Адрес: {0} (Ver.{1})", ModbusAddress, Configuration.HeaderFields.DeviceVersionString); } }
+        public string ShortDescription
+        {
+            get
+            {
+                StringBuilder resultString = new StringBuilder();               
+                resultString.AppendFormat("Адрес: {0} (Ver.{1})", ModbusAddress, Configuration.HeaderFields.DeviceVersionString);
+                if (Configuration.HeaderFields.ModuleDI)
+                    resultString.Append("\nМодуль ТС");
+                if (Configuration.HeaderFields.ModuleDO)
+                    resultString.Append("\nМодуль ТУ");
+                if (Configuration.HeaderFields.ModuleModbusMaster)
+                    resultString.Append("\nModbus(master)");                                
+                if (Configuration.HeaderFields.ModuleRouter)
+                    resultString.Append("\nРетранслятор");
+                return resultString.ToString();
+            }
+        }
+
+        public string FullDescription
+        {
+            get
+            {
+                return ToString();
+            }
+        }
 
         public override string ToString()
         {

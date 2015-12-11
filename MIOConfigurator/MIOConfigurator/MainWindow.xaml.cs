@@ -28,14 +28,16 @@ namespace MIOConfigurator
     /// </summary>
     public partial class MainWindow : Window
     {
-        private ModbusRtuProtocol _modbusRtuProtocol;
-        private DeviceFinder _deviceFinder;
-        private List<Device> _devices;
-        private BackgroundWorker searchBackgroundWorker = new BackgroundWorker();
+        private ModbusRtuProtocol _modbusRtuProtocol;        
+        private List<Device> _devices;        
 
-        private bool _needToDisconnectOnSearchCompleted;
+        
         #region Search
+        private BackgroundWorker searchBackgroundWorker = new BackgroundWorker();
+        private bool _needToDisconnectOnSearchCompleted;
         public bool SearchInProgress { get; set; }
+        private DeviceFinder _deviceFinder;
+
         private void SearchDevices(object sender, DoWorkEventArgs e)
         {
             BackgroundWorker worker = sender as BackgroundWorker;
@@ -51,7 +53,7 @@ namespace MIOConfigurator
                 Device device = _deviceFinder.FindDevice(address);
                 //todo unrem for test 
                 device = new Device();
-                device.ModbusAddress = address;
+                device.ModbusAddress = address;                
                 ///////////////////////
                 if (device != null)                                              
                     worker.ReportProgress(address, device);                
@@ -64,6 +66,7 @@ namespace MIOConfigurator
             if (e.UserState is Device)
             {
                 _devices.Add((Device) e.UserState);
+                DevicesList.Items.Add((Device) e.UserState);                
                 СurrentlyProcessed.Text = String.Format("Поиск устройств... (найдено {0})",_devices.Count);               
             }
         }
@@ -107,6 +110,7 @@ namespace MIOConfigurator
             _needToDisconnectOnSearchCompleted = false;
             //Todo need to reset list
         }
+
         public MainWindow()
         {
             InitializeComponent();   
