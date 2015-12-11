@@ -52,7 +52,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="Tech.CodeGeneration">
-      <HintPath>..\..\..\..\..\C#\CodeGenerator\CodeGeneration\bin\Release\Tech.CodeGeneration.dll</HintPath>
+      <HintPath>..\CodeGeneration\bin\Release\Tech.CodeGeneration.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

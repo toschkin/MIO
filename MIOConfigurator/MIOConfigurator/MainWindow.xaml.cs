@@ -29,13 +29,14 @@ namespace MIOConfigurator
     public partial class MainWindow : Window
     {
         private ModbusRtuProtocol _modbusRtuProtocol;        
-        private List<Device> _devices;        
+        private List<Device> _devices;
 
+        private BackgroundWorker mainWindowBackgroundWorker = new BackgroundWorker();
         
-        #region Search
-        private BackgroundWorker searchBackgroundWorker = new BackgroundWorker();
+        #region Search        
         private bool _needToDisconnectOnSearchCompleted;
         public bool SearchInProgress { get; set; }
+        public bool SearchStopped { get { return !SearchInProgress; } }
         private DeviceFinder _deviceFinder;
 
         private void SearchDevices(object sender, DoWorkEventArgs e)
@@ -46,8 +47,7 @@ namespace MIOConfigurator
             
             _devices.Clear();            
             for (Byte address = _deviceFinder.StartSlaveAddress; address <= _deviceFinder.EndSlaveAddress; address++)
-            {
-                worker.ReportProgress(address);
+            {                
                 if (worker.CancellationPending)
                     break;
                 Device device = _deviceFinder.FindDevice(address);
@@ -56,7 +56,9 @@ namespace MIOConfigurator
                 device.ModbusAddress = address;                
                 ///////////////////////
                 if (device != null)                                              
-                    worker.ReportProgress(address, device);                
+                    worker.ReportProgress(address, device);
+                else
+                    worker.ReportProgress(address);
             }
         }
 
@@ -79,6 +81,9 @@ namespace MIOConfigurator
             CmdAddDeviceToList.IsEnabled = true;
             ProcessingProgress.Value = 0;
             СurrentlyProcessed.Text = String.Format("Поиск устройств окончен. (найдено {0})",_devices.Count);
+            mainWindowBackgroundWorker.DoWork -= SearchDevices;
+            mainWindowBackgroundWorker.RunWorkerCompleted -= SearchCompleted;
+            mainWindowBackgroundWorker.ProgressChanged -= SearchProgressChanged;
             if(_needToDisconnectOnSearchCompleted)
                 Disconnect();
         }
@@ -91,7 +96,7 @@ namespace MIOConfigurator
                     MessageBox.Show("Выполняется поиск устройств.\r\nОстановить процесс поиска?", Constants.messageBoxTitle, MessageBoxButton.YesNo,
                         MessageBoxImage.Question))
                 {
-                    searchBackgroundWorker.CancelAsync();
+                    mainWindowBackgroundWorker.CancelAsync();
                     return true;
                 }
             }
@@ -120,7 +125,7 @@ namespace MIOConfigurator
             _deviceFinder = new DeviceFinder(_modbusRtuProtocol);  
             _devices = new List<Device>();
             SearchInProgress = false;
-            _needToDisconnectOnSearchCompleted = false;
+            _needToDisconnectOnSearchCompleted = false;            
         }
 
         private void CmdConnect_OnClick(object sender, RoutedEventArgs e)
@@ -155,7 +160,7 @@ namespace MIOConfigurator
             else
             {
                 if(SearchInProgress)
-                    searchBackgroundWorker.CancelAsync();
+                    mainWindowBackgroundWorker.CancelAsync();
                 Disconnect();
             }
                 
@@ -168,6 +173,7 @@ namespace MIOConfigurator
             if (finderConfigWindow.ShowDialog() == true)
             {                
                 //todo ask user to save all changes if present
+                DevicesList.Items.Clear();
                 SearchInProgress = true;
                 CmdFindDevices.IsEnabled = false;
                 CmdAddDeviceToList.IsEnabled = false;
@@ -175,12 +181,12 @@ namespace MIOConfigurator
                 СurrentlyProcessed.Text = "Поиск устройств...";
                 ProcessingProgress.Minimum = _deviceFinder.StartSlaveAddress;
                 ProcessingProgress.Maximum = _deviceFinder.EndSlaveAddress;
-                searchBackgroundWorker.WorkerReportsProgress = true;
-                searchBackgroundWorker.DoWork += SearchDevices;
-                searchBackgroundWorker.RunWorkerCompleted += SearchCompleted;
-                searchBackgroundWorker.ProgressChanged += SearchProgressChanged;
-                searchBackgroundWorker.WorkerSupportsCancellation = true;                
-                searchBackgroundWorker.RunWorkerAsync();                   
+                mainWindowBackgroundWorker.WorkerReportsProgress = true;
+                mainWindowBackgroundWorker.DoWork += SearchDevices;
+                mainWindowBackgroundWorker.RunWorkerCompleted += SearchCompleted;
+                mainWindowBackgroundWorker.ProgressChanged += SearchProgressChanged;
+                mainWindowBackgroundWorker.WorkerSupportsCancellation = true;                
+                mainWindowBackgroundWorker.RunWorkerAsync();                   
             }
         }
 

@@ -384,7 +384,7 @@ namespace Modbus.UnitTests
         #endregion
     }
 
-    class ModbusRtuProtocolTest : ModbusRtuProtocol
+    /*class ModbusRtuProtocolTest : ModbusRtuProtocol
     {
         /*const String portNameForTest = "COM6";               
         [Test]
@@ -474,7 +474,7 @@ namespace Modbus.UnitTests
             object[] modbusTestMap = listDataPoints.ToArray();
             ModbusErrorCode code = prot.ReadRegisters(3, 1, 0, ref modbusTestMap);            
             prot.Disconnect();
-        }*/
+        }
         [Test]              
         public void AddCRC_ShouldAddCRCToPaccket()
         {
@@ -754,7 +754,7 @@ namespace Modbus.UnitTests
             object[] rtuData = new object[2];
             ProcessAnalogData(packetRawData, ref rtuData,0, (UInt16)rtuData.Length);
         }
-    }
+    }*/
 
     class SizeofHelperTest
     {
@@ -1326,7 +1326,7 @@ namespace Modbus.UnitTests
             Assert.AreEqual(2, arr2[16]);
         }
         [Test]
-        public void GetObjectsHighestByte_ShouldReturnApropriateByte()
+        public void GetModbusObjectsHighestByte_ShouldReturnApropriateByte()
         {
             
             //0xE6, 0x66, 0x42, 0xF6, //123.45       
@@ -1335,17 +1335,17 @@ namespace Modbus.UnitTests
             object[] arrayValues = { (Byte)0x10, (SByte)0x11, (Int16)0x1200, (UInt16)0x13BB, (UInt32)0x14AABBCC, (Int32)0x15000000, (Single)123.45, 
                                        (UInt64)0x1600AACCDDEEFFDD, (Int64)0x1700AACCDDEEFFDD, (Double)12345.67891, (Decimal)1234567890.123456789m };
 
-            Assert.AreEqual(0x10, ModbusDataMappingHelper.GetObjectsHighestByte(arrayValues[0]));
-            Assert.AreEqual(0x11, ModbusDataMappingHelper.GetObjectsHighestByte(arrayValues[1]));
-            Assert.AreEqual(0x12, ModbusDataMappingHelper.GetObjectsHighestByte(arrayValues[2]));
-            Assert.AreEqual(0x13, ModbusDataMappingHelper.GetObjectsHighestByte(arrayValues[3]));
-            Assert.AreEqual(0x14, ModbusDataMappingHelper.GetObjectsHighestByte(arrayValues[4]));
-            Assert.AreEqual(0x15, ModbusDataMappingHelper.GetObjectsHighestByte(arrayValues[5]));
-            Assert.AreEqual(0x42, ModbusDataMappingHelper.GetObjectsHighestByte(arrayValues[6]));
-            Assert.AreEqual(0x16, ModbusDataMappingHelper.GetObjectsHighestByte(arrayValues[7]));
-            Assert.AreEqual(0x17, ModbusDataMappingHelper.GetObjectsHighestByte(arrayValues[8]));
-            Assert.AreEqual(0x40, ModbusDataMappingHelper.GetObjectsHighestByte(arrayValues[9]));
-            Assert.AreEqual(0x00, ModbusDataMappingHelper.GetObjectsHighestByte(arrayValues[10]));            
+            Assert.AreEqual(0x10, ModbusDataMappingHelper.GetModbusObjectsHighestByte(arrayValues[0]));
+            Assert.AreEqual(0x11, ModbusDataMappingHelper.GetModbusObjectsHighestByte(arrayValues[1]));
+            Assert.AreEqual(0x12, ModbusDataMappingHelper.GetModbusObjectsHighestByte(arrayValues[2]));
+            Assert.AreEqual(0x13, ModbusDataMappingHelper.GetModbusObjectsHighestByte(arrayValues[3]));
+            Assert.AreEqual(0x14, ModbusDataMappingHelper.GetModbusObjectsHighestByte(arrayValues[4]));
+            Assert.AreEqual(0x15, ModbusDataMappingHelper.GetModbusObjectsHighestByte(arrayValues[5]));
+            Assert.AreEqual(0x42, ModbusDataMappingHelper.GetModbusObjectsHighestByte(arrayValues[6]));
+            Assert.AreEqual(0x16, ModbusDataMappingHelper.GetModbusObjectsHighestByte(arrayValues[7]));
+            Assert.AreEqual(0x17, ModbusDataMappingHelper.GetModbusObjectsHighestByte(arrayValues[8]));
+            Assert.AreEqual(0x40, ModbusDataMappingHelper.GetModbusObjectsHighestByte(arrayValues[9]));
+            Assert.AreEqual(0x00, ModbusDataMappingHelper.GetModbusObjectsHighestByte(arrayValues[10]));            
         }
     }
    
