@@ -19,6 +19,10 @@ namespace MIOConfig
             DOModule = null;
         }
 
+        public Byte ModbusAddress { get; set; }
+
+        public string ShortDescription { get { return String.Format("Адрес: {0} (Ver.{1})", ModbusAddress, Configuration.HeaderFields.DeviceVersionString); } }
+
         public override string ToString()
         {
             return Configuration.ToString();

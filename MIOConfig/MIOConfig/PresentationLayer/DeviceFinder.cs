@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 using Modbus.Core;
 
 namespace MIOConfig.PresentationLayer
-{
+{   
     public class DeviceFinder
     {
-        private IModbus _protocol;   
-        public DeviceFinder(IModbus protocol,Byte startSlaveAddress = 1,Byte endSlaveAddress = 247, UInt16 targetVersion=0)
+        private IModbus _protocol;
+        public DeviceFinder(IModbus protocol, Byte startSlaveAddress = 1, Byte endSlaveAddress = 247, UInt16 targetVersion = 0)
         {
             _protocol = protocol;
             StartSlaveAddress = startSlaveAddress;
@@ -21,7 +21,8 @@ namespace MIOConfig.PresentationLayer
         }
 
         private Byte _startSlaveAddress;
-        public Byte StartSlaveAddress {
+        public Byte StartSlaveAddress
+        {
             get { return _startSlaveAddress; }
             set
             {
@@ -50,29 +51,39 @@ namespace MIOConfig.PresentationLayer
         /// Version of Device to search, 0 - all versions
         /// </summary>
         public UInt16 TargetVersion { get; set; }
-            
+
+        public Device FindDevice(Byte address)
+        {            
+            ModbusReaderSaver reader = new ModbusReaderSaver(_protocol);            
+            Device device = new Device();
+            device.ModbusAddress = address;
+            reader.SlaveAddress = address;
+            if (reader.CheckDeviceHeaderValidityAndInitConfiguration(device.Configuration, true) ==
+                ReaderSaverErrors.CodeOk)
+            {
+                if (TargetVersion != 0)
+                {
+                    if (TargetVersion == device.Configuration.HeaderFields.DeviceVersion)
+                        return device;
+                }
+                else
+                    return device;
+            }
+            else            
+                return null;
+            return null;     
+        }
+
         public List<Device> FindDevices()
         {
-            List<Device> returnedDevices = new List<Device>();
-            ModbusReaderSaver reader = new ModbusReaderSaver(_protocol);
+            List<Device> returnedDevices = new List<Device>();           
             for (Byte address = StartSlaveAddress; address <= EndSlaveAddress; address++)
             {
-                Device device = new Device();
-                reader.SlaveAddress = address;
-                if (reader.CheckDeviceHeaderValidityAndInitConfiguration(device.Configuration, true) ==
-                    ReaderSaverErrors.CodeOk)
-                {
-                    if (TargetVersion != 0)
-                    {
-                        if(TargetVersion == device.Configuration.HeaderFields.DeviceVersion)
-                            returnedDevices.Add(device);
-                    }
-                    else
-                        returnedDevices.Add(device);
-                }
-                    
+                Device device = FindDevice(address);
+                if(device != null)
+                    returnedDevices.Add(device);
             }
             return returnedDevices;
         }
-    }
+    }    
 }

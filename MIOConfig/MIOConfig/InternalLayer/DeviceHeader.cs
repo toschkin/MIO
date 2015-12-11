@@ -218,6 +218,9 @@ namespace MIOConfig.InternalLayer
                 return true;
             return false;
         }
+
+        public string DeviceVersionString { get { return DeviceVersion.ToString(); } }
+
         public override string ToString()
         {
             StringBuilder resultString = new StringBuilder();
@@ -229,7 +232,7 @@ namespace MIOConfig.InternalLayer
             resultString.AppendFormat("\tМодуль Modbus slave - {0}\r\n", (ModuleModbusSlave) ? "есть" : "нет");
 
             resultString.AppendFormat("Основные параметры:\r\n");
-            resultString.AppendFormat("\tВерсия прошивки: {0}\r\n", DeviceVersion);
+            resultString.AppendFormat("\tВерсия прошивки: {0}\r\n", DeviceVersionString);
             resultString.AppendFormat("\tКоличество портов UART: {0}\r\n",DeviceUartChannelsCount);
             resultString.AppendFormat("\tКоличество польз.регистров: {0}\r\n", DeviceUserRegistersCount);
             resultString.AppendFormat("\tМакс кол-во запросов Modbus: {0}\r\n", DeviceMaximumModbusMasterRequestsToSubDeviceCount);

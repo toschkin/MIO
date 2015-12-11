@@ -2,7 +2,7 @@
 
 namespace MIOConfig
 {
-    public delegate void ErrorTracer(string errorMessage);
+    public delegate void ErrorTracer(string errorMessage);    
 
     public static class Definitions
     {
