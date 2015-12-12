@@ -34,15 +34,20 @@ namespace MIOConfigurator
 
         private void OkButton_Click(object sender, RoutedEventArgs e)
         {
-            if (SearchByAdresses.IsChecked == false)
+            if (SearchAllAdresses.IsChecked == true)
             {
                 _finder.StartSlaveAddress = 1;
                 _finder.EndSlaveAddress = 247;                
             }
-            else
+            else if (SearchConcreteAdress.IsChecked == true)
+            {
+                _finder.StartSlaveAddress = Convert.ToByte(SlaveAddress.Text);
+                _finder.EndSlaveAddress = Convert.ToByte(SlaveAddress.Text);                                
+            }
+            else if (SearchByAdresses.IsChecked == true)            
             {
                 _finder.StartSlaveAddress = Convert.ToByte(StartSlaveAddress.Text);
-                _finder.EndSlaveAddress = Convert.ToByte(EndSlaveAddress.Text);                               
+                _finder.EndSlaveAddress = Convert.ToByte(EndSlaveAddress.Text);    
             }
             if (SerchOnlyConcreteVersion.IsChecked == true)
             {

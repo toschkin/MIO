@@ -187,6 +187,7 @@ namespace MIOConfig
                     return ReaderSaverErrors.CodeInvalidDeviceHeader;
 
             configuration.HeaderFields.DeviceVersion = tempHeader.DeviceVersion;
+            configuration.HeaderFields.DeviceConsistenceRegister = tempHeader.DeviceConsistenceRegister;
                                            
             return ReaderSaverErrors.CodeOk;
         }

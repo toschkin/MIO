@@ -58,7 +58,7 @@ namespace MIOConfig.PresentationLayer
             Device device = new Device();
             device.ModbusAddress = address;
             reader.SlaveAddress = address;
-            if (reader.CheckDeviceHeaderValidityAndInitConfiguration(device.Configuration, true) ==
+            if (reader.ReadDeviceHeader(device.Configuration) ==
                 ReaderSaverErrors.CodeOk)
             {
                 if (TargetVersion != 0)

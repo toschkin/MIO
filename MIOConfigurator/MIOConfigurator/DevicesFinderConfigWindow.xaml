@@ -19,28 +19,34 @@
             <RowDefinition Height="0.5*"/>
             <RowDefinition Height="0.5*"/>
             <RowDefinition Height="0.5*"/>
-            <RowDefinition Height="0.5*"/>            
+            <RowDefinition Height="0.5*"/>
             <RowDefinition Height="0.7*"/>
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Column="0" Grid.Row ="1" Grid.ColumnSpan="6">
-            <RadioButton GroupName="SearchType" Content="Искать все устройства на магистрали" IsChecked="True" Margin="20,10,10,0"/>
-            <RadioButton x:Name ="SearchByAdresses" GroupName="SearchType" Content="Искать устройства с адресами:" Margin="20,10,10,0"/>
+            <RadioButton x:Name ="SearchAllAdresses" GroupName="SearchType" Content="Искать все устройства на магистрали" IsChecked="True" Margin="20,10,10,0"/>
+            <RadioButton x:Name ="SearchByAdresses" GroupName="SearchType" Content="Искать все устройства в диапазоне адресов:" Margin="20,10,10,0"/>
         </StackPanel>
-        <Label Grid.Column="0" Grid.Row ="2" Content="от:" HorizontalAlignment="Right"></Label>
-        <TextBox x:Name ="StartSlaveAddress" Grid.Column="1" HorizontalAlignment="Stretch" Height="Auto" Margin="5,5,0,0" Grid.Row="2" TextWrapping="Wrap" Text="1" VerticalAlignment="Top"
+        <Label Grid.Column="0" Grid.Row ="2" Content="от:" HorizontalAlignment="Right" VerticalAlignment="Top"></Label>
+        <TextBox x:Name ="StartSlaveAddress" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="Auto" Margin="5,0,30,0" Grid.Row="2" TextWrapping="Wrap" Text="1"
                 IsEnabled="{Binding ElementName=SearchByAdresses, Path=IsChecked}"                
                 wpf:TextBoxMaskBehavior.Mask="Integer"
         		wpf:TextBoxMaskBehavior.MinimumValue="1"
         		wpf:TextBoxMaskBehavior.MaximumValue="247"/>
-        <Label Grid.Column="0" Grid.Row ="3" Content="до:" HorizontalAlignment="Right"/>
-        <TextBox x:Name ="EndSlaveAddress" Grid.Column="1" HorizontalAlignment="Stretch" Height="Auto" Margin="5,5,0,0" Grid.Row="3" TextWrapping="Wrap" Text="247" VerticalAlignment="Top" 
+        <Label Grid.Column="0" Grid.Row ="3" Content="до:" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+        <TextBox x:Name ="EndSlaveAddress" Grid.Column="1" HorizontalAlignment="Stretch" Height="Auto" Margin="5,0,30,0" Grid.Row="3" TextWrapping="Wrap" Text="247" VerticalAlignment="Top" 
                 IsEnabled="{Binding ElementName=SearchByAdresses, Path=IsChecked}"
                 wpf:TextBoxMaskBehavior.Mask="Integer"
         		wpf:TextBoxMaskBehavior.MinimumValue="1"
         		wpf:TextBoxMaskBehavior.MaximumValue="247"/>
-        <CheckBox x:Name="SerchOnlyConcreteVersion" Grid.Column="0" Grid.Row ="4" Grid.ColumnSpan="4" Margin="20,5,10,5" Content="Искать устройства только версии:"></CheckBox>
-        <TextBox x:Name ="ConcreteVersion" Grid.Column="3" Grid.Row="4" Grid.ColumnSpan="2"  HorizontalAlignment="Stretch" Height="Auto" Margin="5,5,5,0" Text="1" VerticalAlignment="Top"
+        <RadioButton x:Name ="SearchConcreteAdress" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" GroupName="SearchType" Content="Искать устройство с адресом:" Margin="20,0,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name ="SlaveAddress" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="Auto" Margin="5,0,0,0" Grid.Row="4" TextWrapping="Wrap" Text="1"
+                IsEnabled="{Binding ElementName=SearchConcreteAdress, Path=IsChecked}"                
+                wpf:TextBoxMaskBehavior.Mask="Integer"
+        		wpf:TextBoxMaskBehavior.MinimumValue="1"
+        		wpf:TextBoxMaskBehavior.MaximumValue="247"/>
+        <CheckBox x:Name="SerchOnlyConcreteVersion" Grid.Column="0" Grid.Row ="5" Grid.ColumnSpan="3" Margin="25,0,10,10" Content="Искать устройства только версии:"></CheckBox>
+        <TextBox x:Name ="ConcreteVersion" Grid.Column="3" Grid.Row="5" Grid.ColumnSpan="2"  HorizontalAlignment="Stretch" Height="Auto" Margin="0,0,30,0" Text="1" VerticalAlignment="Top"
                 IsEnabled="{Binding ElementName=SerchOnlyConcreteVersion, Path=IsChecked}"
                 wpf:TextBoxMaskBehavior.Mask="Integer"
         		wpf:TextBoxMaskBehavior.MinimumValue="1"
@@ -55,6 +61,6 @@
             <Button.Effect>
                 <DropShadowEffect/>
             </Button.Effect>
-        </Button>
+        </Button>        
     </Grid>
 </Window>

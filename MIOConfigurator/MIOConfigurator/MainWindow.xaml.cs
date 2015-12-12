@@ -68,7 +68,8 @@ namespace MIOConfigurator
             if (e.UserState is Device)
             {
                 _devices.Add((Device) e.UserState);
-                DevicesList.Items.Add((Device) e.UserState);                
+                int index = DevicesList.Items.Add((Device) e.UserState);
+                DevicesList.ScrollIntoView((Device)e.UserState);                
                 СurrentlyProcessed.Text = String.Format("Поиск устройств... (найдено {0})",_devices.Count);               
             }
         }
@@ -112,6 +113,7 @@ namespace MIOConfigurator
             CmdDisconnect.IsEnabled = false;
             СonnectionStatus.Text = "Отключено";
             СurrentlyProcessed.Text = "";
+            DevicesList.Items.Clear();
             _needToDisconnectOnSearchCompleted = false;
             //Todo need to reset list
         }
@@ -198,6 +200,34 @@ namespace MIOConfigurator
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {       
                 
+        }
+        
+        private void SlaveConcreteAddress_OnPreviewLostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            if (MainMenu.IsKeyboardFocusWithin)
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void CmdAddDeviceToList_Click(object sender, RoutedEventArgs e)
+        {                           
+            SearchInProgress = true;
+            CmdFindDevices.IsEnabled = false;
+            CmdAddDeviceToList.IsEnabled = false;
+            CmdCancelSearchDevices.IsEnabled = true;
+            СurrentlyProcessed.Text = "Поиск устройства...";
+            _deviceFinder.StartSlaveAddress = Convert.ToByte(SlaveConcreteAddress.Text);
+            _deviceFinder.EndSlaveAddress = Convert.ToByte(SlaveConcreteAddress.Text);
+            _deviceFinder.TargetVersion = 0;
+            ProcessingProgress.Minimum = _deviceFinder.StartSlaveAddress;
+            ProcessingProgress.Maximum = _deviceFinder.EndSlaveAddress;
+            mainWindowBackgroundWorker.WorkerReportsProgress = true;
+            mainWindowBackgroundWorker.DoWork += SearchDevices;
+            mainWindowBackgroundWorker.RunWorkerCompleted += SearchCompleted;
+            mainWindowBackgroundWorker.ProgressChanged += SearchProgressChanged;
+            mainWindowBackgroundWorker.WorkerSupportsCancellation = true;
+            mainWindowBackgroundWorker.RunWorkerAsync();            
         }                             
     }
 }

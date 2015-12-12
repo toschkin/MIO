@@ -12,4 +12,7 @@
     <Style TargetType="{x:Type ComboBox}">
         <Setter Property="Background" Value="{StaticResource GradientThemeBrush}"/>
     </Style>
+    <Style TargetType="{x:Type StackPanel}">
+        <Setter Property="Background" Value="{StaticResource GradientThemeBrush}"/>
+    </Style>
 </ResourceDictionary>

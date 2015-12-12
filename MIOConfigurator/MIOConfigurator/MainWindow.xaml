@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:mioConfig="clr-namespace:MIOConfig;assembly=MIOConfig"
+        xmlns:wpf="clr-namespace:Rubenhak.Common.WPF;assembly=Rubenhak.Common.WPF"
         mc:Ignorable="d"
         Title="Настройка МВВ" Height="600" Width="900" MinHeight="400" MinWidth="700" WindowStartupLocation="CenterScreen" Closing="MainWindow_Closing" Loaded="MainWindow_Loaded">        
     <Window.Resources>                
@@ -18,8 +19,7 @@
             </Setter>
         </Style>
         <Style TargetType="{x:Type MenuItem}" x:Key="ChildMenuStyle">
-            <Setter Property="Background" Value="Lavender">                
-            </Setter>
+            <Setter Property="Background" Value="Lavender"/>                            
         </Style>
         <Style TargetType="{x:Type Menu}">
             <Setter Property="Background">
@@ -33,7 +33,7 @@
         </Style>
     </Window.Resources>
     <DockPanel Background="Lavender">
-        <Menu DockPanel.Dock="Top" IsMainMenu="True" DataContext="MIOConfigurator.MainWindow">
+        <Menu DockPanel.Dock="Top" IsMainMenu="True" DataContext="MIOConfigurator.MainWindow" x:Name="MainMenu">
             <MenuItem Header="_Соединение" Style="{StaticResource ParentMenuStyle}">
                 <MenuItem x:Name="CmdConnect" Header="_Подключиться" Click="CmdConnect_OnClick" Style="{StaticResource ChildMenuStyle}">                    
                     <MenuItem.Icon>
@@ -45,9 +45,18 @@
             </MenuItem>
             <MenuItem Header="_Список устройств" IsEnabled="{Binding ElementName=CmdDisconnect, Path=IsEnabled}" Style="{StaticResource ParentMenuStyle}">
                 <MenuItem x:Name="CmdFindDevices" Header="_Найти устройства..." Click="CmdFindDevices_OnClick" Style="{StaticResource ChildMenuStyle}"/>
-                <MenuItem x:Name="CmdCancelSearchDevices" Header="_Прервать поиск" IsEnabled="False" Click="CmdCancelSearchDevices_OnClick" Style="{StaticResource ChildMenuStyle}"/>
-                <MenuItem x:Name="CmdAddDeviceToList" Header="_Добавить устройство в список..." Style="{StaticResource ChildMenuStyle}"/>
-                <!--Click="CmdAddDevice_OnClick"-->
+                <MenuItem x:Name="CmdCancelSearchDevices" Header="_Прервать поиск" IsEnabled="False" Click="CmdCancelSearchDevices_OnClick" Style="{StaticResource ChildMenuStyle}"/>                
+                <MenuItem x:Name="CmdAddDeviceToList" Background="Lavender" Click="CmdAddDeviceToList_Click">
+                    <MenuItem.Header>
+                        <StackPanel Orientation="Horizontal" Background="Lavender">
+                            <TextBlock Text="Добавить устройство с адресом:" HorizontalAlignment="Stretch" />
+                            <TextBox x:Name="SlaveConcreteAddress" Margin="5,0,0,0" Width="40" Height="Auto"
+                                wpf:TextBoxMaskBehavior.Mask="Integer"
+        		                wpf:TextBoxMaskBehavior.MinimumValue="1"
+                        		wpf:TextBoxMaskBehavior.MaximumValue="247" PreviewLostKeyboardFocus="SlaveConcreteAddress_OnPreviewLostKeyboardFocus"/>
+                        </StackPanel>
+                    </MenuItem.Header>
+                </MenuItem>                               
                 <MenuItem x:Name="CmdDelDeviceFromList" Header="_Удалить устройство из списка" IsEnabled="{Binding ElementName=DevicesList, Path=HasItems}" Style="{StaticResource ChildMenuStyle}"/>
                 <!--Click="CmdDelDeviceFromList_OnClick"-->
                 <MenuItem x:Name="CmdDelAllDevicesFromList" Header="_Очистить список устройств" IsEnabled="{Binding ElementName=DevicesList, Path=HasItems}" Style="{StaticResource ChildMenuStyle}"/>
