@@ -211,7 +211,9 @@ namespace MIOConfigurator
         }
 
         private void CmdAddDeviceToList_Click(object sender, RoutedEventArgs e)
-        {                           
+        {
+            if (String.IsNullOrEmpty(SlaveConcreteAddress.Text))
+                return;
             SearchInProgress = true;
             CmdFindDevices.IsEnabled = false;
             CmdAddDeviceToList.IsEnabled = false;
