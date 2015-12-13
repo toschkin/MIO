@@ -33,7 +33,7 @@
         </Style>
     </Window.Resources>
     <DockPanel Background="Lavender">
-        <Menu DockPanel.Dock="Top" IsMainMenu="True" DataContext="MIOConfigurator.MainWindow" x:Name="MainMenu">
+        <Menu DockPanel.Dock="Top" IsMainMenu="True" DataContext="MIOConfigurator.MainWindow" x:Name="MainMenu" FontSize="12">
             <MenuItem Header="_Соединение" Style="{StaticResource ParentMenuStyle}">
                 <MenuItem x:Name="CmdConnect" Header="_Подключиться" Click="CmdConnect_OnClick" Style="{StaticResource ChildMenuStyle}">                    
                     <MenuItem.Icon>
@@ -60,7 +60,7 @@
                 <MenuItem x:Name="CmdDelDeviceFromList" Header="_Удалить устройство из списка" IsEnabled="{Binding ElementName=DevicesList, Path=HasItems}" Style="{StaticResource ChildMenuStyle}" Click="CmdDelDeviceFromList_OnClick"/>                
                 <MenuItem x:Name="CmdDelAllDevicesFromList" Header="_Очистить список устройств" IsEnabled="{Binding ElementName=DevicesList, Path=HasItems}" Style="{StaticResource ChildMenuStyle}" Click="CmdDelAllDevicesFromList_Click"/>                
             </MenuItem>
-        </Menu>
+        </Menu>        
         <Border DockPanel.Dock ="Bottom" BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" BorderThickness="1">            
             <StatusBar DockPanel.Dock ="Bottom">
                 <StatusBar.Background>
@@ -103,12 +103,17 @@
             </StatusBar>
         </Border>
         <Grid UseLayoutRounding="True" Background="Lavender">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+            </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2*" MinWidth="100"></ColumnDefinition>
+                <ColumnDefinition Width="2*" MinWidth="200"></ColumnDefinition>
                 <ColumnDefinition Width="Auto"></ColumnDefinition>
-                <ColumnDefinition Width="5*" MinWidth="100"></ColumnDefinition>
+                <ColumnDefinition Width="5*" MinWidth="300"></ColumnDefinition>
             </Grid.ColumnDefinitions>
-            <ListBox x:Name="DevicesList" Grid.Row="0" Grid.Column="0" Margin="10,10,0,10" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Background="Lavender">
+            <TextBlock FontSize="12" Text="Устройства" Margin="15,3,3,0" Foreground="DarkRed"/>
+            <ListBox x:Name="DevicesList" Grid.Row="1" Grid.Column="0" Margin="10,10,0,10" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Background="Lavender">
                 <ListBox.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="_Удалить устройство из списка" IsEnabled="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type ContextMenu}},Path=PlacementTarget.HasItems}" Style="{StaticResource ChildMenuStyle}" Click="CmdDelDeviceFromList_OnClick"/>
@@ -134,10 +139,10 @@
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
-            <GridSplitter Grid.Row="0" Grid.Column="1"
+            <GridSplitter Grid.Row="1" Grid.Column="1"
                 Width="3" VerticalAlignment="Stretch" HorizontalAlignment="Center"
                 ShowsPreview="False" Background="Lavender"></GridSplitter>
-            <TabControl Grid.Row="0" Grid.Column="2" Margin="0,10,10,10" Background="Lavender"></TabControl>
+            <TabControl Grid.Row="1" Grid.Column="2" Margin="0,10,10,10" Background="Lavender"></TabControl>
         </Grid>
     </DockPanel>
 </Window>
