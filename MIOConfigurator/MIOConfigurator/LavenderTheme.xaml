@@ -7,12 +7,30 @@
         <GradientStop Color="White" Offset="1" />
     </LinearGradientBrush>
     <Style x:Key="ButtonGradientStyle"  TargetType="{x:Type Button}">
-        <Setter Property="Background" Value="{StaticResource GradientThemeBrush}"/>
+        <Setter Property="Background" Value="{StaticResource GradientThemeBrush}"/>       
+    </Style>
+    <Style x:Key="ListItemGradientStyle"  TargetType="{x:Type StackPanel}">
+        <Setter Property="Background">
+            <Setter.Value>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <GradientStop Color="LightGreen" Offset="0"></GradientStop>
+                    <GradientStop Color="White" Offset="1"></GradientStop>
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
     </Style>
     <Style TargetType="{x:Type ComboBox}">
         <Setter Property="Background" Value="{StaticResource GradientThemeBrush}"/>
     </Style>
     <Style TargetType="{x:Type StackPanel}">
         <Setter Property="Background" Value="{StaticResource GradientThemeBrush}"/>
+    </Style>
+    <Style TargetType="{x:Type ListBoxItem}">
+        <Style.Triggers>
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Foreground" Value="DarkBlue"/>
+                <Setter Property="FontWeight" Value="Bold"/>
+            </Trigger>
+        </Style.Triggers>
     </Style>
 </ResourceDictionary>

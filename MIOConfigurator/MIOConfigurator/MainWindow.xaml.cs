@@ -44,8 +44,7 @@ namespace MIOConfigurator
             BackgroundWorker worker = sender as BackgroundWorker;
             if (worker == null)
                 return;
-            
-            _devices.Clear();            
+                                   
             for (Byte address = _deviceFinder.StartSlaveAddress; address <= _deviceFinder.EndSlaveAddress; address++)
             {                
                 if (worker.CancellationPending)
@@ -114,6 +113,7 @@ namespace MIOConfigurator
             СonnectionStatus.Text = "Отключено";
             СurrentlyProcessed.Text = "";
             DevicesList.Items.Clear();
+            _devices.Clear();
             _needToDisconnectOnSearchCompleted = false;
             //Todo need to reset list
         }
@@ -176,6 +176,7 @@ namespace MIOConfigurator
             {                
                 //todo ask user to save all changes if present
                 DevicesList.Items.Clear();
+                _devices.Clear();
                 SearchInProgress = true;
                 CmdFindDevices.IsEnabled = false;
                 CmdAddDeviceToList.IsEnabled = false;
@@ -230,6 +231,22 @@ namespace MIOConfigurator
             mainWindowBackgroundWorker.ProgressChanged += SearchProgressChanged;
             mainWindowBackgroundWorker.WorkerSupportsCancellation = true;
             mainWindowBackgroundWorker.RunWorkerAsync();            
+        }
+
+        private void CmdDelAllDevicesFromList_Click(object sender, RoutedEventArgs e)
+        {
+            //todo ask user to save all changes if present
+            DevicesList.Items.Clear();
+            _devices.Clear();
+        }
+
+        private void CmdDelDeviceFromList_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (DevicesList.SelectedItem is Device)
+            {
+                DevicesList.Items.Remove(DevicesList.SelectedItem);
+                _devices.Remove(DevicesList.SelectedItem as Device);
+            }
         }                             
     }
 }

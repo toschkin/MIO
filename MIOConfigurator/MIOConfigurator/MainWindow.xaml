@@ -57,10 +57,8 @@
                         </StackPanel>
                     </MenuItem.Header>
                 </MenuItem>                               
-                <MenuItem x:Name="CmdDelDeviceFromList" Header="_Удалить устройство из списка" IsEnabled="{Binding ElementName=DevicesList, Path=HasItems}" Style="{StaticResource ChildMenuStyle}"/>
-                <!--Click="CmdDelDeviceFromList_OnClick"-->
-                <MenuItem x:Name="CmdDelAllDevicesFromList" Header="_Очистить список устройств" IsEnabled="{Binding ElementName=DevicesList, Path=HasItems}" Style="{StaticResource ChildMenuStyle}"/>
-                <!--Click="CmdDelAllDevicesFromList_OnClick"-->
+                <MenuItem x:Name="CmdDelDeviceFromList" Header="_Удалить устройство из списка" IsEnabled="{Binding ElementName=DevicesList, Path=HasItems}" Style="{StaticResource ChildMenuStyle}" Click="CmdDelDeviceFromList_OnClick"/>                
+                <MenuItem x:Name="CmdDelAllDevicesFromList" Header="_Очистить список устройств" IsEnabled="{Binding ElementName=DevicesList, Path=HasItems}" Style="{StaticResource ChildMenuStyle}" Click="CmdDelAllDevicesFromList_Click"/>                
             </MenuItem>
         </Menu>
         <Border DockPanel.Dock ="Bottom" BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" BorderThickness="1">            
@@ -110,26 +108,25 @@
                 <ColumnDefinition Width="Auto"></ColumnDefinition>
                 <ColumnDefinition Width="5*" MinWidth="100"></ColumnDefinition>
             </Grid.ColumnDefinitions>
-            <ListBox x:Name="DevicesList" Grid.Row="0" Grid.Column="0" Margin="10,10,0,10" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Background="Transparent" FontWeight="Bold">                
+            <ListBox x:Name="DevicesList" Grid.Row="0" Grid.Column="0" Margin="10,10,0,10" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Background="Lavender">
+                <ListBox.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="_Удалить устройство из списка" IsEnabled="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type ContextMenu}},Path=PlacementTarget.HasItems}" Style="{StaticResource ChildMenuStyle}" Click="CmdDelDeviceFromList_OnClick"/>
+                        <MenuItem Header="_Очистить список устройств" IsEnabled="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type ContextMenu}},Path=PlacementTarget.HasItems}" Style="{StaticResource ChildMenuStyle}" Click="CmdDelAllDevicesFromList_Click"/>
+                    </ContextMenu>
+                </ListBox.ContextMenu>
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="mioConfig:Device">
-                        <Border Margin="2,2,2,2" BorderThickness="1" CornerRadius="2" BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkDarkBrushKey}}">
-                            <Border.Background>
-                                <LinearGradientBrush EndPoint="0.5,1" MappingMode="RelativeToBoundingBox" StartPoint="0.5,0">
-                                    <GradientStop Color="LightBlue" Offset="0"></GradientStop>
-                                    <GradientStop Color="White" Offset="1"></GradientStop>
-                                </LinearGradientBrush>
-                            </Border.Background>
-                            <StackPanel Orientation="Horizontal">
+                        <Border Margin="2,2,2,2" BorderThickness="2" CornerRadius="3" BorderBrush="DarkGreen">
+                            <StackPanel Orientation="Horizontal" Style="{DynamicResource ListItemGradientStyle}">
                                 <Image Margin="3" Source="Images/rtu.png" 
-                                   RenderOptions.BitmapScalingMode="Fant"
-                                   Stretch="Fill"
-                                   Width="69"
-                                   Height="58">
+                                    RenderOptions.BitmapScalingMode="Fant"
+                                    Stretch="Fill"
+                                    Width="69"
+                                    Height="58">
                                     <Image.Effect>
                                         <DropShadowEffect></DropShadowEffect>
                                     </Image.Effect>
-
                                 </Image>
                                 <TextBlock Margin="3" TextWrapping="Wrap" Text="{Binding ShortDescription}" ToolTip="{Binding FullDescription}"/>
                             </StackPanel>
