@@ -108,11 +108,12 @@
                 <RowDefinition Height="*"></RowDefinition>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2*" MinWidth="200"></ColumnDefinition>
+                <ColumnDefinition Width="2*" MinWidth="250"></ColumnDefinition>
                 <ColumnDefinition Width="Auto"></ColumnDefinition>
                 <ColumnDefinition Width="5*" MinWidth="300"></ColumnDefinition>
             </Grid.ColumnDefinitions>
-            <TextBlock FontSize="12" Text="Устройства" Margin="15,3,3,0" Foreground="DarkRed"/>
+            <TextBlock FontSize="12" Text="Устройства" Margin="15,3,3,0" Foreground="DarkMagenta"/>
+            <TextBlock Grid.Row="0" Grid.Column="2" FontSize="12" Text="Настройка" Margin="15,3,3,0" Foreground="DarkMagenta"/>
             <ListBox x:Name="DevicesList" Grid.Row="1" Grid.Column="0" Margin="10,10,0,10" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Background="Lavender">
                 <ListBox.ContextMenu>
                     <ContextMenu>
@@ -142,7 +143,7 @@
             <GridSplitter Grid.Row="1" Grid.Column="1"
                 Width="3" VerticalAlignment="Stretch" HorizontalAlignment="Center"
                 ShowsPreview="False" Background="Lavender"></GridSplitter>
-            <TabControl Grid.Row="1" Grid.Column="2" Margin="0,10,10,10" Background="Lavender"></TabControl>
+            <TabControl x:Name ="ConfigurationTabs" Grid.Row="1" Grid.Column="2" Margin="0,10,10,10" Background="Lavender"></TabControl>
         </Grid>
     </DockPanel>
 </Window>

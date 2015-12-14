@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -29,9 +30,9 @@ namespace MIOConfigurator
     public partial class MainWindow : Window
     {
         private ModbusRtuProtocol _modbusRtuProtocol;        
-        private List<Device> _devices;
-
+        private ObservableCollection<Device> _devices;
         private BackgroundWorker mainWindowBackgroundWorker = new BackgroundWorker();
+        private bool _deviceConfigurationChanged;
         
         #region Search        
         private bool _needToDisconnectOnSearchCompleted;
@@ -118,6 +119,25 @@ namespace MIOConfigurator
             //Todo need to reset list
         }
 
+        private void SaveDeviceConfiguration()
+        {
+            _deviceConfigurationChanged = false;
+        }
+
+        private void AskUserToSaveDeviceConfiguration()
+        {
+            if (_deviceConfigurationChanged)
+            {
+                if (MessageBoxResult.Yes ==
+                    MessageBox.Show("Сохранить конфигурацию устройства?", Constants.messageBoxTitle,
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Question))
+                    SaveDeviceConfiguration();
+                else
+                    _deviceConfigurationChanged = false;
+            }
+        }
+
         public MainWindow()
         {
             InitializeComponent();   
@@ -125,9 +145,10 @@ namespace MIOConfigurator
                 Registry.CurrentUser.CreateSubKey(Constants.registryAppNode);
             _modbusRtuProtocol = new ModbusRtuProtocol();
             _deviceFinder = new DeviceFinder(_modbusRtuProtocol);  
-            _devices = new List<Device>();
+            _devices = new ObservableCollection<Device>();
             SearchInProgress = false;
-            _needToDisconnectOnSearchCompleted = false;            
+            _needToDisconnectOnSearchCompleted = false;
+            _deviceConfigurationChanged = false;
         }
 
         private void CmdConnect_OnClick(object sender, RoutedEventArgs e)
@@ -154,13 +175,14 @@ namespace MIOConfigurator
         }
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
+        {           
             if (MessageBoxResult.No ==
                 MessageBox.Show("Выйти из программы?", Constants.messageBoxTitle, MessageBoxButton.YesNo,
                     MessageBoxImage.Question))
                 e.Cancel = true;
             else
             {
+                AskUserToSaveDeviceConfiguration();
                 if(SearchInProgress)
                     mainWindowBackgroundWorker.CancelAsync();
                 Disconnect();
@@ -173,8 +195,8 @@ namespace MIOConfigurator
             DevicesFinderConfigWindow finderConfigWindow = new DevicesFinderConfigWindow(_deviceFinder);
             finderConfigWindow.Owner = this;
             if (finderConfigWindow.ShowDialog() == true)
-            {                
-                //todo ask user to save all changes if present
+            {
+                AskUserToSaveDeviceConfiguration();
                 DevicesList.Items.Clear();
                 _devices.Clear();
                 SearchInProgress = true;
@@ -235,15 +257,16 @@ namespace MIOConfigurator
 
         private void CmdDelAllDevicesFromList_Click(object sender, RoutedEventArgs e)
         {
-            //todo ask user to save all changes if present
+            AskUserToSaveDeviceConfiguration();
             DevicesList.Items.Clear();
-            _devices.Clear();
+            _devices.Clear();            
         }
 
         private void CmdDelDeviceFromList_OnClick(object sender, RoutedEventArgs e)
         {
             if (DevicesList.SelectedItem is Device)
             {
+                AskUserToSaveDeviceConfiguration();
                 DevicesList.Items.Remove(DevicesList.SelectedItem);
                 _devices.Remove(DevicesList.SelectedItem as Device);
             }
