@@ -191,7 +191,12 @@ namespace MIOConfig
             if (!tempHeader.IsValidHeader())
                     return ReaderSaverErrors.CodeInvalidDeviceHeader;
 
-            configuration.HeaderFields = tempHeader;
+            configuration.HeaderFields.DeviceConsistenceRegister = tempHeader.DeviceConsistenceRegister;
+            configuration.HeaderFields.DeviceHeaderCrc16 = tempHeader.DeviceHeaderCrc16;
+            configuration.HeaderFields.DeviceMaximumModbusMasterRequestsToSubDeviceCount = tempHeader.DeviceMaximumModbusMasterRequestsToSubDeviceCount;
+            configuration.HeaderFields.DeviceUartChannelsCount = tempHeader.DeviceUartChannelsCount;
+            configuration.HeaderFields.DeviceUserRegistersCount = tempHeader.DeviceUserRegistersCount;
+            configuration.HeaderFields.DeviceVersion = tempHeader.DeviceVersion;
             configuration.LastConfigurationTime = tempConfigurationTime;
                                                       
             return ReaderSaverErrors.CodeOk;
@@ -203,7 +208,6 @@ namespace MIOConfig
             DeviceHeader tempHeader = new DeviceHeader();
             listOfConfigurationItems.Add(checkOnly ? tempHeader : configuration.HeaderFields);
 
-
             ReaderSaverErrors retCode = PerformReading(ref listOfConfigurationItems);
             if (retCode != ReaderSaverErrors.CodeOk)
                 return retCode;
@@ -213,8 +217,8 @@ namespace MIOConfig
 
             if (!checkOnly)
             {
-                //object tempObj = configuration.Configuration.HeaderFields;
-                //Utility.CloneObjectProperties(listOfConfigurationItems[0], ref tempObj);                
+                object tempObj = configuration.HeaderFields;
+                Utility.CloneObjectProperties(listOfConfigurationItems[0], ref tempObj);                
                 if (!configuration.HeaderFields.IsValidHeader())
                     return ReaderSaverErrors.CodeInvalidDeviceHeader;                
 

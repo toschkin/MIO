@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,7 +9,7 @@ using MIOConfig.InternalLayer;
 
 namespace MIOConfig
 {       
-    public class Device
+    public class Device : INotifyPropertyChanged
     {        
         public Device()
         {
@@ -18,6 +19,16 @@ namespace MIOConfig
             DIModule = null;
             DOModule = null;
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void NotifyPropertyChanged(string info)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(info));
+            }
+        }
+
 
         public bool ConfigurationReadFromDevice
         {
@@ -47,7 +58,7 @@ namespace MIOConfig
         {
             get
             {
-                return ToString();
+                return ToString();                
             }
         }
 
@@ -113,7 +124,12 @@ namespace MIOConfig
         public DateTime ConfigurationTime
         {
             get { return Configuration.LastConfigurationTime.ConfigurationTime; }
-            set { Configuration.LastConfigurationTime.ConfigurationTime = value; }
+            set
+            {
+                Configuration.LastConfigurationTime.ConfigurationTime = value;
+                NotifyPropertyChanged("FullDescription");
+                NotifyPropertyChanged("ShortDescription");
+            }
         }
 
         //diskuss with Sasha about fixed slave port
@@ -187,7 +203,10 @@ namespace MIOConfig
                 mapBuilder.BuildUserRegistersMap(ref UserRegisters);
                 mapBuilder.BuildStatusRegistersMap(ref Statuses);
                 mapBuilder.BuildDIModuleRegistersMap(ref DIModule);
-                mapBuilder.BuildDOModuleRegistersMap(ref DOModule);                
+                mapBuilder.BuildDOModuleRegistersMap(ref DOModule);
+
+                NotifyPropertyChanged("FullDescription");
+                NotifyPropertyChanged("ShortDescription");
             }
             return code;
         }
@@ -286,5 +305,6 @@ namespace MIOConfig
         }
 
         #endregion
+        
     }
 }

@@ -72,7 +72,6 @@
     </ApplicationDefinition>
     <Compile Include="Data\Constants.cs" />
     <Compile Include="Data\ModbusCommunicationParameters.cs" />
-    <Compile Include="Data\ProgressBarBinder.cs" />
     <Compile Include="DevicesFinderConfigWindow.xaml.cs">
       <DependentUpon>DevicesFinderConfigWindow.xaml</DependentUpon>
     </Compile>

@@ -21,21 +21,33 @@ using MIOConfig;
 using MIOConfig.PresentationLayer;
 using Modbus.Core;
 using MIOConfigurator;
-using MIOConfigurator.Data;
 
 namespace MIOConfigurator
 {    
     /// <summary>
     /// Логика взаимодействия для MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
+        private void NotifyPropertyChanged(string info)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(info));
+            }
+        }
+        public event PropertyChangedEventHandler PropertyChanged;
+
+
         private ModbusRtuProtocol _modbusRtuProtocol;
         public ObservableCollection<Device> Devices { get; set; }
-        private Device _selectedDevice;
+        public Device SelectedDevice;
         private BackgroundWorker mainWindowBackgroundWorker = new BackgroundWorker();
-        private bool _deviceConfigurationChanged;
-        
+        private bool _deviceConfigurationChanged;                  
+
+        public bool WorkerInProgress { get; set; }
+        public bool WorkerStopped { get { return !WorkerInProgress; } }
+
         #region Reading and Saving
 
         private ModbusReaderSaver _deviceReaderSaver;
@@ -54,16 +66,16 @@ namespace MIOConfigurator
             if (((Device) DevicesList.SelectedItem).ConfigurationReadFromDevice)
             {
                 СurrentlyProcessed.Text = "Чтение конфигурации завершено успешно";
-                _selectedDevice = (Device) DevicesList.SelectedItem;
-                //todo draw tabs
+                SelectedDevice = (Device) DevicesList.SelectedItem;
+                DrawConfigurationTabs();
             }
             else
             {
                 СurrentlyProcessed.Text = "Чтение конфигурации завершено c ошибкой: " + ((ReaderSaverErrors)e.Result).GetDescription();
-                if (_selectedDevice == null)//no item was previously selected
+                if (SelectedDevice == null)//no item was previously selected
                     DevicesList.UnselectAll();
                 else
-                    DevicesList.SelectedItem = _selectedDevice;//returning to previously selected item 
+                    DevicesList.SelectedItem = SelectedDevice;//returning to previously selected item 
             }                                        
         }
         private void ReadConfigurationProgressChanged(object sender, ProgressChangedEventArgs e)
@@ -89,10 +101,64 @@ namespace MIOConfigurator
             e.Result = retCode;
         }
 
+        private void OnReadConfiguration()
+        {
+            if (SelectedDevice != null)
+                AskUserToSaveDeviceConfiguration();
+
+            if (DevicesList.SelectedItem is Device)
+            {
+                if (((Device)DevicesList.SelectedItem).ConfigurationReadFromDevice)
+                {
+                    SelectedDevice = (Device)DevicesList.SelectedItem;
+                    DrawConfigurationTabs();
+                }
+                else
+                {
+                    if (WorkerInProgress)
+                    {
+                        if (SelectedDevice == null)//no item was previously selected
+                            DevicesList.UnselectAll();
+                        else
+                            DevicesList.SelectedItem = SelectedDevice;//returning to previously selected item        
+                        return;
+                    }
+                    if (MessageBoxResult.Yes ==
+                        MessageBox.Show("Для данного устройства не считана конфигурация. Прочитать?",
+                            Constants.messageBoxTitle, MessageBoxButton.YesNo,
+                            MessageBoxImage.Question))
+                    {
+                        _deviceReaderSaver.SlaveAddress = ((Device)DevicesList.SelectedItem).ModbusAddress;
+                        WorkerInProgress = true;
+                        CmdFindDevices.IsEnabled = false;
+                        CmdAddDeviceToList.IsEnabled = false;
+                        CmdCancelSearchDevices.IsEnabled = false;
+                        DevicesList.IsEnabled = false;
+                        СurrentlyProcessed.Text = "Чтение конфигурации устройства...";
+                        ProcessingProgress.Minimum = 0;
+                        ProcessingProgress.Maximum = 2;
+                        ProcessingProgress.Value = 0;
+                        mainWindowBackgroundWorker.WorkerReportsProgress = true;
+                        mainWindowBackgroundWorker.DoWork += ReadConfiguration;
+                        mainWindowBackgroundWorker.RunWorkerCompleted += ReadConfigurationCompleted;
+                        mainWindowBackgroundWorker.ProgressChanged += ReadConfigurationProgressChanged;
+                        mainWindowBackgroundWorker.WorkerSupportsCancellation = false;
+                        mainWindowBackgroundWorker.RunWorkerAsync();
+                    }
+                    else
+                    {
+                        if (SelectedDevice == null)//no item was previously selected
+                            DevicesList.UnselectAll();
+                        else
+                            DevicesList.SelectedItem = SelectedDevice;//returning to previously selected item                                                   
+                    }
+                }
+            }  
+        }
         private void SaveDeviceConfiguration()
         {
             _deviceConfigurationChanged = false;
-            if (_selectedDevice != null)
+            if (SelectedDevice != null)
             {
                 //todo save configuration
             }
@@ -114,17 +180,16 @@ namespace MIOConfigurator
         #endregion
         
         #region Search        
-        private bool _needToDisconnectOnSearchCompleted;
-        public bool WorkerInProgress { get; set; }
-        public bool WorkerStopped { get { return !WorkerInProgress; } }
+        private bool _needToDisconnectOnSearchCompleted;        
         private DeviceFinder _deviceFinder;
+        private int _foundDevicesCount;
 
         private void SearchDevices(object sender, DoWorkEventArgs e)
         {
             BackgroundWorker worker = sender as BackgroundWorker;
             if (worker == null)
                 return;
-                                   
+            _foundDevicesCount = 0;            
             for (Byte address = _deviceFinder.StartSlaveAddress; address <= _deviceFinder.EndSlaveAddress; address++)
             {                
                 if (worker.CancellationPending)
@@ -143,9 +208,10 @@ namespace MIOConfigurator
             ProcessingProgress.Value = e.ProgressPercentage;            
             if (e.UserState is Device)
             {
+                _foundDevicesCount++;
                 Devices.Add((Device) e.UserState);                
-                DevicesList.ScrollIntoView((Device)e.UserState);                
-                СurrentlyProcessed.Text = String.Format("Поиск устройств... (найдено {0})",Devices.Count);               
+                DevicesList.ScrollIntoView((Device)e.UserState);
+                СurrentlyProcessed.Text = String.Format("Поиск устройств... (найдено {0})", _foundDevicesCount);               
             }
         }
 
@@ -156,7 +222,7 @@ namespace MIOConfigurator
             CmdCancelSearchDevices.IsEnabled = false;
             CmdAddDeviceToList.IsEnabled = true;
             ProcessingProgress.Value = 0;
-            СurrentlyProcessed.Text = String.Format("Поиск устройств окончен. (найдено {0})",Devices.Count);
+            СurrentlyProcessed.Text = String.Format("Поиск устройств окончен. (найдено {0})", _foundDevicesCount);
             mainWindowBackgroundWorker.DoWork -= SearchDevices;
             mainWindowBackgroundWorker.RunWorkerCompleted -= SearchCompleted;
             mainWindowBackgroundWorker.ProgressChanged -= SearchProgressChanged;
@@ -180,6 +246,18 @@ namespace MIOConfigurator
         }   
         #endregion
 
+        private void DrawConfigurationTabs()
+        {
+            NoItemsTextBlock.Visibility = Visibility.Collapsed;
+            ConfigurationTabs.Visibility = Visibility.Visible;
+        }
+
+        private void DrawEmptySpace()
+        {
+            NoItemsTextBlock.Visibility = Visibility.Visible;
+            ConfigurationTabs.Visibility = Visibility.Collapsed;
+        }
+
         private void Disconnect()
         {            
             if (_modbusRtuProtocol.IsConnected)
@@ -190,7 +268,8 @@ namespace MIOConfigurator
             СurrentlyProcessed.Text = "";            
             Devices.Clear();
             _needToDisconnectOnSearchCompleted = false;
-            _selectedDevice = null;
+            SelectedDevice = null;
+            DrawEmptySpace();
         }        
 
         public MainWindow()
@@ -204,8 +283,9 @@ namespace MIOConfigurator
             WorkerInProgress = false;
             _needToDisconnectOnSearchCompleted = false;
             _deviceConfigurationChanged = false;
-            _selectedDevice = null;
+            SelectedDevice = null;
             _deviceReaderSaver = new ModbusReaderSaver(_modbusRtuProtocol);
+            _foundDevicesCount = 0;
         }
 
         private void CmdConnect_OnClick(object sender, RoutedEventArgs e)
@@ -260,7 +340,8 @@ namespace MIOConfigurator
             {
                 AskUserToSaveDeviceConfiguration();                
                 Devices.Clear();
-                _selectedDevice = null;
+                DrawEmptySpace();
+                SelectedDevice = null;
                 WorkerInProgress = true;
                 CmdFindDevices.IsEnabled = false;
                 CmdAddDeviceToList.IsEnabled = false;
@@ -320,7 +401,8 @@ namespace MIOConfigurator
         private void CmdDelAllDevicesFromList_Click(object sender, RoutedEventArgs e)
         {
             AskUserToSaveDeviceConfiguration();
-            _selectedDevice = null;
+            SelectedDevice = null;
+            DrawEmptySpace();
             Devices.Clear();            
         }
 
@@ -330,55 +412,19 @@ namespace MIOConfigurator
             {
                 AskUserToSaveDeviceConfiguration();                
                 Devices.Remove(DevicesList.SelectedItem as Device);
-                _selectedDevice = null;
+                SelectedDevice = null; 
+                DrawEmptySpace();
             }
         }
 
         private void DevicesList_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (_selectedDevice != null)            
-                AskUserToSaveDeviceConfiguration();                
-                       
-            if (DevicesList.SelectedItem is Device)
-            {
-                if (((Device)DevicesList.SelectedItem).ConfigurationReadFromDevice)
-                {
-                    _selectedDevice = (Device) DevicesList.SelectedItem;
-                    //todo draw tabs
-                }
-                else
-                {
-                    if (MessageBoxResult.Yes ==
-                        MessageBox.Show("Для данного устройства не считана конфигурация. Прочитать?",
-                            Constants.messageBoxTitle, MessageBoxButton.YesNo,
-                            MessageBoxImage.Question))
-                    {
-                        _deviceReaderSaver.SlaveAddress = ((Device)DevicesList.SelectedItem).ModbusAddress;
-                        WorkerInProgress = true;
-                        CmdFindDevices.IsEnabled = false;
-                        CmdAddDeviceToList.IsEnabled = false;
-                        CmdCancelSearchDevices.IsEnabled = false;
-                        DevicesList.IsEnabled = false;
-                        СurrentlyProcessed.Text = "Чтение конфигурации устройства...";
-                        ProcessingProgress.Minimum = 0;
-                        ProcessingProgress.Maximum = 2;
-                        ProcessingProgress.Value = 0;
-                        mainWindowBackgroundWorker.WorkerReportsProgress = true;
-                        mainWindowBackgroundWorker.DoWork += ReadConfiguration;
-                        mainWindowBackgroundWorker.RunWorkerCompleted += ReadConfigurationCompleted;
-                        mainWindowBackgroundWorker.ProgressChanged += ReadConfigurationProgressChanged;
-                        mainWindowBackgroundWorker.WorkerSupportsCancellation = false;
-                        mainWindowBackgroundWorker.RunWorkerAsync();                        
-                    }
-                    else
-                    {
-                        if(_selectedDevice == null)//no item was previously selected
-                            DevicesList.UnselectAll();
-                        else                        
-                            DevicesList.SelectedItem = _selectedDevice;//returning to previously selected item                                                   
-                    }
-                }   
-            }            
-        }                                       
+            OnReadConfiguration();
+        }
+
+        private void CmdReadConfiguration_OnClick(object sender, RoutedEventArgs e)
+        {
+            OnReadConfiguration();
+        }                                           
     }
 }
