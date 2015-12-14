@@ -29,8 +29,9 @@ namespace MIOConfigurator
     /// </summary>
     public partial class MainWindow : Window
     {
-        private ModbusRtuProtocol _modbusRtuProtocol;        
-        private ObservableCollection<Device> _devices;
+        private ModbusRtuProtocol _modbusRtuProtocol;
+        public ObservableCollection<Device> Devices { get; set; }
+        private Device _selectedDevice;
         private BackgroundWorker mainWindowBackgroundWorker = new BackgroundWorker();
         private bool _deviceConfigurationChanged;
         
@@ -54,11 +55,8 @@ namespace MIOConfigurator
                 //todo unrem for test 
                 device = new Device();
                 device.ModbusAddress = address;                
-                ///////////////////////
-                if (device != null)                                              
-                    worker.ReportProgress(address, device);
-                else
-                    worker.ReportProgress(address);
+                ///////////////////////                                                    
+                worker.ReportProgress(address, device);                
             }
         }
 
@@ -67,10 +65,9 @@ namespace MIOConfigurator
             ProcessingProgress.Value = e.ProgressPercentage;            
             if (e.UserState is Device)
             {
-                _devices.Add((Device) e.UserState);
-                int index = DevicesList.Items.Add((Device) e.UserState);
+                Devices.Add((Device) e.UserState);                
                 DevicesList.ScrollIntoView((Device)e.UserState);                
-                СurrentlyProcessed.Text = String.Format("Поиск устройств... (найдено {0})",_devices.Count);               
+                СurrentlyProcessed.Text = String.Format("Поиск устройств... (найдено {0})",Devices.Count);               
             }
         }
 
@@ -81,7 +78,7 @@ namespace MIOConfigurator
             CmdCancelSearchDevices.IsEnabled = false;
             CmdAddDeviceToList.IsEnabled = true;
             ProcessingProgress.Value = 0;
-            СurrentlyProcessed.Text = String.Format("Поиск устройств окончен. (найдено {0})",_devices.Count);
+            СurrentlyProcessed.Text = String.Format("Поиск устройств окончен. (найдено {0})",Devices.Count);
             mainWindowBackgroundWorker.DoWork -= SearchDevices;
             mainWindowBackgroundWorker.RunWorkerCompleted -= SearchCompleted;
             mainWindowBackgroundWorker.ProgressChanged -= SearchProgressChanged;
@@ -106,22 +103,24 @@ namespace MIOConfigurator
         #endregion
 
         private void Disconnect()
-        {
+        {            
             if (_modbusRtuProtocol.IsConnected)
                 _modbusRtuProtocol.Disconnect();
             CmdConnect.IsEnabled = true;
             CmdDisconnect.IsEnabled = false;
             СonnectionStatus.Text = "Отключено";
-            СurrentlyProcessed.Text = "";
-            DevicesList.Items.Clear();
-            _devices.Clear();
+            СurrentlyProcessed.Text = "";            
+            Devices.Clear();
             _needToDisconnectOnSearchCompleted = false;
-            //Todo need to reset list
+            _selectedDevice = null;
         }
 
         private void SaveDeviceConfiguration()
         {
             _deviceConfigurationChanged = false;
+            if (_selectedDevice != null)
+            {
+            }
         }
 
         private void AskUserToSaveDeviceConfiguration()
@@ -145,10 +144,11 @@ namespace MIOConfigurator
                 Registry.CurrentUser.CreateSubKey(Constants.registryAppNode);
             _modbusRtuProtocol = new ModbusRtuProtocol();
             _deviceFinder = new DeviceFinder(_modbusRtuProtocol);  
-            _devices = new ObservableCollection<Device>();
+            Devices = new ObservableCollection<Device>();
             SearchInProgress = false;
             _needToDisconnectOnSearchCompleted = false;
             _deviceConfigurationChanged = false;
+            _selectedDevice = null;
         }
 
         private void CmdConnect_OnClick(object sender, RoutedEventArgs e)
@@ -164,13 +164,16 @@ namespace MIOConfigurator
         }
         
         private void CmdDisconnect_OnClick(object sender, RoutedEventArgs e)
-        {
+        {            
             if (IsUserCancelSearch())
                 _needToDisconnectOnSearchCompleted = true;
             else
             {
                 if (!SearchInProgress)
+                {
+                    AskUserToSaveDeviceConfiguration();
                     Disconnect();
+                }                    
             }            
         }
 
@@ -181,10 +184,12 @@ namespace MIOConfigurator
                     MessageBoxImage.Question))
                 e.Cancel = true;
             else
-            {
-                AskUserToSaveDeviceConfiguration();
+            {                
                 if(SearchInProgress)
                     mainWindowBackgroundWorker.CancelAsync();
+                else                
+                    AskUserToSaveDeviceConfiguration();
+                
                 Disconnect();
             }
                 
@@ -196,9 +201,9 @@ namespace MIOConfigurator
             finderConfigWindow.Owner = this;
             if (finderConfigWindow.ShowDialog() == true)
             {
-                AskUserToSaveDeviceConfiguration();
-                DevicesList.Items.Clear();
-                _devices.Clear();
+                AskUserToSaveDeviceConfiguration();                
+                Devices.Clear();
+                _selectedDevice = null;
                 SearchInProgress = true;
                 CmdFindDevices.IsEnabled = false;
                 CmdAddDeviceToList.IsEnabled = false;
@@ -258,18 +263,30 @@ namespace MIOConfigurator
         private void CmdDelAllDevicesFromList_Click(object sender, RoutedEventArgs e)
         {
             AskUserToSaveDeviceConfiguration();
-            DevicesList.Items.Clear();
-            _devices.Clear();            
+            _selectedDevice = null;
+            Devices.Clear();            
         }
 
         private void CmdDelDeviceFromList_OnClick(object sender, RoutedEventArgs e)
         {
             if (DevicesList.SelectedItem is Device)
             {
-                AskUserToSaveDeviceConfiguration();
-                DevicesList.Items.Remove(DevicesList.SelectedItem);
-                _devices.Remove(DevicesList.SelectedItem as Device);
+                AskUserToSaveDeviceConfiguration();                
+                Devices.Remove(DevicesList.SelectedItem as Device);
+                _selectedDevice = null;
             }
+        }
+
+        private void DevicesList_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (_selectedDevice != null)            
+                AskUserToSaveDeviceConfiguration();                
+                       
+            if (DevicesList.SelectedItem is Device)
+            {
+                _selectedDevice = DevicesList.SelectedItem as Device;
+                //todo draw tabs
+            }            
         }                             
     }
 }

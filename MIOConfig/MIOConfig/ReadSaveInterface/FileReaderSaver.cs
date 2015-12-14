@@ -80,6 +80,7 @@ namespace MIOConfig
             {
                 return ReaderSaverErrors.CodeSerializationError;
             }
+            configuration.ConfigurationReadFromDevice = false;
             return ReaderSaverErrors.CodeOk;
         }
     }

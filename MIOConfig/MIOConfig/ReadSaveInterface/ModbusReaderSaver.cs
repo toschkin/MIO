@@ -102,6 +102,8 @@ namespace MIOConfig
             if(! configuration.FromList(listOfConfigurationItems))
                 return ReaderSaverErrors.CodeInvalidConfigurationSize;
 
+            if (retCode == ReaderSaverErrors.CodeOk)
+                configuration.ConfigurationReadFromDevice = true;
             return retCode;
         }
 

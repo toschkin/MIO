@@ -8,49 +8,45 @@ using Modbus.Core;
 namespace MIOConfig.InternalLayer
 {
     public class DeviceUartPortStatus
-    {
-        public bool TotalTimeout;
-        public bool Reserve1;
-        public bool Reserve2;
-        public bool Reserve3;
-        public bool Reserve4;
-        public bool Reserve5;
-        public bool Reserve6;
-        public bool Reserve7;
-        public bool Reserve8;
-        public bool Reserve9;
-        public bool Reserve10;
-        public bool Reserve11;
-        public bool Reserve12;
-        public bool Reserve13;
-        public bool Reserve14;
-        public bool Reserve15;   
+    {        
         /// <summary>
         /// Holding regs|addr.: 502...|count: 1
         /// </summary>     
         [ModbusProperty(Access = ModbusRegisterAccessType.AccessRead)]
-        public UInt16 StatusRegister
+        public UInt16 StatusRegister{ get; set; }
+       
+        public override string ToString()
         {
-            get
+            switch (StatusRegister)
             {
-                int numeral = 0;
-                Byte i = 0;
-                foreach (var field in GetType().GetFields())
-                {
-                    if ((bool)field.GetValue(this))
-                        numeral |= 1 << i;
-                    i++;
-                }
-                return (UInt16)numeral;
+                case 0:
+                    return "Функционмирует нормально";
+                case 1:
+                    return "Исключение MODBUS №1";
+                case 2:
+                    return "Исключение MODBUS №2";
+                case 3:
+                    return "Исключение MODBUS №3";
+                case 4:
+                    return "Исключение MODBUS №4";
+                case 5:
+                    return "Исключение MODBUS №5";
+                case 6:
+                    return "Исключение MODBUS №6";
+                case 7:
+                    return "Исключение MODBUS №7";
+                case 8:
+                    return "Исключение MODBUS №8";
+                case 9:
+                    return "MODBUS_SLAVE: ошибка полей и/или контрольной суммы запроса";
+                case 10:
+                    return "MODBUS_MASTER таймаут ответа";
+                case 11:
+                    return "MODBUS_MASTER ошибка полей адреса устройства или функции в ответе";
+                case 12:
+                    return "MODBUS_MASTER ошибка контрольной суммы в ответе";
             }
-            set
-            {
-                Byte i = 0;
-                foreach (var field in GetType().GetFields())
-                {
-                    field.SetValue(this, (value & (1 << i++)) != 0);
-                }                
-            }
+            return "Неизвестный код ошибки";
         }
     }
 }

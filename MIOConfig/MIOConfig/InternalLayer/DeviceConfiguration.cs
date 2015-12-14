@@ -46,6 +46,8 @@ namespace MIOConfig.InternalLayer
             RoutingTable = null;
             ModbusMasterQueriesOnUartPorts = new List<List<DeviceModbusMasterQuery>>() { new List<DeviceModbusMasterQuery>() };
         }
+
+        public bool ConfigurationReadFromDevice { get; set; }
        
         #region Fields & Properties              
                

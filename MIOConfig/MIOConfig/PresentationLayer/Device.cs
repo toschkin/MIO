@@ -19,6 +19,10 @@ namespace MIOConfig
             DOModule = null;
         }
 
+        public bool ConfigurationReadFromDevice
+        {
+            get { return Configuration.ConfigurationReadFromDevice; }            
+        }
         public Byte ModbusAddress { get; set; }
 
         public string ShortDescription

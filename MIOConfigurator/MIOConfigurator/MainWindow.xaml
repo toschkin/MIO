@@ -114,7 +114,8 @@
             </Grid.ColumnDefinitions>
             <TextBlock FontSize="12" Text="Устройства" Margin="15,3,3,0" Foreground="DarkMagenta"/>
             <TextBlock Grid.Row="0" Grid.Column="2" FontSize="12" Text="Настройка" Margin="15,3,3,0" Foreground="DarkMagenta"/>
-            <ListBox x:Name="DevicesList" Grid.Row="1" Grid.Column="0" Margin="10,10,0,10" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Background="Lavender">
+            <ListBox x:Name="DevicesList" Grid.Row="1" Grid.Column="0" Margin="10,10,0,10" HorizontalAlignment="Stretch" 
+                     HorizontalContentAlignment="Stretch" Background="Lavender" ItemsSource="{Binding Path=Devices, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}" SelectionChanged="DevicesList_OnSelectionChanged">
                 <ListBox.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="_Удалить устройство из списка" IsEnabled="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type ContextMenu}},Path=PlacementTarget.HasItems}" Style="{StaticResource ChildMenuStyle}" Click="CmdDelDeviceFromList_OnClick"/>
