@@ -175,12 +175,12 @@ namespace MIOConfig
 
         public ReaderSaverErrors SaveConfiguration(IDeviceReaderSaver saver)
         {
-            return saver.SaveDeviceConfiguration(Configuration);
+            return saver.SaveDeviceConfiguration(this);
         }
 
         public ReaderSaverErrors ReadConfiguration(IDeviceReaderSaver reader)
-        {
-            ReaderSaverErrors code = reader.ReadDeviceConfiguration(ref Configuration);
+        {          
+            ReaderSaverErrors code = reader.ReadDeviceConfiguration(this);
             if (code == ReaderSaverErrors.CodeOk)
             {
                 RegistersMapBuilder mapBuilder = new RegistersMapBuilder(Configuration);

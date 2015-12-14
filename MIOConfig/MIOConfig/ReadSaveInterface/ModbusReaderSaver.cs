@@ -34,16 +34,16 @@ namespace MIOConfig
         public UInt16 RegisterWriteAddressOffset { get; set; }
         public bool   BigEndianOrder { get; set; }
 
-        public ReaderSaverErrors SaveDeviceConfiguration(DeviceConfiguration configuration)
+        public ReaderSaverErrors SaveDeviceConfiguration(Device configuration)
         {                    
             if (_protocol.IsConnected)
             {
-                ReaderSaverErrors retCode = CheckDeviceHeaderValidityAndInitConfiguration(configuration,true);
+                ReaderSaverErrors retCode = CheckDeviceHeaderValidityAndInitConfiguration(configuration.Configuration,true);
                 if (retCode != ReaderSaverErrors.CodeOk)
                     return retCode;
 
-                configuration.LastConfigurationTime.ConfigurationTime = DateTime.Now;
-                List<object> configurationItems = configuration.ToList();
+                configuration.Configuration.LastConfigurationTime.ConfigurationTime = DateTime.Now;
+                List<object> configurationItems = configuration.Configuration.ToList();
                 configurationItems.RemoveRange(0,1);//remove readonly header
                 
                 UInt16 registerNumberNeeded = (UInt16)((SizeofHelper.SizeOfPublicPropertiesWithModbusAttribute(configurationItems,
@@ -88,22 +88,23 @@ namespace MIOConfig
             return ReaderSaverErrors.CodeComPortNotConnected;
         }
 
-        public ReaderSaverErrors ReadDeviceConfiguration(ref DeviceConfiguration configuration)
+        public ReaderSaverErrors ReadDeviceConfiguration(Device configuration)
         {
-            ReaderSaverErrors retCode = CheckDeviceHeaderValidityAndInitConfiguration(configuration);
+            configuration.Configuration.ConfigurationReadFromDevice = false;
+            ReaderSaverErrors retCode = CheckDeviceHeaderValidityAndInitConfiguration(configuration.Configuration);
             if (retCode != ReaderSaverErrors.CodeOk)
                 return retCode;
-            List<object> listOfConfigurationItems = configuration.ToList();
+            List<object> listOfConfigurationItems = configuration.Configuration.ToList();
 
             retCode = PerformReading(ref listOfConfigurationItems);
             if (retCode != ReaderSaverErrors.CodeOk)
                 return retCode;
 
-            if(! configuration.FromList(listOfConfigurationItems))
+            if (!configuration.Configuration.FromList(listOfConfigurationItems))
                 return ReaderSaverErrors.CodeInvalidConfigurationSize;
 
             if (retCode == ReaderSaverErrors.CodeOk)
-                configuration.ConfigurationReadFromDevice = true;
+                configuration.Configuration.ConfigurationReadFromDevice = true;
             return retCode;
         }
 
@@ -175,7 +176,9 @@ namespace MIOConfig
         {
             List<object> listOfConfigurationItems = new List<object>();
             DeviceHeader tempHeader = new DeviceHeader();
+            DeviceConfigurationTime tempConfigurationTime = new DeviceConfigurationTime();
             listOfConfigurationItems.Add(tempHeader);
+            listOfConfigurationItems.Add(tempConfigurationTime);
 
 
             ReaderSaverErrors retCode = PerformReading(ref listOfConfigurationItems);
@@ -188,9 +191,9 @@ namespace MIOConfig
             if (!tempHeader.IsValidHeader())
                     return ReaderSaverErrors.CodeInvalidDeviceHeader;
 
-            configuration.HeaderFields.DeviceVersion = tempHeader.DeviceVersion;
-            configuration.HeaderFields.DeviceConsistenceRegister = tempHeader.DeviceConsistenceRegister;
-                                           
+            configuration.HeaderFields = tempHeader;
+            configuration.LastConfigurationTime = tempConfigurationTime;
+                                                      
             return ReaderSaverErrors.CodeOk;
         }
 

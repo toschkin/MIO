@@ -49,14 +49,14 @@ namespace MIOConfig
             }
         }
 
-        public ReaderSaverErrors SaveDeviceConfiguration(DeviceConfiguration configuration)
+        public ReaderSaverErrors SaveDeviceConfiguration(Device configuration)
         {
             BinaryFormatter formatter = new BinaryFormatter();
            
             try
             {
                 FileStream fs = new FileStream(FilePath, FileMode.OpenOrCreate);
-                formatter.Serialize(fs, configuration);   
+                formatter.Serialize(fs, configuration.Configuration);   
                 fs.Close();
             }
             catch (Exception)
@@ -66,21 +66,21 @@ namespace MIOConfig
             return ReaderSaverErrors.CodeOk;
         }
 
-        public ReaderSaverErrors ReadDeviceConfiguration(ref DeviceConfiguration configuration)
+        public ReaderSaverErrors ReadDeviceConfiguration(Device configuration)
         {            
             BinaryFormatter formatter = new BinaryFormatter();
                        
             try
             {
                 FileStream fs = new FileStream(FilePath, FileMode.OpenOrCreate);
-                configuration = (DeviceConfiguration)formatter.Deserialize(fs);                
+                configuration.Configuration = (DeviceConfiguration)formatter.Deserialize(fs);                
                 fs.Close();
             }
             catch (Exception)
             {
                 return ReaderSaverErrors.CodeSerializationError;
             }
-            configuration.ConfigurationReadFromDevice = false;
+            configuration.Configuration.ConfigurationReadFromDevice = false;
             return ReaderSaverErrors.CodeOk;
         }
     }
