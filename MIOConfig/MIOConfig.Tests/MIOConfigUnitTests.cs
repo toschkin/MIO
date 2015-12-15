@@ -1,7 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MIOConfig;
-using MIOConfig.InternalLayer;
 using Modbus.Core;
 
 namespace MIOConfig.Tests

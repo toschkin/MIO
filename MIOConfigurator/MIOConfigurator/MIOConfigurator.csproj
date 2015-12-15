@@ -37,15 +37,15 @@
     <Reference Include="Microsoft.Expression.Interactions, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Prism.4.1.0.0\lib\NET40\Microsoft.Expression.Interactions.dll</HintPath>
       <Private>True</Private>
-    </Reference>
+    </Reference>		
     <Reference Include="MIOConfig">
-      <HintPath>..\..\MIOConfig\MIOConfig\bin\Release\MIOConfig.dll</HintPath>
+      <HintPath>..\..\MIOConfig\MIOConfig\bin\$(Configuration)\MIOConfig.dll</HintPath>
     </Reference>
     <Reference Include="Modbus.Core">
-      <HintPath>..\..\Modbus.Core\bin\Release\Modbus.Core.dll</HintPath>
+      <HintPath>..\..\Modbus.Core\bin\$(Configuration)\Modbus.Core.dll</HintPath>
     </Reference>
     <Reference Include="Rubenhak.Common.WPF">
-      <HintPath>..\..\Rubenhak.Common.WPF\bin\Release\Rubenhak.Common.WPF.dll</HintPath>
+      <HintPath>..\..\Rubenhak.Common.WPF\bin\$(Configuration)\Rubenhak.Common.WPF.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -140,6 +140,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\rtu.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\port-icon.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

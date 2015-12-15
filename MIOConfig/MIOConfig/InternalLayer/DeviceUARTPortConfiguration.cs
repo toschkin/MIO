@@ -3,7 +3,7 @@ using System.Linq;
 using System.Runtime.Remoting.Messaging;
 using Modbus.Core;
 
-namespace MIOConfig.InternalLayer
+namespace MIOConfig
 {
     [Serializable]
     public class DeviceUARTPortConfiguration
@@ -23,9 +23,14 @@ namespace MIOConfig.InternalLayer
             PortMasterTimeout = 200;
             PortMasterRequestCount = 0;
             PortRetriesCount = 5;
-            PortModbusAddress = 1;            
-            
+            PortModbusAddress = 1;                        
         }
+
+        public string ShortDescription
+        {
+            get { return String.Format("Порт №{0}",_deviceConfiguration.UartPorts.FindIndex(0,(port)=>port == this)+1);}
+        }
+
         private UInt16 _portOperation;
         /// <summary>
         /// Holding regs|addr.: 1007+7*(DevicePortNumber-1) |count: 1| R/W

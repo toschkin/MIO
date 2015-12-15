@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace MIOConfig.InternalLayer
+namespace MIOConfig
 {
     public interface IDeviceModule
     {

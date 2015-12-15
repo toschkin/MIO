@@ -5,7 +5,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MIOConfig.InternalLayer;
+using MIOConfig;
 
 namespace MIOConfig
 {       
@@ -132,13 +132,13 @@ namespace MIOConfig
             }
         }
 
-        //diskuss with Sasha about fixed slave port
+        
         //public ReadOnlyCollection<DeviceUARTPortConfiguration> UartPortsConfigurations
-        public List<DeviceUARTPortConfiguration> UartPortsConfigurations
+        public ObservableCollection<DeviceUARTPortConfiguration> UartPortsConfigurations
         { 
             //get { return new List<DeviceUARTPortConfiguration>(Configuration.UartPorts); }     
-            get { return Configuration.UartPorts; }   
-            set { Configuration.UartPorts = value; }   
+            get { return new ObservableCollection<DeviceUARTPortConfiguration>(Configuration.UartPorts); }   
+            //set { Configuration.UartPorts = value; }   
         }
 
         public DeviceModuleDIConfiguration DiscreetInputModuleConfiguration

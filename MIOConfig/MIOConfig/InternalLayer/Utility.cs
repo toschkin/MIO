@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace MIOConfig.InternalLayer
+namespace MIOConfig
 {
     public class Utility
     {

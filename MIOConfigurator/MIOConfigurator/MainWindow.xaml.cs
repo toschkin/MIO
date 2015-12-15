@@ -27,8 +27,10 @@ namespace MIOConfigurator
     /// <summary>
     /// Логика взаимодействия для MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window, INotifyPropertyChanged
+    public partial class MainWindow : Window ,INotifyPropertyChanged
     {
+
+        public event PropertyChangedEventHandler PropertyChanged;
         private void NotifyPropertyChanged(string info)
         {
             if (PropertyChanged != null)
@@ -36,16 +38,40 @@ namespace MIOConfigurator
                 PropertyChanged(this, new PropertyChangedEventArgs(info));
             }
         }
-        public event PropertyChangedEventHandler PropertyChanged;
-
 
         private ModbusRtuProtocol _modbusRtuProtocol;
         public ObservableCollection<Device> Devices { get; set; }
-        public Device SelectedDevice;
+        private Device _selectedDevice;
+        public Device SelectedDevice {
+            get { return _selectedDevice; }
+            set
+            {
+                _selectedDevice = value;
+                NotifyPropertyChanged("SelectedDevice");
+            }
+        }
+        private Device _selectedPortConfiguration;
+        public Device SelectedPortConfiguration
+        {
+            get { return _selectedPortConfiguration; }
+            set
+            {
+                _selectedPortConfiguration = value;
+                NotifyPropertyChanged("SelectedPortConfiguration");
+            }
+        }
         private BackgroundWorker mainWindowBackgroundWorker = new BackgroundWorker();
-        private bool _deviceConfigurationChanged;                  
+        private bool _deviceConfigurationChanged;
 
-        public bool WorkerInProgress { get; set; }
+        private bool _workerInProgress;
+        public bool WorkerInProgress {
+            get { return _workerInProgress; }
+            set
+            {
+                _workerInProgress = value;
+                NotifyPropertyChanged("WorkerInProgress");
+                NotifyPropertyChanged("WorkerStopped"); } 
+        }
         public bool WorkerStopped { get { return !WorkerInProgress; } }
 
         #region Reading and Saving
@@ -129,7 +155,7 @@ namespace MIOConfigurator
                             MessageBoxImage.Question))
                     {
                         _deviceReaderSaver.SlaveAddress = ((Device)DevicesList.SelectedItem).ModbusAddress;
-                        WorkerInProgress = true;
+                        WorkerInProgress = true;                        
                         CmdFindDevices.IsEnabled = false;
                         CmdAddDeviceToList.IsEnabled = false;
                         CmdCancelSearchDevices.IsEnabled = false;
@@ -247,7 +273,7 @@ namespace MIOConfigurator
         #endregion
 
         private void DrawConfigurationTabs()
-        {
+        {            
             NoItemsTextBlock.Visibility = Visibility.Collapsed;
             ConfigurationTabs.Visibility = Visibility.Visible;
         }
@@ -364,8 +390,8 @@ namespace MIOConfigurator
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
-        {       
-                
+        {
+            DrawEmptySpace();
         }
         
         private void SlaveConcreteAddress_OnPreviewLostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
@@ -425,6 +451,11 @@ namespace MIOConfigurator
         private void CmdReadConfiguration_OnClick(object sender, RoutedEventArgs e)
         {
             OnReadConfiguration();
-        }                                           
+        }
+
+        private void UartPots_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            //todo set SelectedPortConfiguration and bind to elements
+        }       
     }
 }
