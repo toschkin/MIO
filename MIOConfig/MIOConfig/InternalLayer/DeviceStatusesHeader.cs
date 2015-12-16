@@ -7,7 +7,6 @@ using Modbus.Core;
 
 namespace MIOConfig
 {
-    [Serializable]
     public class DeviceStatusesHeader
     {        
         /// <summary>

@@ -220,17 +220,20 @@
                                 <ListBox x:Name ="UartPots" VerticalAlignment="Top" Background="AliceBlue" Margin="5,5,5,5" 
                                     ItemsSource="{Binding Path=SelectedDevice.UartPortsConfigurations, 
                                     RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}" 
-                                    SelectionChanged="UartPots_OnSelectionChanged">
+                                    SelectionChanged="UartPots_OnSelectionChanged"
+                                    HorizontalContentAlignment="Stretch">
                                     <ListBox.ItemTemplate>
                                         <DataTemplate DataType="mioConfig:DeviceUARTPortConfiguration">
-                                            <StackPanel Orientation="Horizontal">
-                                                <Image Margin="3" Source="Images/port-icon.png">
-                                                    <Image.Effect>
-                                                        <DropShadowEffect></DropShadowEffect>
-                                                    </Image.Effect>
-                                                </Image>
-                                                <TextBlock Margin="3" TextWrapping="Wrap" Text="{Binding ShortDescription}"/>
-                                            </StackPanel>                                            
+                                            <Border Margin="2" BorderThickness="1" CornerRadius="2" BorderBrush="Black" >
+                                                <StackPanel Orientation="Horizontal" Background="AliceBlue">
+                                                    <Image Margin="3" Source="Images/port-icon.png">
+                                                        <Image.Effect>
+                                                            <DropShadowEffect></DropShadowEffect>
+                                                        </Image.Effect>
+                                                    </Image>
+                                                    <TextBlock Margin="3" TextWrapping="Wrap" Text="{Binding ShortDescription}"/>
+                                                </StackPanel>
+                                            </Border>
                                         </DataTemplate>
                                     </ListBox.ItemTemplate>
                                 </ListBox>

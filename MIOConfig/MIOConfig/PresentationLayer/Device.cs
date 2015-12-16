@@ -218,7 +218,8 @@ namespace MIOConfig
         #endregion               
 
         #region User registers map
-
+        
+        [NonSerialized]
         public List<DeviceUserRegister> UserRegisters;
 
         #region Methods
@@ -234,9 +235,10 @@ namespace MIOConfig
         #endregion
 
         #region Device Statuses And Control
-
+        
+        [NonSerialized]
         internal DeviceStatuses Statuses;
-
+                
         public ReadOnlyCollection<DeviceUartPortStatus> UartPortStatuses
         {
             get { return new ReadOnlyCollection<DeviceUartPortStatus>(Statuses.UartPortStatuses); }
@@ -266,8 +268,9 @@ namespace MIOConfig
 
         #region Device Discreete Input Module
 
+        [NonSerialized]
         internal DeviceDIModule DIModule;
-
+        
         public DeviceDIModule DiscreeteInputModule
         {
             get { return ModuleDIPresent?DIModule:null; }
@@ -288,6 +291,7 @@ namespace MIOConfig
 
         #region Device Discreete Output Module
 
+        [NonSerialized]
         internal DeviceDOModule DOModule;
 
         public DeviceDOModule DiscreeteOutputModule

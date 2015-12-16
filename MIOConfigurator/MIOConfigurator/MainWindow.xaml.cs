@@ -54,8 +54,8 @@ namespace MIOConfigurator
                 if (_selectedDevice != null)
                 {
                     MemoryStream buffer = new MemoryStream();
-                    BinaryFormatter formatter = new BinaryFormatter();
-                    formatter.Serialize(buffer, _selectedDevice);
+                    BinaryFormatter formatter = new BinaryFormatter();                    
+                    formatter.Serialize(buffer, _selectedDevice);                   
                     _deviceSnapshotBefore = buffer.ToArray();
     
                 }

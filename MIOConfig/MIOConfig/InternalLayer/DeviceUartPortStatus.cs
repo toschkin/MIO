@@ -6,8 +6,7 @@ using System.Threading.Tasks;
 using Modbus.Core;
 
 namespace MIOConfig
-{
-    [Serializable]
+{   
     public class DeviceUartPortStatus
     {        
         /// <summary>
