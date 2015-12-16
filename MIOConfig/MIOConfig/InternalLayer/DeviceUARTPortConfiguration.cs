@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.ObjectModel;
+using System.IO.Ports;
 using System.Linq;
 using System.Runtime.Remoting.Messaging;
 using Modbus.Core;
@@ -8,7 +10,7 @@ namespace MIOConfig
     [Serializable]
     public class DeviceUARTPortConfiguration
     {
-        private DeviceConfiguration _deviceConfiguration;
+        private readonly DeviceConfiguration _deviceConfiguration;
             
         public DeviceUARTPortConfiguration(ref DeviceConfiguration deviceConfiguration)
         {
@@ -31,6 +33,66 @@ namespace MIOConfig
             get { return String.Format("Порт №{0}",_deviceConfiguration.UartPorts.FindIndex(0,(port)=>port == this)+1);}
         }
 
+        public ObservableCollection<UInt16> AvailableComSpeeds
+        {
+            get
+            {
+                ObservableCollection<UInt16> speeds = new ObservableCollection<UInt16>
+                {                    
+	                1200,
+	                1800,
+	                2400,
+	                4800,
+	                7200,
+	                9600,
+	                14400,
+	                19200,
+	                38400,
+	                56000,	
+	                57600	               
+                };
+                return speeds;
+            }
+        }
+        public ObservableCollection<Byte> AvailableComByteSizes
+        {
+            get
+            {
+                ObservableCollection<Byte> sizes = new ObservableCollection<Byte>
+                {                   
+                    8                    
+                };
+                if (_deviceConfiguration.UartPorts.FindIndex(0, (port) => port == this)==0)
+                    sizes.Add(9);
+                return sizes;
+            }
+        }
+        public ObservableCollection<Parity> AvailableComParities
+        {
+            get
+            {
+                ObservableCollection<Parity> parities = new ObservableCollection<Parity>
+                {                    
+                    Parity.None,
+                    Parity.Even,
+                    Parity.Odd                    
+                };
+                return parities;
+            }
+        }
+        public ObservableCollection<Byte> AvailableComStopBits
+        {
+            get
+            {
+                ObservableCollection<Byte> stopBits = new ObservableCollection<Byte>
+                {                    
+                    1,
+                    2                    
+                };
+                return stopBits;
+            }
+        }
+        
         private UInt16 _portOperation;
         /// <summary>
         /// Holding regs|addr.: 1007+7*(DevicePortNumber-1) |count: 1| R/W
@@ -77,7 +139,7 @@ namespace MIOConfig
         /// <summary>
         /// Holding regs|addr.: 1009+7*(DevicePortNumber-1) HiByte|count: 1| R/W
         /// </summary>
-        /// <value>0 - No Parity, 1 - Parity EVEN, 2 - Parity ODD</value>
+        /// <value>0 - No Parity, 1 - Parity ODD, 2 - Parity EVEN</value>
         [ModbusProperty(Access = ModbusRegisterAccessType.AccessReadWrite)]
         public Byte PortParity
         {
@@ -140,8 +202,9 @@ namespace MIOConfig
                     value = 1;               
                 
                 _portProtocolType = value > 1 ? (Byte)1 : value;
-            }
+            }            
         }
+
 
         /// <summary>
         /// Holding regs|addr.: 1011+7*(DevicePortNumber-1) HiByte & 1012+7*(DevicePortNumber-1) LoByte|count: 1| R/W
@@ -202,7 +265,7 @@ namespace MIOConfig
                 else
                 {
                     _portModbusAddress = value;
-                }
+                }                                
             }
         }
     }

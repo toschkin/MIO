@@ -8,7 +8,8 @@ using System.Threading.Tasks;
 using MIOConfig;
 
 namespace MIOConfig
-{       
+{     
+    [Serializable]
     public class Device : INotifyPropertyChanged
     {        
         public Device()
@@ -20,6 +21,7 @@ namespace MIOConfig
             DOModule = null;
         }
 
+        [field: NonSerialized]
         public event PropertyChangedEventHandler PropertyChanged;
         private void NotifyPropertyChanged(string info)
         {

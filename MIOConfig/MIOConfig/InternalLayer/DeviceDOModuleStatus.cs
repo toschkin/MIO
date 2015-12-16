@@ -7,6 +7,7 @@ using Modbus.Core;
 
 namespace MIOConfig
 {
+    [Serializable]
     public class DeviceDOModuleStatus
     {
         public bool Reserve0;

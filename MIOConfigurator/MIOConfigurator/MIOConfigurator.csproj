@@ -37,12 +37,16 @@
     <Reference Include="Microsoft.Expression.Interactions, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Prism.4.1.0.0\lib\NET40\Microsoft.Expression.Interactions.dll</HintPath>
       <Private>True</Private>
-    </Reference>		
+    </Reference>
     <Reference Include="MIOConfig">
       <HintPath>..\..\MIOConfig\MIOConfig\bin\$(Configuration)\MIOConfig.dll</HintPath>
     </Reference>
     <Reference Include="Modbus.Core">
       <HintPath>..\..\Modbus.Core\bin\$(Configuration)\Modbus.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="QuickConverter, Version=1.2.3.0, Culture=neutral, PublicKeyToken=9c892aa7bc2af2cf, processorArchitecture=MSIL">
+      <HintPath>..\packages\QuickConverter.1.2.3.0\lib\net40\QuickConverter.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Rubenhak.Common.WPF">
       <HintPath>..\..\Rubenhak.Common.WPF\bin\$(Configuration)\Rubenhak.Common.WPF.dll</HintPath>

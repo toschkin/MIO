@@ -8,7 +8,8 @@ using Modbus.Core;
 
 namespace MIOConfig
 {
-    
+
+    [Serializable]
     public class DeviceUserRegister
     {
         private DeviceConfiguration _deviceConfiguration;        

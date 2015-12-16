@@ -4,7 +4,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:mioConfig="clr-namespace:MIOConfig;assembly=MIOConfig"       
-        xmlns:wpf="clr-namespace:Rubenhak.Common.WPF;assembly=Rubenhak.Common.WPF"
+        xmlns:qc="clr-namespace:QuickConverter;assembly=QuickConverter"
+        xmlns:wpf="clr-namespace:Rubenhak.Common.WPF;assembly=Rubenhak.Common.WPF"        
         mc:Ignorable="d"
         Title="Настройка МВВ" Height="600" Width="800" MinHeight="600" MinWidth="800" WindowStartupLocation="CenterScreen" 
         Closing="MainWindow_Closing" Loaded="MainWindow_Loaded">        
@@ -34,7 +35,7 @@
         </Style>
     </Window.Resources>
     <DockPanel UseLayoutRounding="True" Background="Lavender">
-        <Menu DockPanel.Dock="Top" IsMainMenu="True" DataContext="MIOConfigurator.MainWindow" x:Name="MainMenu" FontSize="12">
+        <Menu DockPanel.Dock="Top" IsMainMenu="True" DataContext="MIOConfigurator.MainWindow" x:Name="MainMenu" FontSize="12">            
             <MenuItem Header="_Соединение" Style="{StaticResource ParentMenuStyle}">
                 <MenuItem x:Name="CmdConnect" Header="_Подключиться" Click="CmdConnect_OnClick" Style="{StaticResource ChildMenuStyle}">                    
                     <MenuItem.Icon>
@@ -118,10 +119,19 @@
                      HorizontalContentAlignment="Stretch" Background="Lavender" ItemsSource="{Binding Path=Devices, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}" SelectionChanged="DevicesList_OnSelectionChanged">
                 <ListBox.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="_Удалить устройство из списка" IsEnabled="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type ContextMenu}},Path=PlacementTarget.HasItems}" Style="{StaticResource ChildMenuStyle}" Click="CmdDelDeviceFromList_OnClick"/>
-                        <MenuItem Header="_Очистить список устройств" IsEnabled="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type ContextMenu}},Path=PlacementTarget.HasItems}" Style="{StaticResource ChildMenuStyle}" Click="CmdDelAllDevicesFromList_Click"/>
+                        <MenuItem Header="_Удалить устройство из списка" 
+                                  IsEnabled="{qc:Binding '$P!=-1', P={Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type ContextMenu}},Path=PlacementTarget.SelectedIndex}}"
+                                  Style="{StaticResource ChildMenuStyle}" Click="CmdDelDeviceFromList_OnClick"/>
+                        <MenuItem Header="_Очистить список устройств" 
+                                  IsEnabled="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type ContextMenu}},Path=PlacementTarget.HasItems}" 
+                                  Style="{StaticResource ChildMenuStyle}" Click="CmdDelAllDevicesFromList_Click"/>
                         <Separator />
-                        <MenuItem x:Name ="CmdReadConfiguration" Header="Прочитать конфигурацию устройства" IsEnabled="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type ContextMenu}},Path=PlacementTarget.HasItems}" Style="{StaticResource ChildMenuStyle}" Click="CmdReadConfiguration_OnClick" />
+                        <MenuItem x:Name ="CmdReadConfiguration" Header="Прочитать конфигурацию устройства" 
+                                  IsEnabled="{qc:Binding '$P!=-1', P={Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type ContextMenu}},Path=PlacementTarget.SelectedIndex}}" 
+                                  Style="{StaticResource ChildMenuStyle}" Click="CmdReadConfiguration_OnClick" />
+                        <MenuItem x:Name ="CmdSaveConfiguration" Header="Записать конфигурацию в устройство" 
+                                  IsEnabled="{qc:Binding '$P!=-1', P={Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type ContextMenu}},Path=PlacementTarget.SelectedIndex}}" 
+                                  Style="{StaticResource ChildMenuStyle}" Click="CmdSaveConfiguration_OnClick" />
                     </ContextMenu>
                 </ListBox.ContextMenu>
                 <ListBox.ItemTemplate>
@@ -202,12 +212,15 @@
                     <TabItem Header="Коммуникации">
                         <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"></ColumnDefinition>
-                                <ColumnDefinition Width="*"></ColumnDefinition>
+                                <ColumnDefinition Width="2*"></ColumnDefinition>
+                                <ColumnDefinition Width="5*"></ColumnDefinition>
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Row ="0" Grid.Column="0">
                                 <TextBlock Text="Порты устройства (USART)" Padding="5"></TextBlock>
-                                <ListBox x:Name ="UartPots" VerticalAlignment="Top" Background="AliceBlue" Margin="5,5,5,5" SelectedIndex ="0" ItemsSource="{Binding Path=SelectedDevice.UartPortsConfigurations, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}" SelectionChanged="UartPots_OnSelectionChanged">
+                                <ListBox x:Name ="UartPots" VerticalAlignment="Top" Background="AliceBlue" Margin="5,5,5,5" 
+                                    ItemsSource="{Binding Path=SelectedDevice.UartPortsConfigurations, 
+                                    RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}" 
+                                    SelectionChanged="UartPots_OnSelectionChanged">
                                     <ListBox.ItemTemplate>
                                         <DataTemplate DataType="mioConfig:DeviceUARTPortConfiguration">
                                             <StackPanel Orientation="Horizontal">
@@ -222,14 +235,15 @@
                                     </ListBox.ItemTemplate>
                                 </ListBox>
                             </StackPanel>
-                            <StackPanel Grid.Row ="0" Grid.Column="1">
+                            <StackPanel Grid.Row ="0" Grid.Column="1" Grid.IsSharedSizeScope="True">
                                 <GroupBox Header="Общие настройки порта" Margin="5" Padding="5" HorizontalContentAlignment="Stretch">
                                     <StackPanel>
-                                        <CheckBox Content="Порт активен" Margin="10,10,10,0"></CheckBox>
+                                        <CheckBox Content="Порт активен" Margin="10,10,10,0" 
+                                                  IsChecked="{qc:Binding '$P == 1', ConvertBack='$value?1:0',  P={Binding Path=SelectedPortConfiguration.PortOperation, Mode=TwoWay, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}}"></CheckBox>
                                         <Grid Margin="10,10,10,0">
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"></ColumnDefinition>
-                                                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                                <ColumnDefinition SharedSizeGroup="Labels" Width="Auto"></ColumnDefinition>
+                                                <ColumnDefinition Width="*"></ColumnDefinition>
                                             </Grid.ColumnDefinitions>
                                             <Grid.RowDefinitions>
                                                 <RowDefinition Height="Auto"></RowDefinition>
@@ -238,13 +252,82 @@
                                                 <RowDefinition Height="Auto"></RowDefinition>
                                             </Grid.RowDefinitions>
                                             <TextBlock Grid.Row ="0" Grid.Column="0" HorizontalAlignment ="Right" Text="Скорость:" Padding="5"></TextBlock>
-                                            <ComboBox x:Name="PortBaudRate" Grid.Row ="0" Grid.Column="1" Margin="5,5,5,5"></ComboBox>
+                                            <ComboBox x:Name="PortBaudRate" Grid.Row ="0" Grid.Column="1" Margin="5,5,5,5" 
+                                                      SelectedItem="{Binding Path=SelectedPortConfiguration.PortSpeed, Mode=TwoWay, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}" 
+                                                      ItemsSource="{Binding Path=SelectedPortConfiguration.AvailableComSpeeds, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}"></ComboBox>
                                             <TextBlock Grid.Row ="1" Grid.Column="0" HorizontalAlignment ="Right" Text="Количество бит в байте:" Padding="5"></TextBlock>
-                                            <ComboBox x:Name="PortByteSize" Grid.Row ="1" Grid.Column="1" Margin="5,5,5,5"></ComboBox>
+                                            <ComboBox x:Name="PortByteSize" Grid.Row ="1" Grid.Column="1" Margin="5,5,5,5"
+                                                      SelectedItem="{Binding Path=SelectedPortConfiguration.PortByteSize, Mode=TwoWay, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}" 
+                                                      ItemsSource="{Binding Path=SelectedPortConfiguration.AvailableComByteSizes, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}"></ComboBox>
                                             <TextBlock Grid.Row ="2" Grid.Column="0" HorizontalAlignment ="Right" Text="Контроль четности:" Padding="5"></TextBlock>
-                                            <ComboBox x:Name="PortParity" Grid.Row ="2" Grid.Column="1" Margin="5,5,5,5"></ComboBox>
+                                            <ComboBox x:Name="PortParity" Grid.Row ="2" Grid.Column="1" Margin="5,5,5,5"
+                                                      SelectedItem="{qc:Binding 'Parity.None+$P', ConvertBack='$value', P={Binding Path=SelectedPortConfiguration.PortParity, Mode=TwoWay, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}}" 
+                                                      ItemsSource="{Binding Path=SelectedPortConfiguration.AvailableComParities, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}"></ComboBox>
                                             <TextBlock Grid.Row ="3" Grid.Column="0" HorizontalAlignment ="Right" Text="Количество стоповых бит:" Padding="5"></TextBlock>
-                                            <ComboBox x:Name="PortStopBits" Grid.Row ="3" Grid.Column="1" Margin="5,5,5,5"></ComboBox>
+                                            <ComboBox x:Name="PortStopBits" Grid.Row ="3" Grid.Column="1" Margin="5,5,5,5"
+                                                      SelectedItem="{Binding Path=SelectedPortConfiguration.PortStopBits, Mode=TwoWay, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}" 
+                                                      ItemsSource="{Binding Path=SelectedPortConfiguration.AvailableComStopBits, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}"></ComboBox>
+                                        </Grid>
+                                    </StackPanel>
+                                </GroupBox>
+                                <GroupBox Header="Настройки протокола" Margin="5" Padding="5" HorizontalContentAlignment="Stretch">
+                                    <StackPanel>
+                                        <Grid Margin="10,10,10,0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition SharedSizeGroup="Labels" Width="Auto"></ColumnDefinition>
+                                                <ColumnDefinition Width="*"></ColumnDefinition>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"></RowDefinition>                                                
+                                            </Grid.RowDefinitions>
+                                            <TextBlock Grid.Row ="0" Grid.Column="0" HorizontalAlignment ="Right" Text="Протокол обмена:" Padding="5"></TextBlock>
+                                            <ComboBox x:Name="PortProtocolType" Grid.Row ="0" Grid.Column="1" Margin="5,5,5,5" 
+                                                      SelectedIndex="{Binding Path=SelectedPortConfiguration.PortProtocolType, Mode=TwoWay, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}">
+                                                <ComboBoxItem Visibility="{qc:MultiBinding 
+                                                    '($P0==0)||(!$P1) ? Visibility.Collapsed : Visibility.Visible', 
+                                                    P0={Binding ElementName=UartPots, Path=SelectedIndex},
+                                                    P1={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedDevice.ModuleModbusMasterPresent}}">
+                                                    Modbus (master)</ComboBoxItem>
+                                                <ComboBoxItem>Modbus (slave)</ComboBoxItem>
+                                            </ComboBox>                                                                                       
+                                        </Grid>
+                                        <Grid Margin="10,10,10,0" Visibility="{qc:Binding '$P==0 ? Visibility.Visible : Visibility.Collapsed', P={Binding ElementName=PortProtocolType,Path=SelectedIndex}}">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition SharedSizeGroup="Labels" Width="Auto"></ColumnDefinition>
+                                                <ColumnDefinition Width="*"></ColumnDefinition>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"></RowDefinition>
+                                                <RowDefinition Height="Auto"></RowDefinition>
+                                            </Grid.RowDefinitions>                                           
+                                            <TextBlock Grid.Row ="0" Grid.Column="0" HorizontalAlignment ="Right" Text="Таймаут ответа:" Padding="5"></TextBlock>
+                                            <TextBox x:Name="PortMasterTimeout" Grid.Row ="0" Grid.Column="1" Margin="5,5,5,5"
+                                                        wpf:TextBoxMaskBehavior.Mask="Integer"
+        		                                        wpf:TextBoxMaskBehavior.MinimumValue="0"
+        		                                        wpf:TextBoxMaskBehavior.MaximumValue="65535"
+                                                        Text="{Binding Path=SelectedPortConfiguration.PortMasterTimeout, Mode=TwoWay, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}"></TextBox>
+                                            <TextBlock Grid.Row ="1" Grid.Column="0" HorizontalAlignment ="Right" Text="Количество повторов запроса:" Padding="5"></TextBlock>
+                                            <TextBox x:Name="PortRetries" Grid.Row ="1" Grid.Column="1" Margin="5,5,5,5"
+                                                        wpf:TextBoxMaskBehavior.Mask="Integer"
+        		                                        wpf:TextBoxMaskBehavior.MinimumValue="0"
+        		                                        wpf:TextBoxMaskBehavior.MaximumValue="255"
+                                                        Text="{Binding Path=SelectedPortConfiguration.PortRetriesCount, Mode=TwoWay, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}"></TextBox>                                         
+                                        </Grid>
+                                        <Grid Margin="10,10,10,0" Visibility="{qc:Binding '$P==1 ? Visibility.Visible : Visibility.Collapsed', P={Binding ElementName=PortProtocolType,Path=SelectedIndex}}">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition SharedSizeGroup="Labels" Width="Auto"></ColumnDefinition>
+                                                <ColumnDefinition Width="*"></ColumnDefinition>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"></RowDefinition>                                                
+                                            </Grid.RowDefinitions>
+                                            <TextBlock Grid.Row ="0" Grid.Column="0" HorizontalAlignment ="Right" Text="Адрес slave:" Padding="5"></TextBlock>
+                                            <TextBox x:Name="PortModbusAddress" Grid.Row ="0" Grid.Column="1" Margin="5,5,5,5"                                                         
+                                                    wpf:TextBoxMaskBehavior.Mask="Integer"
+        		                                    wpf:TextBoxMaskBehavior.MinimumValue="1"
+        		                                    wpf:TextBoxMaskBehavior.MaximumValue="247" TextChanged="PortModbusAddress_OnTextChanged"
+                                                    Text="{Binding Path=SelectedPortConfiguration.PortModbusAddress, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}">
+                                            </TextBox>
                                         </Grid>
                                     </StackPanel>
                                 </GroupBox>
