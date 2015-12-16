@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using MIOConfig;
 using Modbus.Core;
 using EnumExtension;
-using MIOConfig.InternalLayer;
+
 
 namespace ConsoleMIOConfigTester
 {

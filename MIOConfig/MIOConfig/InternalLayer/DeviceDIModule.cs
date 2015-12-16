@@ -6,8 +6,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Modbus.Core;
 
-namespace MIOConfig.InternalLayer
-{
+namespace MIOConfig
+{    
+    [Serializable]
     public class DeviceDIModule : IDeviceModule
     {
         public DeviceDIModule()
@@ -15,8 +16,10 @@ namespace MIOConfig.InternalLayer
             ModuleStatus = new DeviceDIModuleStatus();
             InputsRegisters = new List<ModbusDataPoint<UInt16>>(8) { new ModbusDataPoint<UInt16>(), new ModbusDataPoint<UInt16>(), new ModbusDataPoint<UInt16>(), new ModbusDataPoint<UInt16>(), new ModbusDataPoint<UInt16>(), new ModbusDataPoint<UInt16>(), new ModbusDataPoint<UInt16>(), new ModbusDataPoint<UInt16>() };
         }
-        public DeviceDIModuleStatus ModuleStatus { get; set; }
 
+        public DeviceDIModuleStatus ModuleStatus { get; set; }
+        
+        [field: NonSerialized]
         public List<ModbusDataPoint<UInt16>> InputsRegisters;
 
         public List<bool> InputsStates

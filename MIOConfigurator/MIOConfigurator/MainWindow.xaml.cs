@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,8 +29,10 @@ namespace MIOConfigurator
     /// <summary>
     /// Логика взаимодействия для MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window, INotifyPropertyChanged
+    public partial class MainWindow : Window ,INotifyPropertyChanged
     {
+
+        public event PropertyChangedEventHandler PropertyChanged;
         private void NotifyPropertyChanged(string info)
         {
             if (PropertyChanged != null)
@@ -36,16 +40,75 @@ namespace MIOConfigurator
                 PropertyChanged(this, new PropertyChangedEventArgs(info));
             }
         }
-        public event PropertyChangedEventHandler PropertyChanged;
-
 
         private ModbusRtuProtocol _modbusRtuProtocol;
         public ObservableCollection<Device> Devices { get; set; }
-        public Device SelectedDevice;
-        private BackgroundWorker mainWindowBackgroundWorker = new BackgroundWorker();
-        private bool _deviceConfigurationChanged;                  
+        private Byte[] _deviceSnapshotBefore;        
+        private Device _selectedDevice;
+        public Device SelectedDevice {
+            get { return _selectedDevice; }
+            set
+            {
+                _selectedDevice = value;
+                //taking snapshot
+                if (_selectedDevice != null)
+                {
+                    MemoryStream buffer = new MemoryStream();
+                    BinaryFormatter formatter = new BinaryFormatter();
+                    formatter.Serialize(buffer, _selectedDevice);
+                    _deviceSnapshotBefore = buffer.ToArray();
+    
+                }
+                else                
+                    _deviceSnapshotBefore = null;
+                
+                NotifyPropertyChanged("SelectedDevice");               
+            }
+        }
+        private DeviceUARTPortConfiguration _selectedPortConfiguration;
+        public DeviceUARTPortConfiguration SelectedPortConfiguration
+        {
+            get { return _selectedPortConfiguration; }
+            set
+            {
+                _selectedPortConfiguration = value;
+                NotifyPropertyChanged("SelectedPortConfiguration");
+            }
+        }
 
-        public bool WorkerInProgress { get; set; }
+        private BackgroundWorker mainWindowBackgroundWorker = new BackgroundWorker();
+
+        public bool DeviceConfigurationChanged
+        {
+            get
+            {
+                if (_selectedDevice != null)
+                {
+                    MemoryStream buffer = new MemoryStream();
+                    BinaryFormatter formatter = new BinaryFormatter();
+                    formatter.Serialize(buffer, _selectedDevice);
+                    Byte[] deviceSnapshotAfter = buffer.ToArray();
+                    if(deviceSnapshotAfter.Length != _deviceSnapshotBefore.Length)
+                        return true;
+                    for (int i = 0; i < _deviceSnapshotBefore.Length; i++)
+                    {
+                        if (deviceSnapshotAfter[i] != _deviceSnapshotBefore[i])
+                            return true;
+                    }                    
+                }
+                return false;
+            }
+        }
+
+        private bool _workerInProgress;
+        public bool WorkerInProgress {
+            get { return _workerInProgress; }
+            set
+            {
+                _workerInProgress = value;
+                NotifyPropertyChanged("WorkerInProgress");
+                NotifyPropertyChanged("WorkerStopped"); } 
+        }
         public bool WorkerStopped { get { return !WorkerInProgress; } }
 
         #region Reading and Saving
@@ -67,15 +130,19 @@ namespace MIOConfigurator
             {
                 СurrentlyProcessed.Text = "Чтение конфигурации завершено успешно";
                 SelectedDevice = (Device) DevicesList.SelectedItem;
+                UartPots.SelectedIndex = 0;
                 DrawConfigurationTabs();
             }
             else
             {
                 СurrentlyProcessed.Text = "Чтение конфигурации завершено c ошибкой: " + ((ReaderSaverErrors)e.Result).GetDescription();
-                if (SelectedDevice == null)//no item was previously selected
+                if (SelectedDevice == null) //no item was previously selected
                     DevicesList.UnselectAll();
                 else
+                {
                     DevicesList.SelectedItem = SelectedDevice;//returning to previously selected item 
+                    UartPots.SelectedIndex = 0;
+                }                    
             }                                        
         }
         private void ReadConfigurationProgressChanged(object sender, ProgressChangedEventArgs e)
@@ -101,14 +168,14 @@ namespace MIOConfigurator
             e.Result = retCode;
         }
 
-        private void OnReadConfiguration()
+        private void OnReadConfiguration(bool forceRead=false)
         {
             if (SelectedDevice != null)
                 AskUserToSaveDeviceConfiguration();
 
             if (DevicesList.SelectedItem is Device)
             {
-                if (((Device)DevicesList.SelectedItem).ConfigurationReadFromDevice)
+                if (((Device)DevicesList.SelectedItem).ConfigurationReadFromDevice && forceRead == false)
                 {
                     SelectedDevice = (Device)DevicesList.SelectedItem;
                     DrawConfigurationTabs();
@@ -123,13 +190,17 @@ namespace MIOConfigurator
                             DevicesList.SelectedItem = SelectedDevice;//returning to previously selected item        
                         return;
                     }
-                    if (MessageBoxResult.Yes ==
-                        MessageBox.Show("Для данного устройства не считана конфигурация. Прочитать?",
+                    MessageBoxResult result = MessageBoxResult.Yes;
+                    if (forceRead == false)
+                    {
+                        result = MessageBox.Show("Для данного устройства не считана конфигурация. Прочитать?",
                             Constants.messageBoxTitle, MessageBoxButton.YesNo,
-                            MessageBoxImage.Question))
+                            MessageBoxImage.Question);
+                    }
+                    if (MessageBoxResult.Yes == result)                        
                     {
                         _deviceReaderSaver.SlaveAddress = ((Device)DevicesList.SelectedItem).ModbusAddress;
-                        WorkerInProgress = true;
+                        WorkerInProgress = true;                        
                         CmdFindDevices.IsEnabled = false;
                         CmdAddDeviceToList.IsEnabled = false;
                         CmdCancelSearchDevices.IsEnabled = false;
@@ -156,26 +227,23 @@ namespace MIOConfigurator
             }  
         }
         private void SaveDeviceConfiguration()
-        {
-            _deviceConfigurationChanged = false;
+        {            
             if (SelectedDevice != null)
-            {
+            {                
                 //todo save configuration
             }
         }
 
-        private void AskUserToSaveDeviceConfiguration()
+        private void AskUserToSaveDeviceConfiguration(bool forceSaving=false)
         {
-            if (_deviceConfigurationChanged)
+            if (DeviceConfigurationChanged)
             {
                 if (MessageBoxResult.Yes ==
                     MessageBox.Show("Сохранить конфигурацию устройства?", Constants.messageBoxTitle,
                         MessageBoxButton.YesNo,
                         MessageBoxImage.Question))
-                    SaveDeviceConfiguration();
-                else
-                    _deviceConfigurationChanged = false;
-            }
+                    SaveDeviceConfiguration();                
+            }            
         }
         #endregion
         
@@ -247,7 +315,7 @@ namespace MIOConfigurator
         #endregion
 
         private void DrawConfigurationTabs()
-        {
+        {            
             NoItemsTextBlock.Visibility = Visibility.Collapsed;
             ConfigurationTabs.Visibility = Visibility.Visible;
         }
@@ -269,6 +337,7 @@ namespace MIOConfigurator
             Devices.Clear();
             _needToDisconnectOnSearchCompleted = false;
             SelectedDevice = null;
+            SelectedPortConfiguration = null;
             DrawEmptySpace();
         }        
 
@@ -281,11 +350,12 @@ namespace MIOConfigurator
             _deviceFinder = new DeviceFinder(_modbusRtuProtocol);  
             Devices = new ObservableCollection<Device>();
             WorkerInProgress = false;
-            _needToDisconnectOnSearchCompleted = false;
-            _deviceConfigurationChanged = false;
+            _needToDisconnectOnSearchCompleted = false;            
             SelectedDevice = null;
+            SelectedPortConfiguration = null;
             _deviceReaderSaver = new ModbusReaderSaver(_modbusRtuProtocol);
             _foundDevicesCount = 0;
+            _deviceSnapshotBefore = null;
         }
 
         private void CmdConnect_OnClick(object sender, RoutedEventArgs e)
@@ -342,6 +412,7 @@ namespace MIOConfigurator
                 Devices.Clear();
                 DrawEmptySpace();
                 SelectedDevice = null;
+                SelectedPortConfiguration = null;
                 WorkerInProgress = true;
                 CmdFindDevices.IsEnabled = false;
                 CmdAddDeviceToList.IsEnabled = false;
@@ -364,8 +435,8 @@ namespace MIOConfigurator
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
-        {       
-                
+        {
+            DrawEmptySpace();
         }
         
         private void SlaveConcreteAddress_OnPreviewLostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
@@ -402,6 +473,7 @@ namespace MIOConfigurator
         {
             AskUserToSaveDeviceConfiguration();
             SelectedDevice = null;
+            SelectedPortConfiguration = null;
             DrawEmptySpace();
             Devices.Clear();            
         }
@@ -412,19 +484,42 @@ namespace MIOConfigurator
             {
                 AskUserToSaveDeviceConfiguration();                
                 Devices.Remove(DevicesList.SelectedItem as Device);
-                SelectedDevice = null; 
+                SelectedDevice = null;
+                SelectedPortConfiguration = null;
                 DrawEmptySpace();
             }
         }
 
-        private void DevicesList_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void DevicesList_OnSelectionChanged(object sender, SelectionChangedEventArgs e)            
         {
-            OnReadConfiguration();
+            if(e.RemovedItems.Count == 0)
+                OnReadConfiguration();
         }
 
         private void CmdReadConfiguration_OnClick(object sender, RoutedEventArgs e)
         {
-            OnReadConfiguration();
-        }                                           
+            OnReadConfiguration(true);
+        }
+
+        private void UartPots_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {            
+            if (UartPots.SelectedIndex >= 0 && UartPots.SelectedIndex < SelectedDevice.UartPortsConfigurations.Count)
+                SelectedPortConfiguration = SelectedDevice.UartPortsConfigurations[UartPots.SelectedIndex];
+        }
+
+        private void PortModbusAddress_OnTextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (String.IsNullOrEmpty(PortModbusAddress.Text))
+                return;
+            foreach (var port in SelectedDevice.UartPortsConfigurations)
+            {
+                port.PortModbusAddress = Convert.ToByte(PortModbusAddress.Text);
+            }
+        }
+
+        private void CmdSaveConfiguration_OnClick(object sender, RoutedEventArgs e)
+        {
+            SaveDeviceConfiguration();
+        }
     }
 }

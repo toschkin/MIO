@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MIOConfig.InternalLayer;
+using MIOConfig;
 
 namespace MIOConfig.PresentationLayer
 {

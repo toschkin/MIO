@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Xml.Serialization;
 using System.Text.RegularExpressions;
 using System.Runtime.Serialization.Formatters.Binary;
-using MIOConfig.InternalLayer;
+using MIOConfig;
 
 namespace MIOConfig
 {           

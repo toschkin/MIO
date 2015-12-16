@@ -5,8 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Modbus.Core;
 
-namespace MIOConfig.InternalLayer
+namespace MIOConfig
 {
+    [Serializable]
     public class DeviceDOModule : IDeviceModule
     {
         public DeviceDOModule()
@@ -21,7 +22,9 @@ namespace MIOConfig.InternalLayer
         }
 
         public DeviceDOModuleStatus ModuleStatus { get; set; }
+        [field: NonSerialized]
         public ModbusDataPoint<UInt16>[] RealCoilStates = new ModbusDataPoint<UInt16>[4];
+        [field: NonSerialized]
         public ModbusDataPoint<UInt16>[] DesiredCoilStates = new ModbusDataPoint<UInt16>[4];
         public DeviceDOModuleStatus[] ChannelStatuses = new DeviceDOModuleStatus[4];
         

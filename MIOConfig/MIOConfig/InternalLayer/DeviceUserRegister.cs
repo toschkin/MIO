@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MIOConfig.InternalLayer;
+using MIOConfig;
 using Modbus.Core;
 
 namespace MIOConfig
 {
-    
+
+    [Serializable]
     public class DeviceUserRegister
     {
         private DeviceConfiguration _deviceConfiguration;        

@@ -1,7 +1,7 @@
 ﻿using System;
 using Modbus.Core;
 
-namespace MIOConfig.InternalLayer
+namespace MIOConfig
 {
     [Serializable]
     public class DeviceModuleDIConfiguration

@@ -19,12 +19,22 @@
             </Setter.Value>
         </Setter>
     </Style>
+    
     <Style TargetType="{x:Type ComboBox}">
-        <Setter Property="Background" Value="{StaticResource GradientThemeBrush}"/>
+        <Setter Property="Background" Value="Lavender"/>
     </Style>
-    <Style TargetType="{x:Type StackPanel}">
-        <Setter Property="Background" Value="{StaticResource GradientThemeBrush}"/>
+    
+    <Style x:Key="StackPanelLavenderTheme" TargetType="{x:Type StackPanel}">
+        <Setter Property="Background">
+            <Setter.Value>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <GradientStop Color="LightGreen" Offset="0"></GradientStop>
+                    <GradientStop Color="White" Offset="1"></GradientStop>
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter> <!--Value="{StaticResource GradientThemeBrush}"/>-->
     </Style>
+    
     <Style TargetType="{x:Type ListBoxItem}">
         <Style.Triggers>
             <Trigger Property="IsSelected" Value="True">
@@ -32,5 +42,5 @@
                 <Setter Property="FontWeight" Value="Bold"/>
             </Trigger>
         </Style.Triggers>
-    </Style>
+    </Style>       
 </ResourceDictionary>

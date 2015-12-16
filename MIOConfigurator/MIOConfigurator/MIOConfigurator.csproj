@@ -39,13 +39,17 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="MIOConfig">
-      <HintPath>..\..\MIOConfig\MIOConfig\bin\Release\MIOConfig.dll</HintPath>
+      <HintPath>..\..\MIOConfig\MIOConfig\bin\$(Configuration)\MIOConfig.dll</HintPath>
     </Reference>
     <Reference Include="Modbus.Core">
-      <HintPath>..\..\Modbus.Core\bin\Release\Modbus.Core.dll</HintPath>
+      <HintPath>..\..\Modbus.Core\bin\$(Configuration)\Modbus.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="QuickConverter, Version=1.2.3.0, Culture=neutral, PublicKeyToken=9c892aa7bc2af2cf, processorArchitecture=MSIL">
+      <HintPath>..\packages\QuickConverter.1.2.3.0\lib\net40\QuickConverter.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Rubenhak.Common.WPF">
-      <HintPath>..\..\Rubenhak.Common.WPF\bin\Release\Rubenhak.Common.WPF.dll</HintPath>
+      <HintPath>..\..\Rubenhak.Common.WPF\bin\$(Configuration)\Rubenhak.Common.WPF.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -140,6 +144,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\rtu.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\port-icon.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

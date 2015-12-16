@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Modbus.Core;
 
-namespace MIOConfig.InternalLayer
+namespace MIOConfig
 {
     [Serializable]
     public class DeviceHeader

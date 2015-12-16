@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace MIOConfig.InternalLayer
+namespace MIOConfig
 {       
     [Serializable]
     public class DeviceConfiguration
