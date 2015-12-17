@@ -341,10 +341,14 @@
                             </StackPanel>
                         </Grid>
                     </TabItem>
-                    <TabItem Header="Модуль ТС"></TabItem>
-                    <TabItem Header="Модуль ТУ"></TabItem>
-                    <TabItem Header="Ретранслятор"></TabItem>
-                    <TabItem Header="Модуль Modbus (master)"></TabItem>                    
+                    <TabItem Header="Модуль ТС" Visibility="{qc:Binding '!$P ? Visibility.Collapsed : Visibility.Visible',                                                     
+                                                P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedDevice.ModuleDIPresent}}"></TabItem>
+                    <TabItem Header="Модуль ТУ" Visibility="{qc:Binding '!$P ? Visibility.Collapsed : Visibility.Visible',                                                     
+                                                P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedDevice.ModuleDOPresent}}"></TabItem>
+                    <TabItem Header="Ретранслятор" Visibility="{qc:Binding '!$P ? Visibility.Collapsed : Visibility.Visible',                                                     
+                                                P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedDevice.ModuleRouterPresent}}"></TabItem>
+                    <TabItem Header="Модуль Modbus (master)" Visibility="{qc:Binding '!$P ? Visibility.Collapsed : Visibility.Visible',                                                     
+                                                P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedDevice.ModuleModbusMasterPresent}}"></TabItem>                    
                 </TabControl>
             </Grid>            
         </Grid>
