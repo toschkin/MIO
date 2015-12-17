@@ -62,7 +62,7 @@ namespace MIOConfig
                 {                   
                     8                    
                 };
-                if (_deviceConfiguration.UartPorts.FindIndex(0, (port) => port == this)==0)
+                if (_deviceConfiguration.UartPorts.FindIndex(0, (port) => port == this)!=0)
                     sizes.Add(9);
                 return sizes;
             }
