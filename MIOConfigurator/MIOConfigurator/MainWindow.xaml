@@ -342,7 +342,30 @@
                         </Grid>
                     </TabItem>
                     <TabItem Header="Модуль ТС" Visibility="{qc:Binding '!$P ? Visibility.Collapsed : Visibility.Visible',                                                     
-                                                P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedDevice.ModuleDIPresent}}"></TabItem>
+                                                P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedDevice.ModuleDIPresent}}">
+                       <StackPanel Margin="5">
+                            <CheckBox Content="Модуль в работе" Margin="10,10,10,0" 
+                                              IsChecked="{qc:Binding '$P == 1', ConvertBack='$value?1:0',  P={Binding Path=SelectedDevice.DiscreetInputModuleConfiguration.ModuleOperation, Mode=TwoWay, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}}">                                
+                            </CheckBox>
+                            <Grid Margin="10,10,10,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                    <ColumnDefinition Width="1*"></ColumnDefinition>
+                                    <ColumnDefinition Width="2*"></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"></RowDefinition>
+                                </Grid.RowDefinitions>
+                                <TextBlock Grid.Row ="0" Grid.Column="0" HorizontalAlignment ="Right" Text="Время гистерезиса на переключения:" Padding="5"></TextBlock>
+                                <TextBox Grid.Column="1" Margin="5,5,5,5"                                                         
+                                                    wpf:TextBoxMaskBehavior.Mask="Integer"
+        		                                    wpf:TextBoxMaskBehavior.MinimumValue="1"
+        		                                    wpf:TextBoxMaskBehavior.MaximumValue="65535"
+                                                    Text="{Binding Path=SelectedDevice.DiscreetInputModuleConfiguration.HysteresisTime, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}">                                    
+                                </TextBox>
+                            </Grid>
+                        </StackPanel> 
+                    </TabItem>
                     <TabItem Header="Модуль ТУ" Visibility="{qc:Binding '!$P ? Visibility.Collapsed : Visibility.Visible',                                                     
                                                 P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedDevice.ModuleDOPresent}}"></TabItem>
                     <TabItem Header="Ретранслятор" Visibility="{qc:Binding '!$P ? Visibility.Collapsed : Visibility.Visible',                                                     

@@ -220,7 +220,20 @@ namespace MIOConfigurator
                 mainWindowBackgroundWorker.RunWorkerAsync();                   
             }
         }
-
+        private bool AskUserToSaveDeviceConfiguration(bool forceSaving = false)
+        {
+            if (DeviceConfigurationChanged)
+            {
+                if (MessageBoxResult.Yes ==
+                    MessageBox.Show("Сохранить конфигурацию устройства?", Constants.messageBoxTitle,
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Question))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
         private void SaveConfigurationCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             WorkerInProgress = false;
@@ -237,6 +250,7 @@ namespace MIOConfigurator
             {
                 if ((ReaderSaverErrors)e.Result == ReaderSaverErrors.CodeOk)
                 {
+                    SelectedDevice = SelectedDevice;//wow!!! the propertys advantage
                     СurrentlyProcessed.Text = "Запись конфигурации завершена успешно";                    
                 }
                 else
@@ -327,22 +341,7 @@ namespace MIOConfigurator
             }
             worker.ReportProgress(2);
             e.Result = retCode;
-        }
-
-        private bool AskUserToSaveDeviceConfiguration(bool forceSaving=false)
-        {
-            if (DeviceConfigurationChanged)
-            {
-                if (MessageBoxResult.Yes ==
-                    MessageBox.Show("Сохранить конфигурацию устройства?", Constants.messageBoxTitle,
-                        MessageBoxButton.YesNo,
-                        MessageBoxImage.Question))
-                {                    
-                    return true;
-                }                    
-            }
-            return false;
-        }
+        }       
         #endregion
         
         #region Search                
