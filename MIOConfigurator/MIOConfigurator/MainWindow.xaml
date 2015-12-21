@@ -356,10 +356,10 @@
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"></RowDefinition>
                                 </Grid.RowDefinitions>
-                                <TextBlock Grid.Row ="0" Grid.Column="0" HorizontalAlignment ="Right" Text="Время гистерезиса на переключения:" Padding="5"></TextBlock>
+                                <TextBlock Grid.Row ="0" Grid.Column="0" HorizontalAlignment ="Right" Text="Время гистерезиса на переключения (мс):" Padding="5"></TextBlock>
                                 <TextBox Grid.Column="1" Margin="5,5,5,5"                                                         
                                                     wpf:TextBoxMaskBehavior.Mask="Integer"
-        		                                    wpf:TextBoxMaskBehavior.MinimumValue="1"
+        		                                    wpf:TextBoxMaskBehavior.MinimumValue="0"
         		                                    wpf:TextBoxMaskBehavior.MaximumValue="65535"
                                                     Text="{Binding Path=SelectedDevice.DiscreetInputModuleConfiguration.HysteresisTime, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}">                                    
                                 </TextBox>
@@ -367,7 +367,121 @@
                         </StackPanel> 
                     </TabItem>
                     <TabItem Header="Модуль ТУ" Visibility="{qc:Binding '!$P ? Visibility.Collapsed : Visibility.Visible',                                                     
-                                                P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedDevice.ModuleDOPresent}}"></TabItem>
+                                                P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedDevice.ModuleDOPresent}}">
+                        <StackPanel Margin="5">
+                            <CheckBox Content="Модуль в работе" Margin="10,10,10,0" 
+                                              IsChecked="{qc:Binding '$P == 1', ConvertBack='$value?1:0',  P={Binding Path=SelectedDevice.DiscreetOutputModuleConfiguration.ModuleOperation, Mode=TwoWay, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}}">
+                            </CheckBox>
+                            <Grid Margin="10,10,10,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                    <ColumnDefinition Width="1*"></ColumnDefinition>
+                                    <ColumnDefinition Width="2*"></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"></RowDefinition>
+                                </Grid.RowDefinitions>
+                                <TextBlock Grid.Row ="0" Grid.Column="0" HorizontalAlignment ="Right" Text="Длина импульса (мс):" Padding="5"></TextBlock>
+                                <TextBox Grid.Column="1" Margin="5,5,5,5"                                                         
+                                                    wpf:TextBoxMaskBehavior.Mask="Integer"
+        		                                    wpf:TextBoxMaskBehavior.MinimumValue="0"
+        		                                    wpf:TextBoxMaskBehavior.MaximumValue="65535"
+                                                    Text="{Binding Path=SelectedDevice.DiscreetOutputModuleConfiguration.PulseDurationTime, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}">
+                                </TextBox>
+                            </Grid>                            
+                            <StackPanel>
+                                <Grid Margin="10,10,10,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                        <ColumnDefinition Width="2*"></ColumnDefinition>
+                                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                        <ColumnDefinition Width="1*"></ColumnDefinition>                                        
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"></RowDefinition>
+                                        <RowDefinition Height="Auto"></RowDefinition>
+                                        <RowDefinition Height="Auto"></RowDefinition>
+                                        <RowDefinition Height="Auto"></RowDefinition>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Grid.Row ="0" Grid.Column="0" HorizontalAlignment ="Right" Text="Тип выхода №1:" Padding="5"></TextBlock>
+                                    <ComboBox x:Name="Output1Type" Grid.Row ="0" Grid.Column="1" Margin="5,0,5,5"
+                                              SelectedIndex="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Mode=TwoWay, Path=SelectedDevice.DiscreetOutputModuleConfiguration.OutputType1}"
+                                              IsEnabled="{qc:Binding '$P!=1',P={Binding ElementName=ParallelChannel4, Path=SelectedIndex}}">
+                                        <ComboBoxItem>Не задействован</ComboBoxItem>
+                                        <ComboBoxItem>Одинарное переключение</ComboBoxItem>
+                                        <ComboBoxItem>Двойное переключение</ComboBoxItem>
+                                        <ComboBoxItem IsEnabled="False">Параллельный канал</ComboBoxItem>
+                                    </ComboBox>                                    
+                                    
+                                    <TextBlock Grid.Row ="1" Grid.Column="0" HorizontalAlignment ="Right" Text="Тип выхода №2:" Padding="5"></TextBlock>
+                                    <ComboBox x:Name="Output2Type" Grid.Row ="1" Grid.Column="1" Margin="5,0,5,5"
+                                                SelectedIndex="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Mode=TwoWay, Path=SelectedDevice.DiscreetOutputModuleConfiguration.OutputType2}"
+                                                IsEnabled="{qc:MultiBinding '$P0!=2 &amp;&amp; $P1!=2',
+                                                P0={Binding  ElementName=Output1Type, Path=SelectedIndex},
+                                                P1={Binding ElementName=ParallelChannel4, Path=SelectedIndex}}">
+                                        <ComboBoxItem>Не задействован</ComboBoxItem>
+                                        <ComboBoxItem>Одинарное переключение</ComboBoxItem>
+                                        <ComboBoxItem Visibility="{qc:Binding '$P==2?Visibility.Visible:Visibility.Collapsed', P={Binding  ElementName=Output1Type, Path=SelectedIndex}}">
+                                            Двойное переключение</ComboBoxItem>
+                                        <ComboBoxItem IsEnabled="False">Параллельный канал</ComboBoxItem>
+                                    </ComboBox>
+                                    <TextBlock Grid.Row ="1" Grid.Column="2" HorizontalAlignment ="Right" Text="Параллельный канал:" Padding="5"
+                                               Visibility="{qc:Binding '$P==2?Visibility.Visible:Visibility.Collapsed', P={Binding  ElementName=Output1Type, Path=SelectedIndex}}"></TextBlock>
+                                    <ComboBox x:Name="ParallelChannel2" Grid.Row ="1" Grid.Column="3" Margin="5,0,5,5"
+                                              Visibility="{qc:Binding '$P==2?Visibility.Visible:Visibility.Collapsed', P={Binding  ElementName=Output1Type, Path=SelectedIndex}}"
+                                              SelectedIndex="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Mode=TwoWay,Path=SelectedDevice.DiscreetOutputModuleConfiguration.ParallelChannelForOutput2}">
+                                        <ComboBoxItem>Нет</ComboBoxItem>
+                                        <ComboBoxItem Visibility="Collapsed">Выход №1</ComboBoxItem>
+                                        <ComboBoxItem Visibility="Collapsed">Выход №2</ComboBoxItem>
+                                        <ComboBoxItem 
+                                            Visibility="{qc:Binding '$P!=2?Visibility.Visible:Visibility.Collapsed', P={Binding  ElementName=Output3Type, Path=SelectedIndex}}">
+                                            Выход №3</ComboBoxItem>
+                                        <ComboBoxItem
+                                            Visibility="{qc:Binding '$P!=2?Visibility.Visible:Visibility.Collapsed', P={Binding  ElementName=Output4Type, Path=SelectedIndex}}">
+                                            Выход №4</ComboBoxItem>
+                                    </ComboBox>
+
+                                    <TextBlock Grid.Row ="2" Grid.Column="0" HorizontalAlignment ="Right" Text="Тип выхода №3:" Padding="5"></TextBlock>
+                                    <ComboBox x:Name="Output3Type" Grid.Row ="2" Grid.Column="1" Margin="5,0,5,5"
+                                              SelectedIndex="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Mode=TwoWay, Path=SelectedDevice.DiscreetOutputModuleConfiguration.OutputType3}"
+                                              IsEnabled="{qc:Binding '$P!=3',P={Binding ElementName=ParallelChannel2, Path=SelectedIndex}}">                                        
+                                        <ComboBoxItem>Не задействован</ComboBoxItem>
+                                        <ComboBoxItem>Одинарное переключение</ComboBoxItem>
+                                        <ComboBoxItem>Двойное переключение</ComboBoxItem>
+                                        <ComboBoxItem IsEnabled="False">Параллельный канал</ComboBoxItem>
+                                    </ComboBox>
+                                    
+                                    <TextBlock Grid.Row ="3" Grid.Column="0" HorizontalAlignment ="Right" Text="Тип выхода №4:" Padding="5"></TextBlock>
+                                    <ComboBox x:Name="Output4Type" Grid.Row ="3" Grid.Column="1" Margin="5,0,5,5"
+                                                SelectedIndex="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Mode=TwoWay, Path=SelectedDevice.DiscreetOutputModuleConfiguration.OutputType4}"
+                                                IsEnabled="{qc:MultiBinding '$P0!=2 &amp;&amp; $P1!=4',
+                                                P0={Binding  ElementName=Output3Type, Path=SelectedIndex},
+                                                P1={Binding ElementName=ParallelChannel2, Path=SelectedIndex}}">
+                                        <ComboBoxItem>Не задействован</ComboBoxItem>
+                                        <ComboBoxItem>Одинарное переключение</ComboBoxItem>
+                                        <ComboBoxItem Visibility="{qc:Binding '$P==2?Visibility.Visible:Visibility.Collapsed', P={Binding  ElementName=Output3Type, Path=SelectedIndex}}">
+                                            Двойное переключение</ComboBoxItem>
+                                        <ComboBoxItem IsEnabled="False">Параллельный канал</ComboBoxItem>
+                                    </ComboBox>
+                                    <TextBlock Grid.Row ="3" Grid.Column="2" HorizontalAlignment ="Right" Text="Параллельный канал:" Padding="5"
+                                               Visibility="{qc:Binding '$P==2?Visibility.Visible:Visibility.Collapsed', P={Binding  ElementName=Output3Type, Path=SelectedIndex}}"></TextBlock>
+                                    <ComboBox x:Name="ParallelChannel4" Grid.Row ="3" Grid.Column="3" Margin="5,0,5,5"
+                                              Visibility="{qc:Binding '$P==2?Visibility.Visible:Visibility.Collapsed', P={Binding  ElementName=Output3Type, Path=SelectedIndex}}"
+                                              SelectedIndex="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Mode=TwoWay, Path=SelectedDevice.DiscreetOutputModuleConfiguration.ParallelChannelForOutput4}">
+                                        <ComboBoxItem>Нет</ComboBoxItem>
+                                        <ComboBoxItem
+                                            Visibility="{qc:Binding '$P!=2?Visibility.Visible:Visibility.Collapsed', P={Binding  ElementName=Output1Type, Path=SelectedIndex}}">
+                                            Выход №1</ComboBoxItem>
+                                        <ComboBoxItem
+                                            Visibility="{qc:Binding '$P!=2?Visibility.Visible:Visibility.Collapsed', P={Binding  ElementName=Output2Type, Path=SelectedIndex}}">
+                                            Выход №2</ComboBoxItem>
+                                        <ComboBoxItem Visibility="Collapsed">Выход №3</ComboBoxItem>
+                                        <ComboBoxItem Visibility="Collapsed">Выход №4</ComboBoxItem>
+                                    </ComboBox>
+                                </Grid>                               
+                            </StackPanel>                           
+                        </StackPanel>
+                    </TabItem>
                     <TabItem Header="Ретранслятор" Visibility="{qc:Binding '!$P ? Visibility.Collapsed : Visibility.Visible',                                                     
                                                 P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedDevice.ModuleRouterPresent}}"></TabItem>
                     <TabItem Header="Модуль Modbus (master)" Visibility="{qc:Binding '!$P ? Visibility.Collapsed : Visibility.Visible',                                                     
