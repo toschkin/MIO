@@ -66,18 +66,17 @@ namespace MIOConfig
             get { return _outputType1; }
             set
             {
-                if ((_outputType1 == 2) && (value != 2))
+                if ((_outputType1 == (Byte)OutputTypes.DoubleOutput) && (value != (Byte)OutputTypes.DoubleOutput))
                 {
                     OutputType2 = value;
-                    NotifyPropertyChanged("OutputType2");
+                    ParallelChannelForOutput2 = 0;
                 }
-                if (value == 2)
+                if (value == (Byte)OutputTypes.DoubleOutput)
                 {
-                    OutputType2 = value;
-                    NotifyPropertyChanged("OutputType2");
-                }
-                    
+                    OutputType2 = value;                                        
+                }                    
                 _outputType1 = value;
+                NotifyPropertyChanged("OutputType1");
             }
         }
 
@@ -131,9 +130,17 @@ namespace MIOConfig
         /// Holding regs|addr.: 1007+7*UartPorts.Count+5*ModuleDIPresent+4 LoByte|count: 1| R/W
         /// </summary>
         /// <value>0 - not in operation, 1 - SP, 2 - DP, 3-parallel</value>
-        /// 
+        private Byte _outputType2;
         [ModbusProperty(Access = ModbusRegisterAccessType.AccessReadWrite)]
-        public Byte OutputType2 { get; set; }
+        public Byte OutputType2
+        {
+            get { return _outputType2; }
+            set
+            {
+                _outputType2 = value;
+                NotifyPropertyChanged("OutputType2");
+            }
+        }
 
         private Byte _parallelChannelPresentForOutput2;
         /// <summary>
@@ -174,20 +181,18 @@ namespace MIOConfig
                 {
                     case 3:
                         {
-                            if (OutputType3 == 3)
+                            if (OutputType3 == (Byte)OutputTypes.ParallelChannel)
                             {
-                                OutputType3 = 0;
-                                NotifyPropertyChanged("OutputType3");
+                                OutputType3 = (Byte)OutputTypes.NoOutput;                                
                                 ParallelChannelForOutput3 = 0;
                             }
                             break;
                         }
                     case 4:
                         {
-                            if (OutputType4 == 3)
+                            if (OutputType4 == (Byte)OutputTypes.ParallelChannel)
                             {
-                                OutputType4 = 0;
-                                NotifyPropertyChanged("OutputType4");
+                                OutputType4 = (Byte)OutputTypes.NoOutput;                                
                                 ParallelChannelForOutput4 = 0;
                             }
                             break;
@@ -202,19 +207,17 @@ namespace MIOConfig
                 {
                     ParallelChannelPresentForOutput2 = 1;
                     AddressOfParallelChannelForOutput2 = (UInt16)((value - 1) + (Definitions.DEVICE_STATE_OFFSET + Definitions.DEVICE_STATE_MAP_SIZE + Definitions.DEVICE_DI_MODULE_MAP_SIZE + 5));
-                    if (OutputType2 != 3)
+                    if (OutputType2 != (Byte)OutputTypes.ParallelChannel)
                     {
                         if (value == 3) //3rd channel
                         {
-                            OutputType3 = 3;//parallel
-                            NotifyPropertyChanged("OutputType3");
+                            OutputType3 = (Byte)OutputTypes.ParallelChannel;//parallel                            
                             ParallelChannelPresentForOutput3 = 1;
                             ParallelChannelForOutput3 = 2;
                         }
                         if (value == 4) //3rd channel
                         {
-                            OutputType4 = 3;//parallel
-                            NotifyPropertyChanged("OutputType4");
+                            OutputType4 = (Byte)OutputTypes.ParallelChannel;//parallel                            
                             ParallelChannelForOutput4 = 2;
                         }   
                     }                    
@@ -234,17 +237,17 @@ namespace MIOConfig
             get { return _outputType3; }
             set
             {
-                if ((_outputType3 == 2) && (value != 2))
+                if ((_outputType3 == (Byte)OutputTypes.DoubleOutput) && (value != (Byte)OutputTypes.DoubleOutput))
                 {
-                    OutputType4 = value;
-                    NotifyPropertyChanged("OutputType4");
+                    OutputType4 = value;                    
+                    ParallelChannelForOutput4 = 0;
                 }
-                if (value == 2)
+                if (value == (Byte)OutputTypes.DoubleOutput)
                 {
-                    OutputType4 = value;
-                    NotifyPropertyChanged("OutputType4");
+                    OutputType4 = value;                             
                 }
                 _outputType3 = value;
+                NotifyPropertyChanged("OutputType3");
             }
         }
 
@@ -298,9 +301,17 @@ namespace MIOConfig
         /// Holding regs|addr.: 1007+7*UartPorts.Count+5*ModuleDIPresent+8 LoByte|count: 1| R/W
         /// </summary>
         /// <value>0 - not in operation, 1 - SP, 2 - DP, 3-parallel</value>
-        /// 
+        private Byte _outputType4;
         [ModbusProperty(Access = ModbusRegisterAccessType.AccessReadWrite)]
-        public Byte OutputType4 { get; set; }
+        public Byte OutputType4
+        {
+            get { return _outputType4; }
+            set
+            {
+                _outputType4 = value;
+                NotifyPropertyChanged("OutputType4");
+            }
+        }
 
         private Byte _parallelChannelPresentForOutput4;
         /// <summary>
@@ -341,20 +352,18 @@ namespace MIOConfig
                 {
                     case 1:
                         {
-                            if (OutputType1 == 3)
+                            if (OutputType1 == (Byte)OutputTypes.ParallelChannel)
                             {
-                                OutputType1 = 0;
-                                NotifyPropertyChanged("OutputType1");
+                                OutputType1 = (Byte)OutputTypes.NoOutput;                                
                                 ParallelChannelForOutput1 = 0;
                             }
                             break;
                         }
                     case 2:
                         {
-                            if (OutputType2 == 3)
+                            if (OutputType2 == (Byte)OutputTypes.ParallelChannel)
                             {
-                                OutputType2 = 0;
-                                NotifyPropertyChanged("OutputType2");
+                                OutputType2 = (Byte)OutputTypes.NoOutput;                               
                                 ParallelChannelForOutput2 = 0;
                             }
                             break;
@@ -369,18 +378,16 @@ namespace MIOConfig
                 {
                     ParallelChannelPresentForOutput4 = 1;
                     AddressOfParallelChannelForOutput4 = (UInt16)((value - 1) + (Definitions.DEVICE_STATE_OFFSET + Definitions.DEVICE_STATE_MAP_SIZE + Definitions.DEVICE_DI_MODULE_MAP_SIZE + 5));
-                    if (OutputType4 != 3)//parallel
+                    if (OutputType4 != (Byte)OutputTypes.ParallelChannel)//parallel
                     {
                         if (value == 1) //3rd channel
                         {
-                            OutputType1 = 3;//parallel
-                            NotifyPropertyChanged("OutputType1");
+                            OutputType1 = (Byte)OutputTypes.ParallelChannel;//parallel                            
                             ParallelChannelForOutput1 = 4;
                         }
                         if (value == 2) //3rd channel
                         {
-                            OutputType2 = 3;//parallel
-                            NotifyPropertyChanged("OutputType2");
+                            OutputType2 = (Byte)OutputTypes.ParallelChannel;//parallel                            
                             ParallelChannelForOutput2 = 4;
                         }                       
                     }                    

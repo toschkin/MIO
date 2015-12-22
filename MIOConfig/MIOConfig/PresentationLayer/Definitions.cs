@@ -2,8 +2,15 @@
 
 namespace MIOConfig
 {
-    public delegate void ErrorTracer(string errorMessage);    
+    public delegate void ErrorTracer(string errorMessage);
 
+    enum OutputTypes
+    {
+        NoOutput =0,
+        SingleOutput=1,
+        DoubleOutput =2,
+        ParallelChannel=3
+   }
     public static class Definitions
     {
         public const Byte MODBUS_MASTER_PRTOCOL = 0;
@@ -18,6 +25,6 @@ namespace MIOConfig
 
         public const UInt16 DO_COIL_STATE_OFF = 0x0000;
         public const UInt16 DO_COIL_STATE_ON = 0xFF00;
-        public const UInt16 DO_COIL_STATE_INDEF = 0xFFFF;
+        public const UInt16 DO_COIL_STATE_INDEF = 0xFFFF;        
     }
 }
