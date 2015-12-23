@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MIOConfig;
+using MIOConfig.PresentationLayer;
 
 namespace MIOConfig
 {     
@@ -20,7 +21,7 @@ namespace MIOConfig
             DIModule = null;
             DOModule = null;
         }
-
+        
         [field: NonSerialized]
         public event PropertyChangedEventHandler PropertyChanged;
         private void NotifyPropertyChanged(string info)
@@ -167,18 +168,13 @@ namespace MIOConfig
                     Configuration.RoutingHeader.RoutingEnabled = (UInt16)(value ? 1 : 0);
             }
         }
-        
-        public List<DeviceRoutingTableElement> RoutingMap
+
+        public ObservableCollection<DeviceRoutingTableElement> RoutingMap
         {
             get
             {
-                return ModuleRouterPresent?Configuration.RoutingTable:null;
-            }
-            set
-            {
-                if (Configuration.RoutingTable != null)
-                    Configuration.RoutingTable = value;
-            }
+                return ModuleRouterPresent?new ObservableCollection<DeviceRoutingTableElement>(Configuration.RoutingTable): null;
+            }            
         }
 
         public List<List<DeviceModbusMasterQuery>> ModbusMasterPortsQueries

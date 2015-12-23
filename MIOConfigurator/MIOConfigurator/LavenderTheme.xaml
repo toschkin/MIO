@@ -42,5 +42,9 @@
                 <Setter Property="FontWeight" Value="Bold"/>
             </Trigger>
         </Style.Triggers>
-    </Style>       
+    </Style>
+
+    <Style x:Key="CenteredHeader" TargetType="DataGridColumnHeader">
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+    </Style>
 </ResourceDictionary>

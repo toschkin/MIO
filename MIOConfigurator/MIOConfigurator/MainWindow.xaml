@@ -483,7 +483,77 @@
                         </StackPanel>
                     </TabItem>
                     <TabItem Header="Ретранслятор" Visibility="{qc:Binding '!$P ? Visibility.Collapsed : Visibility.Visible',                                                     
-                                                P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedDevice.ModuleRouterPresent}}"></TabItem>
+                                                P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedDevice.ModuleRouterPresent}}">
+                        <StackPanel Margin="5">
+                            <CheckBox Content="Модуль в работе" Margin="10,10,10,0" 
+                                              IsChecked="{Binding  Path=SelectedDevice.RoutingEnabled, Mode=TwoWay, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}">
+                            </CheckBox>
+                            <TextBlock Text="Карта пользовательских регистров" Margin="10,10,10,0" TextAlignment="Center" Background="Aquamarine"></TextBlock>
+                            <DataGrid x:Name="RoutingMapGrid" Margin="10,3,10,10" AutoGenerateColumns="False" SelectionMode="Single" CanUserSortColumns="False" CanUserAddRows="False"                               
+                                ItemsSource="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedDevice.RoutingMap}" CellEditEnding="RoutingMapGrid_CellEditEnding">
+                                <DataGrid.Columns>
+                                    <DataGridTemplateColumn Header="Регистр назначения">
+                                        <DataGridTemplateColumn.HeaderStyle>
+                                            <Style TargetType="{x:Type DataGridColumnHeader}">
+                                                <Setter Property="HorizontalContentAlignment" Value="Center"></Setter>
+                                                <Setter Property="Padding" Value="5"></Setter>
+                                                <Setter Property="Background">                                                    
+                                                    <Setter.Value>
+                                                        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                                            <GradientStop Color="CadetBlue" Offset="0"></GradientStop>
+                                                            <GradientStop Color="White" Offset="1"></GradientStop>
+                                                        </LinearGradientBrush>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Style>
+                                        </DataGridTemplateColumn.HeaderStyle>
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding RouteTo}"/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                        <DataGridTemplateColumn.CellEditingTemplate>
+                                            <DataTemplate>
+                                                <TextBox Text="{Binding RouteTo, Mode=TwoWay}" 
+                                                    wpf:TextBoxMaskBehavior.Mask="Integer"
+        		                                    wpf:TextBoxMaskBehavior.MinimumValue="0"
+        		                                    wpf:TextBoxMaskBehavior.MaximumValue="65535"/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellEditingTemplate>
+                                    </DataGridTemplateColumn>                                    
+                                    <DataGridTemplateColumn Header="Регистр источник">
+                                        <DataGridTemplateColumn.HeaderStyle>
+                                            <Style TargetType="{x:Type DataGridColumnHeader}">
+                                                <Setter Property="HorizontalContentAlignment" Value="Center"></Setter>
+                                                <Setter Property="Padding" Value="5"></Setter>
+                                                <Setter Property="Background">
+                                                    <Setter.Value>
+                                                        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                                            <GradientStop Color="BurlyWood" Offset="0"></GradientStop>
+                                                            <GradientStop Color="White" Offset="1"></GradientStop>
+                                                        </LinearGradientBrush>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Style>
+                                        </DataGridTemplateColumn.HeaderStyle>                                       
+                                        <DataGridTemplateColumn.CellTemplate>                                           
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding RouteFrom}"/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                        <DataGridTemplateColumn.CellEditingTemplate>
+                                            <DataTemplate>
+                                                <TextBox Text="{Binding RouteFrom, Mode=TwoWay}" 
+                                                    wpf:TextBoxMaskBehavior.Mask="Integer"
+        		                                    wpf:TextBoxMaskBehavior.MinimumValue="0"
+        		                                    wpf:TextBoxMaskBehavior.MaximumValue="65535"/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellEditingTemplate>
+                                    </DataGridTemplateColumn>                                      
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </StackPanel>
+                    </TabItem>
                     <TabItem Header="Модуль Modbus (master)" Visibility="{qc:Binding '!$P ? Visibility.Collapsed : Visibility.Visible',                                                     
                                                 P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedDevice.ModuleModbusMasterPresent}}"></TabItem>                    
                 </TabControl>

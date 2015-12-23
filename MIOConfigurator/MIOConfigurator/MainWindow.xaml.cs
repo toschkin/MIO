@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -690,6 +691,12 @@ namespace MIOConfigurator
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             DrawEmptySpace();
+            DrawRoutingMapGrid();
+        }
+        
+        private void DrawRoutingMapGrid()
+        {
+           
         }
         
         private void SlaveConcreteAddress_OnPreviewLostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
@@ -802,6 +809,29 @@ namespace MIOConfigurator
                 }
                 RestartDevice();
             }
-        }        
+        }
+       
+        private void RoutingMapGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+        {
+            if ((e.EditingElement as TextBlock) == null)
+                return;
+            if (e.EditAction == DataGridEditAction.Commit)
+            {
+                DeviceValidator validator = new DeviceValidator(SelectedDevice);
+                DeviceRoutingTableElement elementToValidate = ((DeviceRoutingTableElement) e.Row.Item);
+                
+                if (e.Column.DisplayIndex == 0)
+                    elementToValidate.RouteTo = Convert.ToUInt16(((TextBlock)e.EditingElement).Text);
+               
+                if (e.Column.DisplayIndex == 1)
+                    elementToValidate.RouteFrom = Convert.ToUInt16(((TextBlock)e.EditingElement).Text);
+
+                if (validator.ValidateRoutingMapElement(elementToValidate) == false)
+                {
+                    e.EditingElement.ToolTip = validator.ToString();
+                    e.Cancel = true;
+                }
+            }            
+        }                        
     }
 }

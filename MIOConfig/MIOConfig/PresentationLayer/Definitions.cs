@@ -13,8 +13,8 @@ namespace MIOConfig
    }
     public static class Definitions
     {
-        public const Byte MODBUS_MASTER_PRTOCOL = 0;
-        public const Byte MODBUS_SLAVE_PRTOCOL = 1;
+        public const Byte MODBUS_MASTER_PROTOCOL = 0;
+        public const Byte MODBUS_SLAVE_PROTOCOL = 1;
         public const UInt16 USER_REGISTERS_OFFSET = 0;
         public const UInt16 DEVICE_STATE_OFFSET = 500;
         public const UInt16 DEVICE_STATE_MAP_SIZE = 5;

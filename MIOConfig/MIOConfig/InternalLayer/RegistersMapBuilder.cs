@@ -19,7 +19,7 @@ namespace MIOConfig
         public void BuildUserRegistersMap(ref List<DeviceUserRegister> userRegisters)
         {
             userRegisters.Clear();
-            for (var reg = 0; reg < _configuration.HeaderFields.DeviceUserRegistersCount; reg++)
+            for (var reg = Definitions.USER_REGISTERS_OFFSET; reg < Definitions.USER_REGISTERS_OFFSET + _configuration.HeaderFields.DeviceUserRegistersCount; reg++)
             {
                 DeviceUserRegister register = new DeviceUserRegister(_configuration) {Address = (UInt16) reg};
                 if (_configuration.HeaderFields.ModuleRouter)
