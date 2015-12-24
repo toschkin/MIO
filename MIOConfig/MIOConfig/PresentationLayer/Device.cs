@@ -173,7 +173,7 @@ namespace MIOConfig
         {
             get
             {
-                return ModuleRouterPresent?new ObservableCollection<DeviceRoutingTableElement>(Configuration.RoutingTable): null;
+                return ModuleRouterPresent?Configuration.RoutingTable: null;
             }            
         }
 

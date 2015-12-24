@@ -11,7 +11,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -49,6 +48,17 @@ namespace MIOConfigurator
         public ObservableCollection<Device> Devices { get; set; }
         private Byte[] _deviceSnapshotBefore;        
         private Device _selectedDevice;
+        private DeviceValidator _selectedDeviceValidator;
+        public DeviceValidator SelectedDeviceValidator 
+        { 
+            get { return _selectedDeviceValidator; }
+            set
+            {
+                _selectedDeviceValidator = value;
+                NotifyPropertyChanged("SelectedDeviceValidator"); 
+            }
+        }
+
         public Device SelectedDevice {
             get { return _selectedDevice; }
             set
@@ -61,7 +71,7 @@ namespace MIOConfigurator
                     BinaryFormatter formatter = new BinaryFormatter();                    
                     formatter.Serialize(buffer, _selectedDevice);                   
                     _deviceSnapshotBefore = buffer.ToArray();
-    
+                    SelectedDeviceValidator = new DeviceValidator(_selectedDevice);                    
                 }
                 else                
                     _deviceSnapshotBefore = null;
@@ -810,18 +820,42 @@ namespace MIOConfigurator
                 RestartDevice();
             }
         }
+
+        private void OnAddRoute_Click(object sender, RoutedEventArgs e)
+        {      
+            SelectedDevice.RoutingMap.Add(new DeviceRoutingTableElement());
+            RoutingMapGrid.ScrollIntoView(SelectedDevice.RoutingMap.Last());
+        }
+
+        private void OnDelRoute_Click(object sender, RoutedEventArgs e)
+        {
+            if (RoutingMapGrid.SelectedItem is DeviceRoutingTableElement)
+                SelectedDevice.RoutingMap.Remove((DeviceRoutingTableElement)RoutingMapGrid.SelectedItem);
+        }
+
+        /* private void RouteToTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+           if (String.IsNullOrEmpty(((TextBox) sender).Text))
+                return;
+            DeviceValidator validator = new DeviceValidator(SelectedDevice);
+            DeviceRoutingTableElement elementToValidate = (DeviceRoutingTableElement)RoutingMapGrid.SelectedItem;
+            elementToValidate.RouteTo = Convert.ToUInt16(((TextBox)sender).Text);
+            if (validator.ValidateRoutingMapElement(elementToValidate) == false)
+            {
+                ((TextBox)sender).t
+            }
+        }
        
         private void RoutingMapGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
-            if ((e.EditingElement as TextBlock) == null)
-                return;
+           
             if (e.EditAction == DataGridEditAction.Commit)
             {
                 DeviceValidator validator = new DeviceValidator(SelectedDevice);
                 DeviceRoutingTableElement elementToValidate = ((DeviceRoutingTableElement) e.Row.Item);
                 
                 if (e.Column.DisplayIndex == 0)
-                    elementToValidate.RouteTo = Convert.ToUInt16(((TextBlock)e.EditingElement).Text);
+                    elementToValidate.RouteTo = Convert.ToUInt16(((DataGridCell)e.EditingElement).Content);
                
                 if (e.Column.DisplayIndex == 1)
                     elementToValidate.RouteFrom = Convert.ToUInt16(((TextBlock)e.EditingElement).Text);
@@ -831,7 +865,7 @@ namespace MIOConfigurator
                     e.EditingElement.ToolTip = validator.ToString();
                     e.Cancel = true;
                 }
-            }            
-        }                        
+            } 
+        }*/                        
     }
 }

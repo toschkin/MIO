@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using Modbus.Core;
@@ -84,7 +85,7 @@ namespace MIOConfig
                         if (_deviceConfiguration.RoutingHeader == null)
                             _deviceConfiguration.RoutingHeader = new DeviceRoutingHeader(ref _deviceConfiguration);
                         if (_deviceConfiguration.RoutingTable == null)
-                            _deviceConfiguration.RoutingTable = new List<DeviceRoutingTableElement>();
+                            _deviceConfiguration.RoutingTable = new ObservableCollection<DeviceRoutingTableElement>();
                     }
                     else
                     {

@@ -76,12 +76,14 @@
     </ApplicationDefinition>
     <Compile Include="Data\Constants.cs" />
     <Compile Include="Data\ModbusCommunicationParameters.cs" />
+    <Compile Include="Data\Proxy.cs" />
     <Compile Include="DevicesFinderConfigWindow.xaml.cs">
       <DependentUpon>DevicesFinderConfigWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="ProtocolConfigWindow.xaml.cs">
       <DependentUpon>ProtocolConfigWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Data\RoutingElementValidationRule.cs" />
     <Page Include="DevicesFinderConfigWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -147,6 +149,10 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\port-icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\add-icon.png" />
+    <Resource Include="Images\del-icon.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

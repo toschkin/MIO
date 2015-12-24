@@ -21,7 +21,7 @@ namespace MIOConfig.PresentationLayer
             StringBuilder stringBuilder = new StringBuilder();
             foreach (var error in ValidationErrorList)
             {
-                stringBuilder.Append(error);
+                stringBuilder.AppendFormat("{0}\n",error);
             }
             return stringBuilder.ToString();
         }
@@ -77,17 +77,24 @@ namespace MIOConfig.PresentationLayer
         {
             ValidationErrorList.Clear();
 
+            bool retCode = true;
+            if (element.RouteTo == element.RouteFrom)
+            {
+                ValidationErrorList.Add("Целевой регистр совпадает с регистром источником");
+                retCode = false;
+            }
+
             if (element.RouteTo > _device.Configuration.HeaderFields.DeviceUserRegistersCount - 1)
             {
                 ValidationErrorList.Add(String.Format("Целевой регистр за пределами области пользовательских регистров: 0..{0}", _device.Configuration.HeaderFields.DeviceUserRegistersCount - 1));
-                return false;
+                retCode = false;
             }
             for (int route = 0; route < _device.RoutingMap.Count; route++)
             {
                 if (element.RouteTo == _device.RoutingMap[route].RouteTo && element != _device.RoutingMap[route])
                 {
                     ValidationErrorList.Add(String.Format("Наложение целевого регистра маршрута с маршрутом №{0}", route + 1));
-                    return false;
+                    retCode = false;
                 }
             }
             for (int port = 0; port < _device.Configuration.ModbusMasterQueriesOnUartPorts.Count; port++)
@@ -107,7 +114,7 @@ namespace MIOConfig.PresentationLayer
                                 String.Format(
                                     "Наложение целевого регистра с запросом Modbus master: порт № {0}, запрос № {1}",
                                     port + 1, query + 1));
-                            return false;
+                            retCode = false;
                         }
                         if (element.RouteTo ==
                              _device.Configuration.ModbusMasterQueriesOnUartPorts[port][query].QueryStatusAddress)
@@ -116,12 +123,12 @@ namespace MIOConfig.PresentationLayer
                                 String.Format(
                                     "Наложение целевого регистра со статусом запроса Modbus master: порт № {0}, запрос № {1}",
                                     port + 1, query + 1));
-                            return false;
+                            retCode = false;
                         }
                     }
                 }
             }
-            return true;
+            return retCode;
         }
 
         public bool CanAddRoutingMapElement(DeviceRoutingTableElement element)

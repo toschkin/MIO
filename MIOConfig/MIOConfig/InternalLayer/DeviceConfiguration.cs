@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Text;
 
 namespace MIOConfig
@@ -84,7 +85,7 @@ namespace MIOConfig
         /// <summary>
         /// Holding regs|addr.: 1007+7*UartPorts.Count + 5*ModuleDIPresent + 10*ModuleDOPresent+2 |count: 2| R/W
         /// </summary>
-        public List<DeviceRoutingTableElement> RoutingTable;
+        public ObservableCollection<DeviceRoutingTableElement> RoutingTable;
 
         /// <summary>
         /// Holding regs|addr.: 1007+7*UartPorts.Count + 5*ModuleDIPresent + 10*ModuleDOPresent+2 |count: 2| R/W
