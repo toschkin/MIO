@@ -9,18 +9,20 @@ namespace MIOConfigurator.Data
     {
         public DeviceValidator Validator { get; set; }
 
-        public override ValidationResult Validate(object value,
-            System.Globalization.CultureInfo cultureInfo)
+        public override ValidationResult Validate(object value,System.Globalization.CultureInfo cultureInfo)
         {
-            DeviceRoutingTableElement elementToValidate = (value as BindingGroup).Items[0] as DeviceRoutingTableElement;
-            if (Validator != null)
+            if (value is BindingGroup)
             {
-                if (Validator.ValidateRoutingMapElement(elementToValidate) == false)
+                DeviceRoutingTableElement elementToValidate = ((BindingGroup) value).Items[0] as DeviceRoutingTableElement;
+                if (Validator != null)
                 {
-                    return new ValidationResult(false, Validator.ToString());
-                }
-            }
+                    if (Validator.ValidateRoutingMapElement(elementToValidate) == false)
+                    {
+                        return new ValidationResult(false, Validator.ToString());
+                    }
+                }    
+            }            
             return ValidationResult.ValidResult;            
         }
-    }
+    }    
 }

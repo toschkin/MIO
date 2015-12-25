@@ -10,7 +10,15 @@
         xmlns:data="clr-namespace:MIOConfigurator.Data"
         mc:Ignorable="d"
         Title="Настройка МВВ" Height="600" Width="800" MinHeight="600" MinWidth="800" WindowStartupLocation="CenterScreen" 
-        Closing="MainWindow_Closing" Loaded="MainWindow_Loaded">        
+        Closing="MainWindow_Closing" Loaded="MainWindow_Loaded">
+    <Window.CommandBindings>
+        <CommandBinding Command="{x:Static local:MainWindow.AddRouteCommand}"
+                    Executed="AddRouteCommandExecute"
+                    CanExecute="RouteCommandCanExecute"/>
+        <CommandBinding Command="{x:Static local:MainWindow.DelRouteCommand}"
+                    Executed="DelRouteCommandExecute"
+                    CanExecute="RouteCommandCanExecute"/>
+    </Window.CommandBindings>
     <Window.Resources>        
         <Style TargetType="{x:Type MenuItem}" x:Key="ParentMenuStyle">
             <Setter Property="Background">
@@ -491,46 +499,43 @@
                                               IsChecked="{Binding  Path=SelectedDevice.RoutingEnabled, Mode=TwoWay, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}">
                             </CheckBox>
                             <StackPanel Margin="10" Orientation="Horizontal" DockPanel.Dock="Bottom">
-                                <Button x:Name="OnAddRoute" Margin="5" Style="{DynamicResource EmptyButtonStyle}" Click="OnAddRoute_Click">
-                                    <Image Height="32" Width="32" Source="Images/add-icon.png" >
-                                        <Image.Effect>
-                                            <DropShadowEffect/>
-                                        </Image.Effect>
+                                <Button x:Name="AddRoute" Style="{DynamicResource EmptyButtonStyle}" Command="{x:Static local:MainWindow.AddRouteCommand}">
+                                    <Image Height="32" Width="32" Source="Images/add-icon.png" Style="{DynamicResource ButtonImageHoverStyle}">                                                                          
                                     </Image>
                                 </Button>
                                 <TextBlock TextWrapping="Wrap" FontSize="14" Width="64" TextAlignment="Center" Text="Добавить маршрут"/>
-                                <Button x:Name="OnDelRoute" Margin="5" Style="{DynamicResource EmptyButtonStyle}" Click="OnDelRoute_Click">
-                                    <Image Height="32" Width="32" Source="Images/del-icon.png" >
-                                        <Image.Effect>
-                                            <DropShadowEffect/>
-                                        </Image.Effect>
+                                <Button x:Name="DelRoute" Style="{DynamicResource EmptyButtonStyle}" Command="{x:Static local:MainWindow.AddRouteCommand}">
+                                    <Image Height="32" Width="32" Source="Images/del-icon.png" Style="{DynamicResource ButtonImageHoverStyle}">                                        
                                     </Image>
                                 </Button>
                                 <TextBlock TextWrapping="Wrap" FontSize="14" Width="64" TextAlignment="Center">Удалить маршрут</TextBlock>
                             </StackPanel>
-                                                        
+
                             <DockPanel>
-                                <TextBlock DockPanel.Dock="Top" Text="Карта пользовательских регистров" Margin="10,10,10,0" TextAlignment="Center" Background="Aquamarine"></TextBlock>
-                                <data:Proxy In="{Binding SelectedDeviceValidator, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Out="{Binding ElementName=ElementValidationRule, Path=Validator}"/>                                
-                                <DataGrid x:Name="RoutingMapGrid" Margin="10,3,10,10" AutoGenerateColumns="False" SelectionMode="Single" CanUserSortColumns="False" CanUserAddRows="False"                               
-                                ItemsSource="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedDevice.RoutingMap}">
+                                <Border DockPanel.Dock="Top" Margin="10,10,10,0" BorderThickness="1" BorderBrush="DarkOliveGreen">
+                                    <TextBlock  Padding="4" Text="Карта пользовательских регистров" TextAlignment="Center" Background="Aquamarine"></TextBlock>
+                                </Border>                                
+                                
+                                <data:Proxy In="{Binding SelectedDeviceValidator, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Out="{Binding ElementName=ElementValidationRule, Path=Validator}"/>
+                                <data:Proxy In="{Binding SelectedDeviceValidator, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Out="{Binding ElementName=ElementValidationRuleUpdated, Path=Validator}"/>
+                                
+                                <DataGrid x:Name="RoutingMapGrid" Margin="10,3,10,10" AutoGenerateColumns="False" SelectionMode="Single" CanUserSortColumns="False" CanUserAddRows="False" CanUserResizeRows="False"                                         
+                                            ItemsSource="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedDevice.RoutingMap}">
                                     <DataGrid.Resources>
-                                        <Style x:Key="errorStyle" TargetType="{x:Type TextBox}">
-                                            <Setter Property="Padding" Value="-2"/>
-                                            <Style.Triggers>
-                                                <Trigger Property="Validation.HasError" Value="True">
-                                                    <Setter Property="Background" Value="Red"/>
-                                                    <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=(Validation.Errors)[0].ErrorContent}"/>
-                                                </Trigger>
-                                            </Style.Triggers>
+                                        <Style TargetType="{x:Type DataGridColumnHeader}">
+                                            <Setter Property="Background" Value="LightGray" />
+                                            <Setter Property="BorderBrush" Value="DarkGray"></Setter>
+                                            <Setter Property="BorderThickness" Value="1"></Setter>
                                         </Style>
                                     </DataGrid.Resources>
                                     <DataGrid.Columns>
-                                        <DataGridTemplateColumn Header="Регистр назначения">
+                                        <DataGridTemplateColumn Header="Регистр назначения">                                            
                                             <DataGridTemplateColumn.HeaderStyle>
                                                 <Style TargetType="{x:Type DataGridColumnHeader}">
                                                     <Setter Property="HorizontalContentAlignment" Value="Center"></Setter>
                                                     <Setter Property="Padding" Value="5"></Setter>
+                                                    <Setter Property="BorderBrush" Value="DarkGray"></Setter>
+                                                    <Setter Property="BorderThickness" Value="1"></Setter>
                                                     <Setter Property="Background">
                                                         <Setter.Value>
                                                             <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
@@ -543,17 +548,19 @@
                                             </DataGridTemplateColumn.HeaderStyle>
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
-                                                    <TextBlock Text="{Binding RouteTo,ValidatesOnExceptions=True}"/>
+                                                    <TextBlock Text="{Binding RouteTo}"/>
                                                 </DataTemplate>
                                             </DataGridTemplateColumn.CellTemplate>
                                             <DataGridTemplateColumn.CellEditingTemplate>
                                                 <DataTemplate>
                                                     <TextBox                                                     
                                                         x:Name="TextBoxRouteTo"
-                                                        Text="{Binding RouteTo, Mode=TwoWay,ValidatesOnExceptions=True}" 
                                                         wpf:TextBoxMaskBehavior.Mask="Integer"
         		                                        wpf:TextBoxMaskBehavior.MinimumValue="0"
-        		                                        wpf:TextBoxMaskBehavior.MaximumValue="65535"/>
+        		                                        wpf:TextBoxMaskBehavior.MaximumValue="65535">
+                                                        <Binding Path="RouteTo" Mode="TwoWay">                                                                                                                        
+                                                        </Binding>                                                                                                               
+                                                    </TextBox>
                                                     <DataTemplate.Triggers>
                                                         <Trigger SourceName="TextBoxRouteTo" Property="IsVisible" Value="True">
                                                             <Setter TargetName="TextBoxRouteTo" Property="FocusManager.FocusedElement" Value="{Binding ElementName=TextBoxRouteTo}"/>
@@ -567,7 +574,9 @@
                                                 <Style TargetType="{x:Type DataGridColumnHeader}">
                                                     <Setter Property="HorizontalContentAlignment" Value="Center"></Setter>
                                                     <Setter Property="Padding" Value="5"></Setter>
-                                                    <Setter Property="Background">
+                                                    <Setter Property="BorderBrush" Value="DarkGray"></Setter>
+                                                    <Setter Property="BorderThickness" Value="1"></Setter>
+                                                    <Setter Property="Background">                                                        
                                                         <Setter.Value>
                                                             <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                                                                 <GradientStop Color="BurlyWood" Offset="0"></GradientStop>
@@ -579,14 +588,14 @@
                                             </DataGridTemplateColumn.HeaderStyle>
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
-                                                    <TextBlock Text="{Binding RouteFrom,ValidatesOnExceptions=True}"/>
+                                                    <TextBlock Text="{Binding RouteFrom}"/>
                                                 </DataTemplate>
                                             </DataGridTemplateColumn.CellTemplate>
                                             <DataGridTemplateColumn.CellEditingTemplate>
                                                 <DataTemplate>
-                                                    <TextBox 
+                                                    <TextBox                                                         
                                                         x:Name="TextBoxRouteFrom"
-                                                        Text="{Binding RouteFrom, Mode=TwoWay,ValidatesOnExceptions=True}" 
+                                                        Text="{Binding RouteFrom, Mode=TwoWay}" 
                                                         wpf:TextBoxMaskBehavior.Mask="Integer"
         		                                        wpf:TextBoxMaskBehavior.MinimumValue="0"                                                             
         		                                        wpf:TextBoxMaskBehavior.MaximumValue="65535"/>
@@ -597,18 +606,21 @@
                                                     </DataTemplate.Triggers>
                                                 </DataTemplate>
                                             </DataGridTemplateColumn.CellEditingTemplate>
-                                        </DataGridTemplateColumn>
+                                        </DataGridTemplateColumn>                                        
                                     </DataGrid.Columns>
-
+                                                                        
                                     <DataGrid.RowValidationRules>
-                                        <data:RoutingElementValidationRule x:Name="ElementValidationRule" ValidationStep="UpdatedValue"/>
+                                        <!--
+                                        <data:RoutingElementValidationRule x:Name="ElementValidationRule" ValidationStep="ConvertedProposedValue"/>
+                                        -->
+                                        <data:RoutingElementValidationRule x:Name="ElementValidationRuleUpdated" ValidationStep="UpdatedValue"/>
                                     </DataGrid.RowValidationRules>
 
                                     <DataGrid.RowValidationErrorTemplate>
                                         <ControlTemplate>
                                             <Grid Margin="0,-2,0,-2" ToolTip="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGridRow}},Path=(Validation.Errors)[0].ErrorContent}">
                                                 <Ellipse StrokeThickness="0" Fill="Red" Width="{TemplateBinding FontSize}" Height="{TemplateBinding FontSize}" />
-                                                <TextBlock Text="!" FontSize="{TemplateBinding FontSize}" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"  />
+                                                <TextBlock Text="!" FontSize="{TemplateBinding FontSize}" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"  VerticalAlignment="Center"/>
                                             </Grid>
                                         </ControlTemplate>
                                     </DataGrid.RowValidationErrorTemplate>

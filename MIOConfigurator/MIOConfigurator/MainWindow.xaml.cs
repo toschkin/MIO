@@ -607,9 +607,9 @@ namespace MIOConfigurator
             _deviceReaderSaver = new ModbusReaderSaver(_modbusRtuProtocol);
             _foundDevicesCount = 0;
             _deviceSnapshotBefore = null;
-            _supressMBox = false;
+            _supressMBox = false;            
         }
-
+        
         private void CmdConnect_OnClick(object sender, RoutedEventArgs e)
         {
             ProtocolConfigWindow connectionConfigWindow = new ProtocolConfigWindow(_modbusRtuProtocol);            
@@ -699,10 +699,12 @@ namespace MIOConfigurator
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
-        {
+        {            
             DrawEmptySpace();
             DrawRoutingMapGrid();
         }
+
+        
         
         private void DrawRoutingMapGrid()
         {
@@ -820,18 +822,50 @@ namespace MIOConfigurator
                 RestartDevice();
             }
         }
+               
+        public static RoutedCommand AddRouteCommand = new RoutedCommand();
+        public static RoutedCommand DelRouteCommand = new RoutedCommand();
 
-        private void OnAddRoute_Click(object sender, RoutedEventArgs e)
-        {      
+        private void AddRouteCommandExecute(object sender, ExecutedRoutedEventArgs e)
+        {
             SelectedDevice.RoutingMap.Add(new DeviceRoutingTableElement());
             RoutingMapGrid.ScrollIntoView(SelectedDevice.RoutingMap.Last());
         }
-
-        private void OnDelRoute_Click(object sender, RoutedEventArgs e)
+        private void DelRouteCommandExecute(object sender, ExecutedRoutedEventArgs e)
         {
             if (RoutingMapGrid.SelectedItem is DeviceRoutingTableElement)
                 SelectedDevice.RoutingMap.Remove((DeviceRoutingTableElement)RoutingMapGrid.SelectedItem);
         }
+        private void RouteCommandCanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {            
+            if (RoutingMapGrid == null)
+                return;
+            if (RoutingMapGrid.Items == null)
+                return;
+            for (int i = 0; i < RoutingMapGrid.Items.Count; i++)
+            {
+                DataGridRow row = GetRow(RoutingMapGrid, i);
+                if (row != null && Validation.GetHasError(row))
+                {
+                    e.CanExecute = false;
+                    return;
+                }
+            }
+            e.CanExecute = true;      
+        }
+        public static DataGridRow GetRow(DataGrid grid, int index)
+        {
+            DataGridRow row = (DataGridRow)grid.ItemContainerGenerator.ContainerFromIndex(index);
+            if (row == null)
+            {
+                // May be virtualized, bring into view and try again.
+                grid.UpdateLayout();
+                grid.ScrollIntoView(grid.Items[index]);
+                row = (DataGridRow)grid.ItemContainerGenerator.ContainerFromIndex(index);
+            }
+            return row;
+        }
+
 
         /* private void RouteToTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
@@ -866,6 +900,24 @@ namespace MIOConfigurator
                     e.Cancel = true;
                 }
             } 
-        }*/                        
+        }*/
+
+        /*private int errorCount;
+        private void RoutingMapGrid_OnError(object sender, ValidationErrorEventArgs e)
+        {
+            switch (e.Action)
+            {
+                case ValidationErrorEventAction.Added:
+                    {
+                        errorCount++; break;
+                    }
+                case ValidationErrorEventAction.Removed:
+                    {
+                        errorCount--; break;
+                    }
+            }
+            AddRoute.IsEnabled = errorCount == 0;
+            DelRoute.IsEnabled = errorCount == 0;
+        }*/
     }
 }
