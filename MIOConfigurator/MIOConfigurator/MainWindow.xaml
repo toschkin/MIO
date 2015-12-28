@@ -567,7 +567,7 @@
                                             </DataGridTemplateColumn.HeaderStyle>
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
-                                                    <TextBlock Text="{Binding RouteTo}" Background="AliceBlue"/>
+                                                    <TextBlock Text="{Binding RouteTo}"/>
                                                 </DataTemplate>
                                             </DataGridTemplateColumn.CellTemplate>
                                             <DataGridTemplateColumn.CellEditingTemplate>
@@ -607,7 +607,7 @@
                                             </DataGridTemplateColumn.HeaderStyle>
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
-                                                    <TextBlock Text="{Binding RouteFrom}" Background="AliceBlue"/>
+                                                    <TextBlock Text="{Binding RouteFrom}"/>
                                                 </DataTemplate>
                                             </DataGridTemplateColumn.CellTemplate>
                                             <DataGridTemplateColumn.CellEditingTemplate>

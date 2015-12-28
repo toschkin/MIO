@@ -18,6 +18,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 using EnumExtension;
 using Microsoft.Win32;
 using MIOConfig;
@@ -44,6 +45,7 @@ namespace MIOConfigurator
             }
         }
 
+        private Dispatcher _dispatcher;
         private bool _supressMBox;
         private ModbusRtuProtocol _modbusRtuProtocol;
         public ObservableCollection<Device> Devices { get; set; }
@@ -176,12 +178,15 @@ namespace MIOConfigurator
             if (worker == null)
                 return;
             ReaderSaverErrors retCode = ReaderSaverErrors.CodeOk;
-            foreach (Device device in Devices)
+            foreach (var device in Devices)
             {
                 if (device.ModbusAddress == _deviceReaderSaver.SlaveAddress)
                 {
                     worker.ReportProgress(1);
-                    retCode = device.ReadConfiguration(_deviceReaderSaver);                    
+                    Dispatcher.Invoke(new Action(() =>
+                    {
+                        retCode = device.ReadConfiguration(_deviceReaderSaver);    
+                    }));                                    
                     break;
                 }                    
             }
@@ -613,7 +618,8 @@ namespace MIOConfigurator
             _deviceReaderSaver = new ModbusReaderSaver(_modbusRtuProtocol);
             _foundDevicesCount = 0;
             _deviceSnapshotBefore = null;
-            _supressMBox = false;            
+            _supressMBox = false;
+            _dispatcher = Dispatcher.CurrentDispatcher;
         }
         
         private void CmdConnect_OnClick(object sender, RoutedEventArgs e)

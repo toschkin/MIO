@@ -10,17 +10,7 @@ namespace MIOConfig
 {
     [Serializable]
     public class DeviceModuleDOConfiguration : INotifyPropertyChanged
-    {
-        [field: NonSerialized]
-        public event PropertyChangedEventHandler PropertyChanged;
-        private void NotifyPropertyChanged(string info)
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(info));
-            }
-        }
-
+    {       
         public DeviceModuleDOConfiguration()
         {
             ModuleOperation = 1;
@@ -393,6 +383,15 @@ namespace MIOConfig
                     }                    
                 }
                 NotifyPropertyChanged("ParallelChannelForOutput4");
+            }
+        }
+        [field: NonSerialized]
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void NotifyPropertyChanged(string info)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(info));
             }
         }
     }
