@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -210,9 +211,14 @@ namespace MIOConfigurator
             }                              
         }
         private void SaveDeviceConfiguration()
-        {
+        {            
             if (DevicesList.SelectedItem != null)
             {
+                if (IsSlectedDeviceConfigurationValid()==false)
+                {
+                    MessageBox.Show("В конфигурции устройства обнаружены ошибки!\nКонфигурация не может быть записана.",Constants.messageBoxTitle,MessageBoxButton.OK,MessageBoxImage.Stop);
+                    return;
+                }
                 _deviceReaderSaver.SlaveAddress = ((Device)DevicesList.SelectedItem).ModbusAddress;
                 WorkerInProgress = true;
                 CmdFindDevices.IsEnabled = false;
@@ -804,12 +810,7 @@ namespace MIOConfigurator
                 port.PortModbusAddress = Convert.ToByte(PortModbusAddress.Text);
             }
         }
-
-        private void CmdSaveConfiguration_OnClick(object sender, RoutedEventArgs e)
-        {
-            SaveDeviceConfiguration();
-        }
-
+        
         private void CmdRestart_OnClick(object sender, RoutedEventArgs e)
         {
             if (SelectedDevice != null)
@@ -828,30 +829,37 @@ namespace MIOConfigurator
 
         private void AddRouteCommandExecute(object sender, ExecutedRoutedEventArgs e)
         {
-            SelectedDevice.RoutingMap.Add(new DeviceRoutingTableElement());
+            DeviceRoutingTableElement addedElement = new DeviceRoutingTableElement();
+            SelectedDevice.RoutingMap.Add(addedElement);
             RoutingMapGrid.ScrollIntoView(SelectedDevice.RoutingMap.Last());
+            //RoutingMapGrid.RowValidationRules[0].Validate(addedElement,CultureInfo.CurrentCulture);
         }
         private void DelRouteCommandExecute(object sender, ExecutedRoutedEventArgs e)
         {
             if (RoutingMapGrid.SelectedItem is DeviceRoutingTableElement)
                 SelectedDevice.RoutingMap.Remove((DeviceRoutingTableElement)RoutingMapGrid.SelectedItem);
         }
-        private void RouteCommandCanExecute(object sender, CanExecuteRoutedEventArgs e)
-        {            
+
+        private bool IsSlectedDeviceConfigurationValid()
+        {
             if (RoutingMapGrid == null)
-                return;
+                return false;
             if (RoutingMapGrid.Items == null)
-                return;
+                return false;
             for (int i = 0; i < RoutingMapGrid.Items.Count; i++)
             {
                 DataGridRow row = GetRow(RoutingMapGrid, i);
                 if (row != null && Validation.GetHasError(row))
                 {
-                    e.CanExecute = false;
-                    return;
+                    return false;
                 }
             }
-            e.CanExecute = true;      
+            return true;      
+        }
+
+        private void RouteCommandCanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = IsSlectedDeviceConfigurationValid();      
         }
         public static DataGridRow GetRow(DataGrid grid, int index)
         {
@@ -919,5 +927,10 @@ namespace MIOConfigurator
             AddRoute.IsEnabled = errorCount == 0;
             DelRoute.IsEnabled = errorCount == 0;
         }*/
+
+        private void SaveCommandExecute(object sender, ExecutedRoutedEventArgs e)
+        {
+            SaveDeviceConfiguration();
+        }
     }
 }

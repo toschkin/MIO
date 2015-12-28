@@ -15,11 +15,14 @@
         <CommandBinding Command="{x:Static local:MainWindow.AddRouteCommand}"
                     Executed="AddRouteCommandExecute"
                     CanExecute="RouteCommandCanExecute"/>
+        <CommandBinding Command="Save"
+                    Executed="SaveCommandExecute"
+                    CanExecute="RouteCommandCanExecute"/>
         <CommandBinding Command="{x:Static local:MainWindow.DelRouteCommand}"
                     Executed="DelRouteCommandExecute"
                     CanExecute="RouteCommandCanExecute"/>
     </Window.CommandBindings>
-    <Window.Resources>        
+    <Window.Resources>
         <Style TargetType="{x:Type MenuItem}" x:Key="ParentMenuStyle">
             <Setter Property="Background">
                 <Setter.Value>
@@ -31,8 +34,8 @@
             </Setter>
         </Style>
         <Style TargetType="{x:Type MenuItem}" x:Key="ChildMenuStyle">
-            <Setter Property="Background" Value="Lavender"/>                            
-        </Style>       
+            <Setter Property="Background" Value="Lavender"/>
+        </Style>
         <Style TargetType="{x:Type Menu}">
             <Setter Property="Background">
                 <Setter.Value>
@@ -43,20 +46,20 @@
                 </Setter.Value>
             </Setter>
         </Style>
-    </Window.Resources>        
+    </Window.Resources>
     <DockPanel UseLayoutRounding="True" Background="Lavender">
-        <Menu DockPanel.Dock="Top" IsMainMenu="True" DataContext="MIOConfigurator.MainWindow" x:Name="MainMenu" FontSize="12">            
+        <Menu DockPanel.Dock="Top" IsMainMenu="True" DataContext="MIOConfigurator.MainWindow" x:Name="MainMenu" FontSize="12">
             <MenuItem Header="_Соединение" Style="{StaticResource ParentMenuStyle}">
-                <MenuItem x:Name="CmdConnect" Header="_Подключиться" Click="CmdConnect_OnClick" Style="{StaticResource ChildMenuStyle}">                    
+                <MenuItem x:Name="CmdConnect" Header="_Подключиться" Click="CmdConnect_OnClick" Style="{StaticResource ChildMenuStyle}">
                     <MenuItem.Icon>
                         <Image Height="16" Width="16" Source="Images/connected.png" />
-                    </MenuItem.Icon>                    
+                    </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem x:Name="CmdDisconnect" Header="_Отключиться" Click="CmdDisconnect_OnClick" IsEnabled="False" Style="{StaticResource ChildMenuStyle}"></MenuItem>                
+                <MenuItem x:Name="CmdDisconnect" Header="_Отключиться" Click="CmdDisconnect_OnClick" IsEnabled="False" Style="{StaticResource ChildMenuStyle}"></MenuItem>
             </MenuItem>
             <MenuItem Header="_Список устройств" IsEnabled="{Binding ElementName=CmdDisconnect, Path=IsEnabled}" Style="{StaticResource ParentMenuStyle}">
                 <MenuItem x:Name="CmdFindDevices" Header="_Найти устройства..." Click="CmdFindDevices_OnClick" Style="{StaticResource ChildMenuStyle}"/>
-                <MenuItem x:Name="CmdCancelSearchDevices" Header="_Прервать поиск" IsEnabled="False" Click="CmdCancelSearchDevices_OnClick" Style="{StaticResource ChildMenuStyle}"/>                
+                <MenuItem x:Name="CmdCancelSearchDevices" Header="_Прервать поиск" IsEnabled="False" Click="CmdCancelSearchDevices_OnClick" Style="{StaticResource ChildMenuStyle}"/>
                 <MenuItem x:Name="CmdAddDeviceToList" Background="Lavender" Click="CmdAddDeviceToList_Click">
                     <MenuItem.Header>
                         <StackPanel Orientation="Horizontal" Background="Lavender">
@@ -67,12 +70,12 @@
                         		wpf:TextBoxMaskBehavior.MaximumValue="247" PreviewLostKeyboardFocus="SlaveConcreteAddress_OnPreviewLostKeyboardFocus"/>
                         </StackPanel>
                     </MenuItem.Header>
-                </MenuItem>                               
-                <MenuItem x:Name="CmdDelDeviceFromList" Header="_Удалить устройство из списка" IsEnabled="{Binding ElementName=DevicesList, Path=HasItems}" Style="{StaticResource ChildMenuStyle}" Click="CmdDelDeviceFromList_OnClick"/>                
-                <MenuItem x:Name="CmdDelAllDevicesFromList" Header="_Очистить список устройств" IsEnabled="{Binding ElementName=DevicesList, Path=HasItems}" Style="{StaticResource ChildMenuStyle}" Click="CmdDelAllDevicesFromList_Click"/>                
+                </MenuItem>
+                <MenuItem x:Name="CmdDelDeviceFromList" Header="_Удалить устройство из списка" IsEnabled="{Binding ElementName=DevicesList, Path=HasItems}" Style="{StaticResource ChildMenuStyle}" Click="CmdDelDeviceFromList_OnClick"/>
+                <MenuItem x:Name="CmdDelAllDevicesFromList" Header="_Очистить список устройств" IsEnabled="{Binding ElementName=DevicesList, Path=HasItems}" Style="{StaticResource ChildMenuStyle}" Click="CmdDelAllDevicesFromList_Click"/>
             </MenuItem>
-        </Menu>        
-        <Border DockPanel.Dock ="Bottom" BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" BorderThickness="1">            
+        </Menu>
+        <Border DockPanel.Dock ="Bottom" BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" BorderThickness="1">
             <StatusBar DockPanel.Dock ="Bottom">
                 <StatusBar.Background>
                     <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
@@ -141,7 +144,7 @@
                                   Style="{StaticResource ChildMenuStyle}" Click="CmdReadConfiguration_OnClick" />
                         <MenuItem x:Name ="CmdSaveConfiguration" Header="Записать конфигурацию в устройство" 
                                   IsEnabled="{qc:Binding '$P!=-1', P={Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type ContextMenu}},Path=PlacementTarget.SelectedIndex}}" 
-                                  Style="{StaticResource ChildMenuStyle}" Click="CmdSaveConfiguration_OnClick" />
+                                  Style="{StaticResource ChildMenuStyle}" Command="Save"/>
                         <MenuItem x:Name ="CmdRestart" Header="Выполнить перезагрузку устройства" 
                                   IsEnabled="{qc:Binding '$P!=-1', P={Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type ContextMenu}},Path=PlacementTarget.SelectedIndex}}" 
                                   Style="{StaticResource ChildMenuStyle}" Click="CmdRestart_OnClick" />
@@ -149,7 +152,7 @@
                 </ListBox.ContextMenu>
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="mioConfig:Device">
-                        <Border Margin="2,2,2,2" BorderThickness="2" CornerRadius="3" BorderBrush="DarkGreen">                            
+                        <Border Margin="2,2,2,2" BorderThickness="2" CornerRadius="3" BorderBrush="DarkGreen">
                             <StackPanel Orientation="Horizontal" Style="{DynamicResource StackPanelLavenderTheme}">
                                 <Image Margin="3" Source="Images/rtu.png" 
                                     RenderOptions.BitmapScalingMode="Fant"
@@ -169,15 +172,15 @@
             <GridSplitter Grid.Row="1" Grid.Column="1"
                 Width="3" VerticalAlignment="Stretch" HorizontalAlignment="Center"
                 ShowsPreview="False" Background="Lavender"></GridSplitter>
-           <Grid Grid.Row="1" Grid.Column="2">
+            <Grid Grid.Row="1" Grid.Column="2">
                 <TextBlock x:Name ="NoItemsTextBlock" Margin="0,10,10,10" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Нет элементов для отображения"/>
-                <TabControl x:Name ="ConfigurationTabs"  Margin="0,10,10,10" Background="Lavender" IsEnabled="{Binding WorkerStopped,RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, UpdateSourceTrigger=PropertyChanged}">                            
-                    <TabControl.Resources>                                               
+                <TabControl x:Name ="ConfigurationTabs"  Margin="0,10,10,10" Background="Lavender" IsEnabled="{Binding WorkerStopped,RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, UpdateSourceTrigger=PropertyChanged}">
+                    <TabControl.Resources>
                         <Style TargetType="{x:Type TabItem}">
                             <Setter Property="Template">
                                 <Setter.Value>
                                     <ControlTemplate TargetType="{x:Type TabItem}">
-                                        <Grid>                                            
+                                        <Grid>
                                             <Border 
                                                 Name="Border"                                                
                                                 Margin="0,0,-4,0"                                                 
@@ -195,7 +198,7 @@
                                         </Grid>
                                         <ControlTemplate.Triggers>
                                             <Trigger Property="IsSelected" Value="True">
-                                                <Setter Property="Panel.ZIndex" Value="100" />                                                
+                                                <Setter Property="Panel.ZIndex" Value="100" />
                                                 <Setter TargetName="Border" Property="Background">
                                                     <Setter.Value>
                                                         <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
@@ -203,7 +206,7 @@
                                                             <GradientStop Color="CornflowerBlue" Offset="1"/>
                                                         </LinearGradientBrush>
                                                     </Setter.Value>
-                                                </Setter>                                                                                                
+                                                </Setter>
                                                 <Setter TargetName="Border" Property="BorderThickness" Value="1,1,1,0" />
                                             </Trigger>
                                             <Trigger Property="IsSelected" Value="False">
@@ -214,7 +217,7 @@
                                                             <GradientStop Color="Lavender" Offset="1"/>
                                                         </LinearGradientBrush>
                                                     </Setter.Value>
-                                                </Setter>                                                
+                                                </Setter>
                                             </Trigger>
                                         </ControlTemplate.Triggers>
                                     </ControlTemplate>
@@ -295,7 +298,7 @@
                                                 <ColumnDefinition Width="*"></ColumnDefinition>
                                             </Grid.ColumnDefinitions>
                                             <Grid.RowDefinitions>
-                                                <RowDefinition Height="Auto"></RowDefinition>                                                
+                                                <RowDefinition Height="Auto"></RowDefinition>
                                             </Grid.RowDefinitions>
                                             <TextBlock Grid.Row ="0" Grid.Column="0" HorizontalAlignment ="Right" Text="Протокол обмена:" Padding="5"></TextBlock>
                                             <ComboBox x:Name="PortProtocolType" Grid.Row ="0" Grid.Column="1" Margin="5,5,5,5" 
@@ -306,7 +309,7 @@
                                                     P1={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedDevice.ModuleModbusMasterPresent}}">
                                                     Modbus (master)</ComboBoxItem>
                                                 <ComboBoxItem>Modbus (slave)</ComboBoxItem>
-                                            </ComboBox>                                                                                       
+                                            </ComboBox>
                                         </Grid>
                                         <Grid Margin="10,10,10,0" Visibility="{qc:Binding '$P==0 ? Visibility.Visible : Visibility.Collapsed', P={Binding ElementName=PortProtocolType,Path=SelectedIndex}}">
                                             <Grid.ColumnDefinitions>
@@ -316,7 +319,7 @@
                                             <Grid.RowDefinitions>
                                                 <RowDefinition Height="Auto"></RowDefinition>
                                                 <RowDefinition Height="Auto"></RowDefinition>
-                                            </Grid.RowDefinitions>                                           
+                                            </Grid.RowDefinitions>
                                             <TextBlock Grid.Row ="0" Grid.Column="0" HorizontalAlignment ="Right" Text="Таймаут ответа:" Padding="5"></TextBlock>
                                             <TextBox x:Name="PortMasterTimeout" Grid.Row ="0" Grid.Column="1" Margin="5,5,5,5"
                                                         wpf:TextBoxMaskBehavior.Mask="Integer"
@@ -328,7 +331,7 @@
                                                         wpf:TextBoxMaskBehavior.Mask="Integer"
         		                                        wpf:TextBoxMaskBehavior.MinimumValue="0"
         		                                        wpf:TextBoxMaskBehavior.MaximumValue="255"
-                                                        Text="{Binding Path=SelectedPortConfiguration.PortRetriesCount, Mode=TwoWay, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}"></TextBox>                                         
+                                                        Text="{Binding Path=SelectedPortConfiguration.PortRetriesCount, Mode=TwoWay, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}"></TextBox>
                                         </Grid>
                                         <Grid Margin="10,10,10,0" Visibility="{qc:Binding '$P==1 ? Visibility.Visible : Visibility.Collapsed', P={Binding ElementName=PortProtocolType,Path=SelectedIndex}}">
                                             <Grid.ColumnDefinitions>
@@ -336,7 +339,7 @@
                                                 <ColumnDefinition Width="*"></ColumnDefinition>
                                             </Grid.ColumnDefinitions>
                                             <Grid.RowDefinitions>
-                                                <RowDefinition Height="Auto"></RowDefinition>                                                
+                                                <RowDefinition Height="Auto"></RowDefinition>
                                             </Grid.RowDefinitions>
                                             <TextBlock Grid.Row ="0" Grid.Column="0" HorizontalAlignment ="Right" Text="Адрес slave:" Padding="5"></TextBlock>
                                             <TextBox x:Name="PortModbusAddress" Grid.Row ="0" Grid.Column="1" Margin="5,5,5,5"                                                         
@@ -353,9 +356,9 @@
                     </TabItem>
                     <TabItem Header="Модуль ТС" Visibility="{qc:Binding '!$P ? Visibility.Collapsed : Visibility.Visible',                                                     
                                                 P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedDevice.ModuleDIPresent}}">
-                       <StackPanel Margin="5">
+                        <StackPanel Margin="5">
                             <CheckBox Content="Модуль в работе" Margin="10,10,10,0" 
-                                              IsChecked="{qc:Binding '$P == 1', ConvertBack='$value?1:0',  P={Binding Path=SelectedDevice.DiscreetInputModuleConfiguration.ModuleOperation, Mode=TwoWay, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}}">                                
+                                              IsChecked="{qc:Binding '$P == 1', ConvertBack='$value?1:0',  P={Binding Path=SelectedDevice.DiscreetInputModuleConfiguration.ModuleOperation, Mode=TwoWay, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}}">
                             </CheckBox>
                             <Grid Margin="10,10,10,0">
                                 <Grid.ColumnDefinitions>
@@ -371,10 +374,10 @@
                                                     wpf:TextBoxMaskBehavior.Mask="Integer"
         		                                    wpf:TextBoxMaskBehavior.MinimumValue="0"
         		                                    wpf:TextBoxMaskBehavior.MaximumValue="65535"
-                                                    Text="{Binding Path=SelectedDevice.DiscreetInputModuleConfiguration.HysteresisTime, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}">                                    
+                                                    Text="{Binding Path=SelectedDevice.DiscreetInputModuleConfiguration.HysteresisTime, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}">
                                 </TextBox>
                             </Grid>
-                        </StackPanel> 
+                        </StackPanel>
                     </TabItem>
                     <TabItem Header="Модуль ТУ" Visibility="{qc:Binding '!$P ? Visibility.Collapsed : Visibility.Visible',                                                     
                                                 P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedDevice.ModuleDOPresent}}">
@@ -398,14 +401,14 @@
         		                                    wpf:TextBoxMaskBehavior.MaximumValue="65535"
                                                     Text="{Binding Path=SelectedDevice.DiscreetOutputModuleConfiguration.PulseDurationTime, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}">
                                 </TextBox>
-                            </Grid>                            
+                            </Grid>
                             <StackPanel>
                                 <Grid Margin="10,10,10,0">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto"></ColumnDefinition>
                                         <ColumnDefinition Width="2*"></ColumnDefinition>
                                         <ColumnDefinition Width="Auto"></ColumnDefinition>
-                                        <ColumnDefinition Width="1*"></ColumnDefinition>                                        
+                                        <ColumnDefinition Width="1*"></ColumnDefinition>
                                     </Grid.ColumnDefinitions>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"></RowDefinition>
@@ -421,8 +424,8 @@
                                         <ComboBoxItem>Одинарное переключение</ComboBoxItem>
                                         <ComboBoxItem>Двойное переключение</ComboBoxItem>
                                         <ComboBoxItem IsEnabled="False">Параллельный канал</ComboBoxItem>
-                                    </ComboBox>                                    
-                                    
+                                    </ComboBox>
+
                                     <TextBlock Grid.Row ="1" Grid.Column="0" HorizontalAlignment ="Right" Text="Тип выхода №2:" Padding="5"></TextBlock>
                                     <ComboBox x:Name="Output2Type" Grid.Row ="1" Grid.Column="1" Margin="5,0,5,5"
                                                 SelectedIndex="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Mode=TwoWay, Path=SelectedDevice.DiscreetOutputModuleConfiguration.OutputType2}"
@@ -454,13 +457,13 @@
                                     <TextBlock Grid.Row ="2" Grid.Column="0" HorizontalAlignment ="Right" Text="Тип выхода №3:" Padding="5"></TextBlock>
                                     <ComboBox x:Name="Output3Type" Grid.Row ="2" Grid.Column="1" Margin="5,0,5,5"
                                               SelectedIndex="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Mode=TwoWay, Path=SelectedDevice.DiscreetOutputModuleConfiguration.OutputType3}"
-                                              IsEnabled="{qc:Binding '$P!=3',P={Binding ElementName=ParallelChannel2, Path=SelectedIndex}}">                                        
+                                              IsEnabled="{qc:Binding '$P!=3',P={Binding ElementName=ParallelChannel2, Path=SelectedIndex}}">
                                         <ComboBoxItem>Не задействован</ComboBoxItem>
                                         <ComboBoxItem>Одинарное переключение</ComboBoxItem>
                                         <ComboBoxItem>Двойное переключение</ComboBoxItem>
                                         <ComboBoxItem IsEnabled="False">Параллельный канал</ComboBoxItem>
                                     </ComboBox>
-                                    
+
                                     <TextBlock Grid.Row ="3" Grid.Column="0" HorizontalAlignment ="Right" Text="Тип выхода №4:" Padding="5"></TextBlock>
                                     <ComboBox x:Name="Output4Type" Grid.Row ="3" Grid.Column="1" Margin="5,0,5,5"
                                                 SelectedIndex="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Mode=TwoWay, Path=SelectedDevice.DiscreetOutputModuleConfiguration.OutputType4}"
@@ -488,8 +491,8 @@
                                         <ComboBoxItem Visibility="Collapsed">Выход №3</ComboBoxItem>
                                         <ComboBoxItem Visibility="Collapsed">Выход №4</ComboBoxItem>
                                     </ComboBox>
-                                </Grid>                               
-                            </StackPanel>                           
+                                </Grid>
+                            </StackPanel>
                         </StackPanel>
                     </TabItem>
                     <TabItem Header="Ретранслятор" Visibility="{qc:Binding '!$P ? Visibility.Collapsed : Visibility.Visible',                                                     
@@ -500,36 +503,52 @@
                             </CheckBox>
                             <StackPanel Margin="10" Orientation="Horizontal" DockPanel.Dock="Bottom">
                                 <Button x:Name="AddRoute" Style="{DynamicResource EmptyButtonStyle}" Command="{x:Static local:MainWindow.AddRouteCommand}">
-                                    <Image Height="32" Width="32" Source="Images/add-icon.png" Style="{DynamicResource ButtonImageHoverStyle}">                                                                          
+                                    <Image Height="32" Width="32" Source="Images/add-icon.png" Style="{DynamicResource ButtonImageHoverStyle}">
                                     </Image>
                                 </Button>
-                                <TextBlock TextWrapping="Wrap" FontSize="14" Width="64" TextAlignment="Center" Text="Добавить маршрут"/>
+                                <TextBlock TextWrapping="Wrap" FontSize="14" Width="64" TextAlignment="Center" Text="Добавить маршрут">
+                                    <TextBlock.Effect>
+                                        <DropShadowEffect Direction="310" Color="#FFA09C9C"/>
+                                    </TextBlock.Effect>
+                                </TextBlock>
                                 <Button x:Name="DelRoute" Style="{DynamicResource EmptyButtonStyle}" Command="{x:Static local:MainWindow.AddRouteCommand}">
-                                    <Image Height="32" Width="32" Source="Images/del-icon.png" Style="{DynamicResource ButtonImageHoverStyle}">                                        
+                                    <Image Height="32" Width="32" Source="Images/del-icon.png" Style="{DynamicResource ButtonImageHoverStyle}">
                                     </Image>
                                 </Button>
-                                <TextBlock TextWrapping="Wrap" FontSize="14" Width="64" TextAlignment="Center">Удалить маршрут</TextBlock>
+                                <TextBlock TextWrapping="Wrap" FontSize="14" Width="64" TextAlignment="Center" Text="Удалить маршрут" >
+                                    <TextBlock.Effect>
+                                        <DropShadowEffect Direction="310" Color="#FFA09C9C"/>
+                                    </TextBlock.Effect></TextBlock>
                             </StackPanel>
 
                             <DockPanel>
                                 <Border DockPanel.Dock="Top" Margin="10,10,10,0" BorderThickness="1" BorderBrush="DarkOliveGreen">
-                                    <TextBlock  Padding="4" Text="Карта пользовательских регистров" TextAlignment="Center" Background="Aquamarine"></TextBlock>
-                                </Border>                                
-                                
+                                    <TextBlock  Padding="4" Text="Карта пользовательских регистров" TextAlignment="Center" Foreground="Yellow" FontSize="14">
+                                        <TextBlock.Background>
+                                            <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
+                                                <GradientStop Color="White" Offset="0"/>
+                                                <GradientStop Color="#FFB1B1F5" Offset="0.3"/>
+                                                <GradientStop Color="#FF7878F3" Offset="0.7"/>
+                                                <GradientStop Color="White" Offset="1"/>
+                                            </LinearGradientBrush>
+                                        </TextBlock.Background></TextBlock>
+                                </Border>
+
                                 <data:Proxy In="{Binding SelectedDeviceValidator, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Out="{Binding ElementName=ElementValidationRule, Path=Validator}"/>
                                 <data:Proxy In="{Binding SelectedDeviceValidator, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Out="{Binding ElementName=ElementValidationRuleUpdated, Path=Validator}"/>
-                                
-                                <DataGrid x:Name="RoutingMapGrid" Margin="10,3,10,10" AutoGenerateColumns="False" SelectionMode="Single" CanUserSortColumns="False" CanUserAddRows="False" CanUserResizeRows="False"                                         
-                                            ItemsSource="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedDevice.RoutingMap}">
+
+                                <DataGrid x:Name="RoutingMapGrid" Margin="10,3,10,10" AutoGenerateColumns="False" SelectionMode="Single" CanUserSortColumns="False" CanUserAddRows="False" CanUserResizeRows="False"
+                                            ItemsSource="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedDevice.RoutingMap}"
+                                            Background="AliceBlue" ColumnWidth="*">
                                     <DataGrid.Resources>
                                         <Style TargetType="{x:Type DataGridColumnHeader}">
-                                            <Setter Property="Background" Value="LightGray" />
+                                            <Setter Property="Background" Value="Transparent" />
                                             <Setter Property="BorderBrush" Value="DarkGray"></Setter>
                                             <Setter Property="BorderThickness" Value="1"></Setter>
                                         </Style>
                                     </DataGrid.Resources>
                                     <DataGrid.Columns>
-                                        <DataGridTemplateColumn Header="Регистр назначения">                                            
+                                        <DataGridTemplateColumn Header="Регистр назначения">
                                             <DataGridTemplateColumn.HeaderStyle>
                                                 <Style TargetType="{x:Type DataGridColumnHeader}">
                                                     <Setter Property="HorizontalContentAlignment" Value="Center"></Setter>
@@ -548,7 +567,7 @@
                                             </DataGridTemplateColumn.HeaderStyle>
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
-                                                    <TextBlock Text="{Binding RouteTo}"/>
+                                                    <TextBlock Text="{Binding RouteTo}" Background="AliceBlue"/>
                                                 </DataTemplate>
                                             </DataGridTemplateColumn.CellTemplate>
                                             <DataGridTemplateColumn.CellEditingTemplate>
@@ -558,8 +577,8 @@
                                                         wpf:TextBoxMaskBehavior.Mask="Integer"
         		                                        wpf:TextBoxMaskBehavior.MinimumValue="0"
         		                                        wpf:TextBoxMaskBehavior.MaximumValue="65535">
-                                                        <Binding Path="RouteTo" Mode="TwoWay">                                                                                                                        
-                                                        </Binding>                                                                                                               
+                                                        <Binding Path="RouteTo" Mode="TwoWay">
+                                                        </Binding>
                                                     </TextBox>
                                                     <DataTemplate.Triggers>
                                                         <Trigger SourceName="TextBoxRouteTo" Property="IsVisible" Value="True">
@@ -576,7 +595,7 @@
                                                     <Setter Property="Padding" Value="5"></Setter>
                                                     <Setter Property="BorderBrush" Value="DarkGray"></Setter>
                                                     <Setter Property="BorderThickness" Value="1"></Setter>
-                                                    <Setter Property="Background">                                                        
+                                                    <Setter Property="Background">
                                                         <Setter.Value>
                                                             <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                                                                 <GradientStop Color="BurlyWood" Offset="0"></GradientStop>
@@ -588,7 +607,7 @@
                                             </DataGridTemplateColumn.HeaderStyle>
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
-                                                    <TextBlock Text="{Binding RouteFrom}"/>
+                                                    <TextBlock Text="{Binding RouteFrom}" Background="AliceBlue"/>
                                                 </DataTemplate>
                                             </DataGridTemplateColumn.CellTemplate>
                                             <DataGridTemplateColumn.CellEditingTemplate>
@@ -606,14 +625,11 @@
                                                     </DataTemplate.Triggers>
                                                 </DataTemplate>
                                             </DataGridTemplateColumn.CellEditingTemplate>
-                                        </DataGridTemplateColumn>                                        
+                                        </DataGridTemplateColumn>
                                     </DataGrid.Columns>
-                                                                        
+
                                     <DataGrid.RowValidationRules>
-                                        <!--
-                                        <data:RoutingElementValidationRule x:Name="ElementValidationRule" ValidationStep="ConvertedProposedValue"/>
-                                        -->
-                                        <data:RoutingElementValidationRule x:Name="ElementValidationRuleUpdated" ValidationStep="UpdatedValue"/>
+                                        <data:RoutingElementValidationRule x:Name="ElementValidationRule" ValidationStep="CommittedValue" ValidatesOnTargetUpdated="True"/>
                                     </DataGrid.RowValidationRules>
 
                                     <DataGrid.RowValidationErrorTemplate>
@@ -625,13 +641,13 @@
                                         </ControlTemplate>
                                     </DataGrid.RowValidationErrorTemplate>
                                 </DataGrid>
-                            </DockPanel>                            
+                            </DockPanel>
                         </DockPanel>
                     </TabItem>
                     <TabItem Header="Модуль Modbus (master)" Visibility="{qc:Binding '!$P ? Visibility.Collapsed : Visibility.Visible',                                                     
-                                                P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedDevice.ModuleModbusMasterPresent}}"></TabItem>                    
+                                                P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedDevice.ModuleModbusMasterPresent}}"></TabItem>
                 </TabControl>
-            </Grid>            
+            </Grid>
         </Grid>
     </DockPanel>
 </Window>
