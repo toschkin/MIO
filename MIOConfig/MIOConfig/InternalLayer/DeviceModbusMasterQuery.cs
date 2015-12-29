@@ -11,17 +11,14 @@ namespace MIOConfig
     public class DeviceModbusMasterQuery
     {
         public DeviceModbusMasterQuery()
-        {
-            QueryConfigured = false;
+        {            
             SlaveAddress = 1;
             ModbusFuctionCode = 1;
         }
-
-        private bool _queryConfigured;
-        internal bool QueryConfigured
+       
+        public bool QueryConfigured
         {
-            get { return RegistersCount > 0; }
-            set { _queryConfigured = value; }
+            get { return RegistersCount > 0; }            
         }
    
         [ModbusProperty(Access = ModbusRegisterAccessType.AccessReadWrite)]

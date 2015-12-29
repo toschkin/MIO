@@ -43,7 +43,7 @@ namespace MIOConfigurator
             {
                 PropertyChanged(this, new PropertyChangedEventArgs(info));
             }
-        }
+        }       
 
         private Dispatcher _dispatcher;
         private bool _supressMBox;
@@ -62,7 +62,8 @@ namespace MIOConfigurator
             }
         }
 
-        public Device SelectedDevice {
+        public Device SelectedDevice 
+        {
             get { return _selectedDevice; }
             set
             {
@@ -92,6 +93,18 @@ namespace MIOConfigurator
                 NotifyPropertyChanged("SelectedPortConfiguration");
             }
         }
+
+        private DeviceModbusMasterQuery _selectedModbusQuery;
+        public DeviceModbusMasterQuery SelectedModbusQuery
+        {
+            get { return _selectedModbusQuery; }
+            set
+            {
+                _selectedModbusQuery = value;
+                NotifyPropertyChanged("SelectedModbusQuery");
+            }
+        }
+
 
         private BackgroundWorker mainWindowBackgroundWorker = new BackgroundWorker();
 
@@ -439,7 +452,46 @@ namespace MIOConfigurator
         {            
             NoItemsTextBlock.Visibility = Visibility.Collapsed;
             ConfigurationTabs.Visibility = Visibility.Visible;
+            DrawTree();
         }
+
+        private void DrawTree()
+        {
+            ModbusQueriesTreeView.Items.Clear();
+            if (SelectedDevice != null)
+            {
+                if (SelectedDevice.ModuleModbusMasterPresent)
+                {                    
+                    int portNumber = 0;
+                    foreach (var port in SelectedDevice.ModbusMasterPortsQueries)
+                    {
+                        if (SelectedDevice.UartPortsConfigurations[portNumber].PortProtocolType ==
+                            Definitions.MODBUS_MASTER_PROTOCOL)
+                        {
+                            TreeViewItem portItem = new TreeViewItem();
+                            portItem.Tag = port;
+                            portItem.Header = String.Format("Порт №{0}", portNumber+1);
+                            int queryNumber = 0;
+                            foreach (var query in port)
+                            {
+                                TreeViewItem queryItem = new TreeViewItem();
+                                queryItem.Tag = query;
+                                queryItem.Header = String.Format("Запрос №{0}", queryNumber+1);
+                                if (query.QueryConfigured == false)
+                                    queryItem.Foreground = Brushes.Gray;
+                                else
+                                    queryItem.Foreground = Brushes.Black;
+                                portItem.Items.Add(queryItem);
+                                queryNumber++;
+                            }
+                            ModbusQueriesTreeView.Items.Add(portItem);                              
+                        }                        
+                        portNumber++;
+                    }                    
+                }                
+            }           
+        }
+
 
         private void DrawEmptySpace()
         {
@@ -458,6 +510,7 @@ namespace MIOConfigurator
             Devices.Clear();            
             SelectedDevice = null;
             SelectedPortConfiguration = null;
+            SelectedModbusQuery = null;
             DrawEmptySpace();
         }
         private void CloseWindow()
@@ -553,6 +606,7 @@ namespace MIOConfigurator
             DrawEmptySpace();
             SelectedDevice = null;
             SelectedPortConfiguration = null;
+            SelectedModbusQuery = null;
             WorkerInProgress = true;
             CmdFindDevices.IsEnabled = false;
             CmdAddDeviceToList.IsEnabled = false;
@@ -571,6 +625,7 @@ namespace MIOConfigurator
         {
             SelectedDevice = null;
             SelectedPortConfiguration = null;
+            SelectedModbusQuery = null;
             DrawEmptySpace();
             Devices.Clear();
         }
@@ -579,6 +634,7 @@ namespace MIOConfigurator
             Devices.Remove(DevicesList.SelectedItem as Device);
             SelectedDevice = null;
             SelectedPortConfiguration = null;
+            SelectedModbusQuery = null;
             DrawEmptySpace();
         }
         private void RestartDevice()
@@ -615,6 +671,7 @@ namespace MIOConfigurator
             WorkerInProgress = false;            
             SelectedDevice = null;
             SelectedPortConfiguration = null;
+            SelectedModbusQuery = null;
             _deviceReaderSaver = new ModbusReaderSaver(_modbusRtuProtocol);
             _foundDevicesCount = 0;
             _deviceSnapshotBefore = null;
@@ -712,17 +769,8 @@ namespace MIOConfigurator
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {            
-            DrawEmptySpace();
-            DrawRoutingMapGrid();
+            DrawEmptySpace();           
         }
-
-        
-        
-        private void DrawRoutingMapGrid()
-        {
-           
-        }
-        
         private void SlaveConcreteAddress_OnPreviewLostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
         {
             if (MainMenu.IsKeyboardFocusWithin)
@@ -937,6 +985,21 @@ namespace MIOConfigurator
         private void SaveCommandExecute(object sender, ExecutedRoutedEventArgs e)
         {
             SaveDeviceConfiguration();
+        }
+
+        private void ModbusQueriesTreeView_OnSelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            if (e.NewValue is TreeViewItem)
+            {
+                if (((TreeViewItem) e.NewValue).Tag is DeviceModbusMasterQuery)
+                {
+                    SelectedModbusQuery = (DeviceModbusMasterQuery) ((TreeViewItem) e.NewValue).Tag;
+                }
+                else
+                {
+                    SelectedModbusQuery = null;
+                }
+            }            
         }
     }
 }

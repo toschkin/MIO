@@ -124,7 +124,7 @@ namespace MIOConfig
                         {
                             _deviceConfiguration.UartPorts.Add(new DeviceUARTPortConfiguration(ref _deviceConfiguration));
                             if (_deviceConfiguration.ModbusMasterQueriesOnUartPorts != null)
-                                _deviceConfiguration.ModbusMasterQueriesOnUartPorts.Add(new List<DeviceModbusMasterQuery>());
+                                _deviceConfiguration.ModbusMasterQueriesOnUartPorts.Add(new ObservableCollection<DeviceModbusMasterQuery>());
                         }
                     }
 
@@ -132,7 +132,7 @@ namespace MIOConfig
                     {
                         _deviceConfiguration.UartPorts.RemoveRange(value, _deviceConfiguration.UartPorts.Count - value); 
                         if (_deviceConfiguration.ModbusMasterQueriesOnUartPorts != null)
-                            _deviceConfiguration.ModbusMasterQueriesOnUartPorts.RemoveRange(value, _deviceConfiguration.UartPorts.Count - value); 
+                            _deviceConfiguration.ModbusMasterQueriesOnUartPorts.ToList().RemoveRange(value, _deviceConfiguration.UartPorts.Count - value); 
                     }                        
                 }
                 _deviceUartChannelsCount = value;
@@ -155,14 +155,19 @@ namespace MIOConfig
             {
                 if (_deviceConfiguration != null && _deviceConfiguration.ModbusMasterQueriesOnUartPorts != null && _deviceConfiguration.ModbusMasterQueriesOnUartPorts.Count > 0)
                     return (UInt16)_deviceConfiguration.ModbusMasterQueriesOnUartPorts[0].Count;
-                return 1;
+                return 0;
+                //return 1;
             }
             set
             {
-                if (value < 1)
-                    value = 1;
-                if (_deviceConfiguration == null || _deviceConfiguration.ModbusMasterQueriesOnUartPorts == null ||
-                    _deviceConfiguration.ModbusMasterQueriesOnUartPorts.Count <= 0) return;
+                /*if (value < 1)
+                    value = 1;*/
+                if (_deviceConfiguration == null || _deviceConfiguration.ModbusMasterQueriesOnUartPorts == null) 
+                    return;
+
+                if(_deviceConfiguration.ModbusMasterQueriesOnUartPorts.Count == 0)
+                    return;
+                
                 if (value > _deviceConfiguration.ModbusMasterQueriesOnUartPorts[0].Count)
                 {
                     int addCount = value - _deviceConfiguration.ModbusMasterQueriesOnUartPorts[0].Count;
@@ -178,7 +183,7 @@ namespace MIOConfig
                 if (value >= _deviceConfiguration.ModbusMasterQueriesOnUartPorts[0].Count) return;
                 foreach (var port in _deviceConfiguration.ModbusMasterQueriesOnUartPorts)
                 {
-                    port.RemoveRange(value, _deviceConfiguration.UartPorts.Count - value);
+                    port.ToList().RemoveRange(value, _deviceConfiguration.UartPorts.Count - value);
                 }
             }
         }

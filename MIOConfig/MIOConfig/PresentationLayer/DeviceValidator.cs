@@ -84,9 +84,9 @@ namespace MIOConfig.PresentationLayer
                 retCode = false;
             }
 
-            if (element.RouteTo > _device.Configuration.HeaderFields.DeviceUserRegistersCount - 1)
+            if (element.RouteTo < Definitions.USER_REGISTERS_OFFSET || element.RouteTo > Definitions.USER_REGISTERS_OFFSET+_device.Configuration.HeaderFields.DeviceUserRegistersCount - 1)
             {
-                ValidationErrorList.Add(String.Format("Целевой регистр за пределами области пользовательских регистров: 0..{0}", _device.Configuration.HeaderFields.DeviceUserRegistersCount - 1));
+                ValidationErrorList.Add(String.Format("Целевой регистр за пределами области пользовательских регистров: {0}..{1}", Definitions.USER_REGISTERS_OFFSET, Definitions.USER_REGISTERS_OFFSET+_device.Configuration.HeaderFields.DeviceUserRegistersCount - 1));
                 retCode = false;
             }
             for (int route = 0; route < _device.RoutingMap.Count; route++)

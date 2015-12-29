@@ -45,7 +45,7 @@ namespace MIOConfig
             DOModuleConfiguration = null;
             RoutingHeader = null;
             RoutingTable = null;
-            ModbusMasterQueriesOnUartPorts = new List<List<DeviceModbusMasterQuery>>() { new List<DeviceModbusMasterQuery>() };
+            ModbusMasterQueriesOnUartPorts = new ObservableCollection<ObservableCollection<DeviceModbusMasterQuery>>(){new ObservableCollection<DeviceModbusMasterQuery>()};
         }
 
         public bool ConfigurationReadFromDevice { get; set; }
@@ -90,7 +90,7 @@ namespace MIOConfig
         /// <summary>
         /// Holding regs|addr.: 1007+7*UartPorts.Count + 5*ModuleDIPresent + 10*ModuleDOPresent+2 |count: 2| R/W
         /// </summary>
-        public List<List<DeviceModbusMasterQuery>> ModbusMasterQueriesOnUartPorts;
+        public ObservableCollection<ObservableCollection<DeviceModbusMasterQuery>> ModbusMasterQueriesOnUartPorts;
 
         #endregion
 
@@ -156,7 +156,7 @@ namespace MIOConfig
             }
             if (HeaderFields.ModuleModbusMaster)
             {
-                foreach (List<DeviceModbusMasterQuery> portQueriesList in ModbusMasterQueriesOnUartPorts)
+                foreach (ObservableCollection<DeviceModbusMasterQuery> portQueriesList in ModbusMasterQueriesOnUartPorts)
                 {
                     for (int query = 0; query < portQueriesList.Count && listIndex < listOfConfigurationItems.Count; query++)
                     {

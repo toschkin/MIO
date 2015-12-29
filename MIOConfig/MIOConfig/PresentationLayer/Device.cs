@@ -32,6 +32,15 @@ namespace MIOConfig
             }
         }
 
+        public UInt16 UserRegistersStartAddressOffset { get { return Definitions.USER_REGISTERS_OFFSET; } }
+
+        public UInt16 UserRegistersEndAddressOffset
+        {
+            get
+            {
+                return (UInt16)(Definitions.USER_REGISTERS_OFFSET + Configuration.HeaderFields.DeviceUserRegistersCount - 1);
+            }
+        }
 
         public bool ConfigurationReadFromDevice
         {
@@ -177,7 +186,7 @@ namespace MIOConfig
             }            
         }
 
-        public List<List<DeviceModbusMasterQuery>> ModbusMasterPortsQueries
+        public ObservableCollection<ObservableCollection<DeviceModbusMasterQuery>> ModbusMasterPortsQueries
         {
             get { return Configuration.ModbusMasterQueriesOnUartPorts; }
             set { Configuration.ModbusMasterQueriesOnUartPorts = value; }
