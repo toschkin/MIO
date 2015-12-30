@@ -19,22 +19,28 @@ namespace MIOConfig
         public void BuildUserRegistersMap(ref List<DeviceUserRegister> userRegisters)
         {
             userRegisters.Clear();
-            for (var reg = 0; reg < _configuration.HeaderFields.DeviceUserRegistersCount; reg++)
+            for (var reg = Definitions.USER_REGISTERS_OFFSET; reg < Definitions.USER_REGISTERS_OFFSET + _configuration.HeaderFields.DeviceUserRegistersCount; reg++)
             {
                 DeviceUserRegister register = new DeviceUserRegister(_configuration) {Address = (UInt16) reg};
-                
-                foreach (var route in _configuration.RoutingTable.Where(route => register.Address == route.RouteTo))
+                if (_configuration.HeaderFields.ModuleRouter)
                 {
-                    register.Source.Add(route);
+                    foreach (var route in _configuration.RoutingTable.Where(route => register.Address == route.RouteTo))
+                    {
+                        register.Source.Add(route);
+                    }    
                 }
-                foreach (var query in from port in _configuration.ModbusMasterQueriesOnUartPorts
-                                      from query in port
-                                      where (query.QueryConfigured && (((register.Address >= query.RouteStartAddress)                                                                                                                           
-                                      &&(register.Address < query.RouteStartAddress + query.RegistersCount))                                                                                                                          
-                                      ||(register.Address == query.QueryStatusAddress))) select query)
+                if (_configuration.HeaderFields.ModuleModbusMaster)
                 {
-                    register.Source.Add(query);
-                }
+                    foreach (var query in from port in _configuration.ModbusMasterQueriesOnUartPorts
+                                          from query in port
+                                          where (query.QueryConfigured && (((register.Address >= query.RouteStartAddress)
+                                          && (register.Address < query.RouteStartAddress + query.RegistersCount))
+                                          || (register.Address == query.QueryStatusAddress)))
+                                          select query)
+                    {
+                        register.Source.Add(query);
+                    }    
+                }                
                 userRegisters.Add(register);
             }            
         }

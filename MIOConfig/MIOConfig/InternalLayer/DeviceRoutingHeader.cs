@@ -66,9 +66,8 @@ namespace MIOConfig
                          for (int i = 0; i < addCount; i++)
                              _deviceConfiguration.RoutingTable.Add(new DeviceRoutingTableElement());
                      }
-
-                     if (value < _deviceConfiguration.RoutingTable.Count)
-                         _deviceConfiguration.RoutingTable.RemoveRange(value, _deviceConfiguration.RoutingTable.Count - value);    
+                    
+                    _deviceConfiguration.RoutingTable.ToList().RemoveRange(value, _deviceConfiguration.RoutingTable.Count - value);    
                  }                 
                  _routingTableSize = value;
              }

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MIOConfig;
+using MIOConfig.PresentationLayer;
 
 namespace MIOConfig
 {     
@@ -20,7 +21,7 @@ namespace MIOConfig
             DIModule = null;
             DOModule = null;
         }
-
+        
         [field: NonSerialized]
         public event PropertyChangedEventHandler PropertyChanged;
         private void NotifyPropertyChanged(string info)
@@ -31,6 +32,15 @@ namespace MIOConfig
             }
         }
 
+        public UInt16 UserRegistersStartAddressOffset { get { return Definitions.USER_REGISTERS_OFFSET; } }
+
+        public UInt16 UserRegistersEndAddressOffset
+        {
+            get
+            {
+                return (UInt16)(Definitions.USER_REGISTERS_OFFSET + Configuration.HeaderFields.DeviceUserRegistersCount - 1);
+            }
+        }
 
         public bool ConfigurationReadFromDevice
         {
@@ -167,21 +177,16 @@ namespace MIOConfig
                     Configuration.RoutingHeader.RoutingEnabled = (UInt16)(value ? 1 : 0);
             }
         }
-        
-        public List<DeviceRoutingTableElement> RoutingMap
+
+        public ObservableCollection<DeviceRoutingTableElement> RoutingMap
         {
             get
             {
-                return ModuleRouterPresent?Configuration.RoutingTable:null;
-            }
-            set
-            {
-                if (Configuration.RoutingTable != null)
-                    Configuration.RoutingTable = value;
-            }
+                return ModuleRouterPresent?Configuration.RoutingTable: null;
+            }            
         }
 
-        public List<List<DeviceModbusMasterQuery>> ModbusMasterPortsQueries
+        public ObservableCollection<ObservableCollection<DeviceModbusMasterQuery>> ModbusMasterPortsQueries
         {
             get { return Configuration.ModbusMasterQueriesOnUartPorts; }
             set { Configuration.ModbusMasterQueriesOnUartPorts = value; }

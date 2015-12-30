@@ -2,21 +2,23 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 using EnumExtension;
 using Microsoft.Win32;
 using MIOConfig;
@@ -28,10 +30,12 @@ namespace MIOConfigurator
 {    
     /// <summary>
     /// Логика взаимодействия для MainWindow.xaml
-    /// </summary>
+    /// </summary>    
     public partial class MainWindow : Window ,INotifyPropertyChanged
     {
+        private delegate void AfterWorkerCompletedAction();
 
+        private AfterWorkerCompletedAction _workerCompletedAction;
         public event PropertyChangedEventHandler PropertyChanged;
         private void NotifyPropertyChanged(string info)
         {
@@ -39,13 +43,27 @@ namespace MIOConfigurator
             {
                 PropertyChanged(this, new PropertyChangedEventArgs(info));
             }
-        }
+        }       
 
+        private Dispatcher _dispatcher;
+        private bool _supressMBox;
         private ModbusRtuProtocol _modbusRtuProtocol;
         public ObservableCollection<Device> Devices { get; set; }
         private Byte[] _deviceSnapshotBefore;        
         private Device _selectedDevice;
-        public Device SelectedDevice {
+        private DeviceValidator _selectedDeviceValidator;
+        public DeviceValidator SelectedDeviceValidator 
+        { 
+            get { return _selectedDeviceValidator; }
+            set
+            {
+                _selectedDeviceValidator = value;
+                NotifyPropertyChanged("SelectedDeviceValidator"); 
+            }
+        }
+
+        public Device SelectedDevice 
+        {
             get { return _selectedDevice; }
             set
             {
@@ -57,7 +75,7 @@ namespace MIOConfigurator
                     BinaryFormatter formatter = new BinaryFormatter();                    
                     formatter.Serialize(buffer, _selectedDevice);                   
                     _deviceSnapshotBefore = buffer.ToArray();
-    
+                    SelectedDeviceValidator = new DeviceValidator(_selectedDevice);                    
                 }
                 else                
                     _deviceSnapshotBefore = null;
@@ -75,6 +93,18 @@ namespace MIOConfigurator
                 NotifyPropertyChanged("SelectedPortConfiguration");
             }
         }
+
+        private DeviceModbusMasterQuery _selectedModbusQuery;
+        public DeviceModbusMasterQuery SelectedModbusQuery
+        {
+            get { return _selectedModbusQuery; }
+            set
+            {
+                _selectedModbusQuery = value;
+                NotifyPropertyChanged("SelectedModbusQuery");
+            }
+        }
+
 
         private BackgroundWorker mainWindowBackgroundWorker = new BackgroundWorker();
 
@@ -125,6 +155,7 @@ namespace MIOConfigurator
             ProcessingProgress.Value = 0;
             mainWindowBackgroundWorker.DoWork -= ReadConfiguration;
             mainWindowBackgroundWorker.RunWorkerCompleted -= ReadConfigurationCompleted;
+            mainWindowBackgroundWorker.ProgressChanged -= ReadConfigurationProgressChanged;
 
             if (((Device) DevicesList.SelectedItem).ConfigurationReadFromDevice)
             {
@@ -143,7 +174,12 @@ namespace MIOConfigurator
                     DevicesList.SelectedItem = SelectedDevice;//returning to previously selected item 
                     UartPots.SelectedIndex = 0;
                 }                    
-            }                                        
+            }
+            if (_workerCompletedAction != null)
+            {
+                _workerCompletedAction();
+                _workerCompletedAction = null;
+            }                
         }
         private void ReadConfigurationProgressChanged(object sender, ProgressChangedEventArgs e)
         {
@@ -155,12 +191,15 @@ namespace MIOConfigurator
             if (worker == null)
                 return;
             ReaderSaverErrors retCode = ReaderSaverErrors.CodeOk;
-            foreach (Device device in Devices)
+            foreach (var device in Devices)
             {
                 if (device.ModbusAddress == _deviceReaderSaver.SlaveAddress)
                 {
                     worker.ReportProgress(1);
-                    retCode = device.ReadConfiguration(_deviceReaderSaver);                    
+                    Dispatcher.Invoke(new Action(() =>
+                    {
+                        retCode = device.ReadConfiguration(_deviceReaderSaver);    
+                    }));                                    
                     break;
                 }                    
             }
@@ -168,73 +207,55 @@ namespace MIOConfigurator
             e.Result = retCode;
         }
 
-        private void OnReadConfiguration(bool forceRead=false)
+        private void ReadDeviceConfiguration(bool forceRead=false)
         {
-            if (SelectedDevice != null)
-                AskUserToSaveDeviceConfiguration();
-
-            if (DevicesList.SelectedItem is Device)
+            if (DevicesList.SelectedItem != null)
             {
-                if (((Device)DevicesList.SelectedItem).ConfigurationReadFromDevice && forceRead == false)
+                if (AskUserToSaveDeviceConfiguration())
                 {
-                    SelectedDevice = (Device)DevicesList.SelectedItem;
-                    DrawConfigurationTabs();
+                    if (forceRead)
+                        _workerCompletedAction += ForcedReadConfig;
+                    else
+                        _workerCompletedAction += ReadConfig;
+                    SaveDeviceConfiguration();
                 }
                 else
                 {
-                    if (WorkerInProgress)
-                    {
-                        if (SelectedDevice == null)//no item was previously selected
-                            DevicesList.UnselectAll();
-                        else
-                            DevicesList.SelectedItem = SelectedDevice;//returning to previously selected item        
-                        return;
-                    }
-                    MessageBoxResult result = MessageBoxResult.Yes;
-                    if (forceRead == false)
-                    {
-                        result = MessageBox.Show("Для данного устройства не считана конфигурация. Прочитать?",
-                            Constants.messageBoxTitle, MessageBoxButton.YesNo,
-                            MessageBoxImage.Question);
-                    }
-                    if (MessageBoxResult.Yes == result)                        
-                    {
-                        _deviceReaderSaver.SlaveAddress = ((Device)DevicesList.SelectedItem).ModbusAddress;
-                        WorkerInProgress = true;                        
-                        CmdFindDevices.IsEnabled = false;
-                        CmdAddDeviceToList.IsEnabled = false;
-                        CmdCancelSearchDevices.IsEnabled = false;
-                        DevicesList.IsEnabled = false;
-                        СurrentlyProcessed.Text = "Чтение конфигурации устройства...";
-                        ProcessingProgress.Minimum = 0;
-                        ProcessingProgress.Maximum = 2;
-                        ProcessingProgress.Value = 0;
-                        mainWindowBackgroundWorker.WorkerReportsProgress = true;
-                        mainWindowBackgroundWorker.DoWork += ReadConfiguration;
-                        mainWindowBackgroundWorker.RunWorkerCompleted += ReadConfigurationCompleted;
-                        mainWindowBackgroundWorker.ProgressChanged += ReadConfigurationProgressChanged;
-                        mainWindowBackgroundWorker.WorkerSupportsCancellation = false;
-                        mainWindowBackgroundWorker.RunWorkerAsync();
-                    }
+                    if (forceRead)
+                        ForcedReadConfig();
                     else
-                    {
-                        if (SelectedDevice == null)//no item was previously selected
-                            DevicesList.UnselectAll();
-                        else
-                            DevicesList.SelectedItem = SelectedDevice;//returning to previously selected item                                                   
-                    }
+                        ReadConfig();
                 }
-            }  
+            }                              
         }
         private void SaveDeviceConfiguration()
         {            
-            if (SelectedDevice != null)
-            {                
-                //todo save configuration
+            if (DevicesList.SelectedItem != null)
+            {
+                if (IsSlectedDeviceConfigurationValid()==false)
+                {
+                    MessageBox.Show("В конфигурции устройства обнаружены ошибки!\nКонфигурация не может быть записана.",Constants.messageBoxTitle,MessageBoxButton.OK,MessageBoxImage.Stop);
+                    return;
+                }
+                _deviceReaderSaver.SlaveAddress = ((Device)DevicesList.SelectedItem).ModbusAddress;
+                WorkerInProgress = true;
+                CmdFindDevices.IsEnabled = false;
+                CmdAddDeviceToList.IsEnabled = false;
+                CmdCancelSearchDevices.IsEnabled = false;
+                DevicesList.IsEnabled = false;
+                СurrentlyProcessed.Text = "Запись конфигурации в устройство...";
+                ProcessingProgress.Minimum = 0;
+                ProcessingProgress.Maximum = 2;
+                ProcessingProgress.Value = 0;
+                mainWindowBackgroundWorker.WorkerReportsProgress = true;
+                mainWindowBackgroundWorker.DoWork += SaveConfiguration;
+                mainWindowBackgroundWorker.RunWorkerCompleted += SaveConfigurationCompleted;
+                mainWindowBackgroundWorker.ProgressChanged += SaveConfigurationProgressChanged;
+                mainWindowBackgroundWorker.WorkerSupportsCancellation = false;
+                mainWindowBackgroundWorker.RunWorkerAsync();                   
             }
         }
-
-        private void AskUserToSaveDeviceConfiguration(bool forceSaving=false)
+        private bool AskUserToSaveDeviceConfiguration(bool forceSaving = false)
         {
             if (DeviceConfigurationChanged)
             {
@@ -242,13 +263,123 @@ namespace MIOConfigurator
                     MessageBox.Show("Сохранить конфигурацию устройства?", Constants.messageBoxTitle,
                         MessageBoxButton.YesNo,
                         MessageBoxImage.Question))
-                    SaveDeviceConfiguration();                
-            }            
+                {
+                    return true;
+                }
+            }
+            return false;
         }
+        private void SaveConfigurationCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            WorkerInProgress = false;
+            CmdFindDevices.IsEnabled = true;
+            CmdCancelSearchDevices.IsEnabled = false;
+            CmdAddDeviceToList.IsEnabled = true;
+            DevicesList.IsEnabled = true;
+            ProcessingProgress.Value = 0;
+            mainWindowBackgroundWorker.DoWork -= SaveConfiguration;
+            mainWindowBackgroundWorker.RunWorkerCompleted -= SaveConfigurationCompleted;
+            mainWindowBackgroundWorker.ProgressChanged -= SaveConfigurationProgressChanged;
+
+            if (e.Result is ReaderSaverErrors)
+            {
+                if ((ReaderSaverErrors)e.Result == ReaderSaverErrors.CodeOk)
+                {
+                    SelectedDevice = SelectedDevice;//wow!!! the propertys advantage
+                    СurrentlyProcessed.Text = "Запись конфигурации завершена успешно";                    
+                }
+                else
+                {
+                    СurrentlyProcessed.Text = "Запись конфигурации завершена c ошибкой: " + ((ReaderSaverErrors)e.Result).GetDescription();                    
+                }
+            }            
+            if (_workerCompletedAction != null)
+            {
+                _workerCompletedAction();
+                _workerCompletedAction = null;
+            }
+        }
+
+        private void SaveConfigurationProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            ProcessingProgress.Value = e.ProgressPercentage;
+        }
+
+        private void SaveConfiguration(object sender, DoWorkEventArgs e)
+        {
+            BackgroundWorker worker = sender as BackgroundWorker;
+            if (worker == null)
+                return;
+            ReaderSaverErrors retCode = ReaderSaverErrors.CodeOk;
+            foreach (Device device in Devices)
+            {
+                if (device.ModbusAddress == _deviceReaderSaver.SlaveAddress)
+                {
+                    worker.ReportProgress(1);
+                    retCode = device.SaveConfiguration(_deviceReaderSaver);
+                    break;
+                }
+            }
+            worker.ReportProgress(2);
+            e.Result = retCode;
+        }
+
+        private void RestartCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            WorkerInProgress = false;
+            CmdFindDevices.IsEnabled = true;
+            CmdCancelSearchDevices.IsEnabled = false;
+            CmdAddDeviceToList.IsEnabled = true;
+            DevicesList.IsEnabled = true;
+            ProcessingProgress.Value = 0;
+            mainWindowBackgroundWorker.DoWork -= Restart;
+            mainWindowBackgroundWorker.RunWorkerCompleted -= RestartCompleted;
+            mainWindowBackgroundWorker.ProgressChanged -= RestartProgressChanged;
+
+            if (e.Result is ReaderSaverErrors)
+            {
+                if ((ReaderSaverErrors)e.Result == ReaderSaverErrors.CodeOk)
+                {
+                    СurrentlyProcessed.Text = "Команда перезагрузки устройства отправлена успешно";
+                }
+                else
+                {
+                    СurrentlyProcessed.Text = "Ошибка при отправке команды перезагрузки устройства: " + ((ReaderSaverErrors)e.Result).GetDescription();
+                }
+            }
+            if (_workerCompletedAction != null)
+            {
+                _workerCompletedAction();
+                _workerCompletedAction = null;
+            }
+        }
+
+        private void RestartProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            ProcessingProgress.Value = e.ProgressPercentage;
+        }
+
+        private void Restart(object sender, DoWorkEventArgs e)
+        {
+            BackgroundWorker worker = sender as BackgroundWorker;
+            if (worker == null)
+                return;
+            ReaderSaverErrors retCode = ReaderSaverErrors.CodeOk;
+            foreach (Device device in Devices)
+            {
+                if (device.ModbusAddress == _deviceReaderSaver.SlaveAddress)
+                {
+                    worker.ReportProgress(1);
+                    retCode = device.RestartDevice(_deviceReaderSaver);
+                    break;
+                }
+            }
+            worker.ReportProgress(2);
+            e.Result = retCode;
+        }       
         #endregion
         
-        #region Search        
-        private bool _needToDisconnectOnSearchCompleted;        
+        #region Search                
         private DeviceFinder _deviceFinder;
         private int _foundDevicesCount;
 
@@ -294,8 +425,11 @@ namespace MIOConfigurator
             mainWindowBackgroundWorker.DoWork -= SearchDevices;
             mainWindowBackgroundWorker.RunWorkerCompleted -= SearchCompleted;
             mainWindowBackgroundWorker.ProgressChanged -= SearchProgressChanged;
-            if(_needToDisconnectOnSearchCompleted)
-                Disconnect();
+            if (_workerCompletedAction != null)
+            {
+                _workerCompletedAction();
+                _workerCompletedAction = null;
+            }            
         }
 
         private bool IsUserCancelSearch()
@@ -318,14 +452,53 @@ namespace MIOConfigurator
         {            
             NoItemsTextBlock.Visibility = Visibility.Collapsed;
             ConfigurationTabs.Visibility = Visibility.Visible;
+            DrawTree();
         }
+
+        private void DrawTree()
+        {
+            ModbusQueriesTreeView.Items.Clear();
+            if (SelectedDevice != null)
+            {
+                if (SelectedDevice.ModuleModbusMasterPresent)
+                {                    
+                    int portNumber = 0;
+                    foreach (var port in SelectedDevice.ModbusMasterPortsQueries)
+                    {
+                        if (SelectedDevice.UartPortsConfigurations[portNumber].PortProtocolType ==
+                            Definitions.MODBUS_MASTER_PROTOCOL)
+                        {
+                            TreeViewItem portItem = new TreeViewItem();
+                            portItem.Tag = port;
+                            portItem.Header = String.Format("Порт №{0}", portNumber+1);
+                            int queryNumber = 0;
+                            foreach (var query in port)
+                            {
+                                TreeViewItem queryItem = new TreeViewItem();
+                                queryItem.Tag = query;
+                                queryItem.Header = String.Format("Запрос №{0}", queryNumber+1);
+                                if (query.QueryConfigured == false)
+                                    queryItem.Foreground = Brushes.Gray;
+                                else
+                                    queryItem.Foreground = Brushes.Black;
+                                portItem.Items.Add(queryItem);
+                                queryNumber++;
+                            }
+                            ModbusQueriesTreeView.Items.Add(portItem);                              
+                        }                        
+                        portNumber++;
+                    }                    
+                }                
+            }           
+        }
+
 
         private void DrawEmptySpace()
         {
             NoItemsTextBlock.Visibility = Visibility.Visible;
             ConfigurationTabs.Visibility = Visibility.Collapsed;
         }
-
+        //afterworker actions
         private void Disconnect()
         {            
             if (_modbusRtuProtocol.IsConnected)
@@ -334,12 +507,158 @@ namespace MIOConfigurator
             CmdDisconnect.IsEnabled = false;
             СonnectionStatus.Text = "Отключено";
             СurrentlyProcessed.Text = "";            
-            Devices.Clear();
-            _needToDisconnectOnSearchCompleted = false;
+            Devices.Clear();            
             SelectedDevice = null;
             SelectedPortConfiguration = null;
+            SelectedModbusQuery = null;
             DrawEmptySpace();
-        }        
+        }
+        private void CloseWindow()
+        {
+            _supressMBox = true;
+            Close();
+        }
+        private void ReadConfig()
+        {
+            if (DevicesList.SelectedItem is Device)
+            {
+                if (((Device)DevicesList.SelectedItem).ConfigurationReadFromDevice)
+                {
+                    SelectedDevice = (Device)DevicesList.SelectedItem;
+                    DrawConfigurationTabs();
+                }
+                else
+                {
+                    if (WorkerInProgress)
+                    {
+                        if (SelectedDevice == null)//no item was previously selected
+                            DevicesList.UnselectAll();
+                        else
+                            DevicesList.SelectedItem = SelectedDevice;//returning to previously selected item        
+                        return;
+                    }                   
+                    MessageBoxResult result = MessageBox.Show("Для данного устройства не считана конфигурация. Прочитать?",
+                        Constants.messageBoxTitle, MessageBoxButton.YesNo,
+                        MessageBoxImage.Question);                   
+                    if (MessageBoxResult.Yes == result)
+                    {
+                        _deviceReaderSaver.SlaveAddress = ((Device)DevicesList.SelectedItem).ModbusAddress;
+                        WorkerInProgress = true;
+                        CmdFindDevices.IsEnabled = false;
+                        CmdAddDeviceToList.IsEnabled = false;
+                        CmdCancelSearchDevices.IsEnabled = false;
+                        DevicesList.IsEnabled = false;
+                        СurrentlyProcessed.Text = "Чтение конфигурации устройства...";
+                        ProcessingProgress.Minimum = 0;
+                        ProcessingProgress.Maximum = 2;
+                        ProcessingProgress.Value = 0;
+                        mainWindowBackgroundWorker.WorkerReportsProgress = true;
+                        mainWindowBackgroundWorker.DoWork += ReadConfiguration;
+                        mainWindowBackgroundWorker.RunWorkerCompleted += ReadConfigurationCompleted;
+                        mainWindowBackgroundWorker.ProgressChanged += ReadConfigurationProgressChanged;
+                        mainWindowBackgroundWorker.WorkerSupportsCancellation = false;
+                        mainWindowBackgroundWorker.RunWorkerAsync();
+                    }
+                    else
+                    {
+                        if (SelectedDevice == null)//no item was previously selected
+                            DevicesList.UnselectAll();
+                        else
+                            DevicesList.SelectedItem = SelectedDevice;//returning to previously selected item                                                   
+                    }
+                }
+            }
+        }
+        private void ForcedReadConfig()
+        {            
+            if (DevicesList.SelectedItem is Device)
+            {               
+                if (WorkerInProgress)
+                {
+                    if (SelectedDevice == null)//no item was previously selected
+                        DevicesList.UnselectAll();
+                    else
+                        DevicesList.SelectedItem = SelectedDevice;//returning to previously selected item        
+                    return;
+                }                    
+                _deviceReaderSaver.SlaveAddress = ((Device)DevicesList.SelectedItem).ModbusAddress;
+                WorkerInProgress = true;
+                CmdFindDevices.IsEnabled = false;
+                CmdAddDeviceToList.IsEnabled = false;
+                CmdCancelSearchDevices.IsEnabled = false;
+                DevicesList.IsEnabled = false;
+                СurrentlyProcessed.Text = "Чтение конфигурации устройства...";
+                ProcessingProgress.Minimum = 0;
+                ProcessingProgress.Maximum = 2;
+                ProcessingProgress.Value = 0;
+                mainWindowBackgroundWorker.WorkerReportsProgress = true;
+                mainWindowBackgroundWorker.DoWork += ReadConfiguration;
+                mainWindowBackgroundWorker.RunWorkerCompleted += ReadConfigurationCompleted;
+                mainWindowBackgroundWorker.ProgressChanged += ReadConfigurationProgressChanged;
+                mainWindowBackgroundWorker.WorkerSupportsCancellation = false;
+                mainWindowBackgroundWorker.RunWorkerAsync();                    
+            }
+            
+        }
+        private void FindDevices()
+        {
+            Devices.Clear();
+            DrawEmptySpace();
+            SelectedDevice = null;
+            SelectedPortConfiguration = null;
+            SelectedModbusQuery = null;
+            WorkerInProgress = true;
+            CmdFindDevices.IsEnabled = false;
+            CmdAddDeviceToList.IsEnabled = false;
+            CmdCancelSearchDevices.IsEnabled = true;
+            СurrentlyProcessed.Text = "Поиск устройств...";
+            ProcessingProgress.Minimum = _deviceFinder.StartSlaveAddress;
+            ProcessingProgress.Maximum = _deviceFinder.EndSlaveAddress;
+            mainWindowBackgroundWorker.WorkerReportsProgress = true;
+            mainWindowBackgroundWorker.DoWork += SearchDevices;
+            mainWindowBackgroundWorker.RunWorkerCompleted += SearchCompleted;
+            mainWindowBackgroundWorker.ProgressChanged += SearchProgressChanged;
+            mainWindowBackgroundWorker.WorkerSupportsCancellation = true;
+            mainWindowBackgroundWorker.RunWorkerAsync();
+        }
+        private void ClearDevicesList()
+        {
+            SelectedDevice = null;
+            SelectedPortConfiguration = null;
+            SelectedModbusQuery = null;
+            DrawEmptySpace();
+            Devices.Clear();
+        }
+        private void DelDeviceFromList()
+        {
+            Devices.Remove(DevicesList.SelectedItem as Device);
+            SelectedDevice = null;
+            SelectedPortConfiguration = null;
+            SelectedModbusQuery = null;
+            DrawEmptySpace();
+        }
+        private void RestartDevice()
+        {
+            if (DevicesList.SelectedItem != null)
+            {
+                _deviceReaderSaver.SlaveAddress = ((Device)DevicesList.SelectedItem).ModbusAddress;
+                WorkerInProgress = true;
+                CmdFindDevices.IsEnabled = false;
+                CmdAddDeviceToList.IsEnabled = false;
+                CmdCancelSearchDevices.IsEnabled = false;
+                DevicesList.IsEnabled = false;
+                СurrentlyProcessed.Text = "Отправка команды перезагрузки устройства...";
+                ProcessingProgress.Minimum = 0;
+                ProcessingProgress.Maximum = 2;
+                ProcessingProgress.Value = 0;
+                mainWindowBackgroundWorker.WorkerReportsProgress = true;
+                mainWindowBackgroundWorker.DoWork += Restart;
+                mainWindowBackgroundWorker.RunWorkerCompleted += RestartCompleted;
+                mainWindowBackgroundWorker.ProgressChanged += RestartProgressChanged;
+                mainWindowBackgroundWorker.WorkerSupportsCancellation = false;
+                mainWindowBackgroundWorker.RunWorkerAsync();
+            }
+        }
 
         public MainWindow()
         {
@@ -349,15 +668,17 @@ namespace MIOConfigurator
             _modbusRtuProtocol = new ModbusRtuProtocol();
             _deviceFinder = new DeviceFinder(_modbusRtuProtocol);  
             Devices = new ObservableCollection<Device>();
-            WorkerInProgress = false;
-            _needToDisconnectOnSearchCompleted = false;            
+            WorkerInProgress = false;            
             SelectedDevice = null;
             SelectedPortConfiguration = null;
+            SelectedModbusQuery = null;
             _deviceReaderSaver = new ModbusReaderSaver(_modbusRtuProtocol);
             _foundDevicesCount = 0;
             _deviceSnapshotBefore = null;
+            _supressMBox = false;
+            _dispatcher = Dispatcher.CurrentDispatcher;
         }
-
+        
         private void CmdConnect_OnClick(object sender, RoutedEventArgs e)
         {
             ProtocolConfigWindow connectionConfigWindow = new ProtocolConfigWindow(_modbusRtuProtocol);            
@@ -371,33 +692,54 @@ namespace MIOConfigurator
         }
         
         private void CmdDisconnect_OnClick(object sender, RoutedEventArgs e)
-        {            
+        {
             if (IsUserCancelSearch())
-                _needToDisconnectOnSearchCompleted = true;
+            {
+                _workerCompletedAction += Disconnect;
+            }                
             else
             {
                 if (!WorkerInProgress)
                 {
-                    AskUserToSaveDeviceConfiguration();
-                    Disconnect();
+                    if (AskUserToSaveDeviceConfiguration())
+                    {
+                        _workerCompletedAction += Disconnect;
+                        SaveDeviceConfiguration();
+                    }
+                    else
+                        Disconnect();
                 }                    
             }            
         }
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        {           
+        {
+            if (_supressMBox)
+                return;
             if (MessageBoxResult.No ==
                 MessageBox.Show("Выйти из программы?", Constants.messageBoxTitle, MessageBoxButton.YesNo,
                     MessageBoxImage.Question))
                 e.Cancel = true;
             else
-            {                
-                if(WorkerInProgress)
+            {
+                if (WorkerInProgress)
+                {
                     mainWindowBackgroundWorker.CancelAsync();
-                else                
-                    AskUserToSaveDeviceConfiguration();
-                
-                Disconnect();
+                    e.Cancel = true;
+                    _workerCompletedAction += Disconnect;
+                    _workerCompletedAction += CloseWindow;
+                }                    
+                else
+                {
+                    if (AskUserToSaveDeviceConfiguration())
+                    {
+                        _workerCompletedAction += Disconnect;
+                        _workerCompletedAction += CloseWindow;
+                        SaveDeviceConfiguration();
+                    }
+                    else
+                        Disconnect();
+                }                                                    
             }
                 
         }
@@ -408,26 +750,17 @@ namespace MIOConfigurator
             finderConfigWindow.Owner = this;
             if (finderConfigWindow.ShowDialog() == true)
             {
-                AskUserToSaveDeviceConfiguration();                
-                Devices.Clear();
-                DrawEmptySpace();
-                SelectedDevice = null;
-                SelectedPortConfiguration = null;
-                WorkerInProgress = true;
-                CmdFindDevices.IsEnabled = false;
-                CmdAddDeviceToList.IsEnabled = false;
-                CmdCancelSearchDevices.IsEnabled = true;
-                СurrentlyProcessed.Text = "Поиск устройств...";
-                ProcessingProgress.Minimum = _deviceFinder.StartSlaveAddress;
-                ProcessingProgress.Maximum = _deviceFinder.EndSlaveAddress;
-                mainWindowBackgroundWorker.WorkerReportsProgress = true;
-                mainWindowBackgroundWorker.DoWork += SearchDevices;
-                mainWindowBackgroundWorker.RunWorkerCompleted += SearchCompleted;
-                mainWindowBackgroundWorker.ProgressChanged += SearchProgressChanged;
-                mainWindowBackgroundWorker.WorkerSupportsCancellation = true;                
-                mainWindowBackgroundWorker.RunWorkerAsync();                   
+                if (AskUserToSaveDeviceConfiguration())
+                {
+                    _workerCompletedAction += FindDevices;
+                    SaveDeviceConfiguration();                    
+                }
+                else
+                {
+                    FindDevices();
+                }
             }
-        }
+        }        
 
         private void CmdCancelSearchDevices_OnClick(object sender, RoutedEventArgs e)
         {
@@ -435,10 +768,9 @@ namespace MIOConfigurator
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
-        {
-            DrawEmptySpace();
+        {            
+            DrawEmptySpace();           
         }
-        
         private void SlaveConcreteAddress_OnPreviewLostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
         {
             if (MainMenu.IsKeyboardFocusWithin)
@@ -449,6 +781,14 @@ namespace MIOConfigurator
 
         private void CmdAddDeviceToList_Click(object sender, RoutedEventArgs e)
         {
+            foreach (var device in Devices)
+            {
+                if (device.ModbusAddress == Convert.ToByte(SlaveConcreteAddress.Text))
+                {
+                    DevicesList.ScrollIntoView(device);
+                    return;
+                }
+            }
             if (String.IsNullOrEmpty(SlaveConcreteAddress.Text))
                 return;
             WorkerInProgress = true;
@@ -471,34 +811,42 @@ namespace MIOConfigurator
 
         private void CmdDelAllDevicesFromList_Click(object sender, RoutedEventArgs e)
         {
-            AskUserToSaveDeviceConfiguration();
-            SelectedDevice = null;
-            SelectedPortConfiguration = null;
-            DrawEmptySpace();
-            Devices.Clear();            
-        }
+            if (AskUserToSaveDeviceConfiguration())
+            {
+                _workerCompletedAction += ClearDevicesList;
+                SaveDeviceConfiguration();
+            }
+            else
+            {
+                ClearDevicesList();
+            }                 
+        }        
 
         private void CmdDelDeviceFromList_OnClick(object sender, RoutedEventArgs e)
         {
             if (DevicesList.SelectedItem is Device)
             {
-                AskUserToSaveDeviceConfiguration();                
-                Devices.Remove(DevicesList.SelectedItem as Device);
-                SelectedDevice = null;
-                SelectedPortConfiguration = null;
-                DrawEmptySpace();
+                if (AskUserToSaveDeviceConfiguration())
+                {
+                    _workerCompletedAction += DelDeviceFromList;
+                    SaveDeviceConfiguration();     
+                }
+                else
+                {
+                    DelDeviceFromList();
+                }                
             }
-        }
+        }       
 
         private void DevicesList_OnSelectionChanged(object sender, SelectionChangedEventArgs e)            
         {
             if(e.RemovedItems.Count == 0)
-                OnReadConfiguration();
+                ReadDeviceConfiguration();
         }
 
         private void CmdReadConfiguration_OnClick(object sender, RoutedEventArgs e)
         {
-            OnReadConfiguration(true);
+            ReadDeviceConfiguration(true);
         }
 
         private void UartPots_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -516,10 +864,169 @@ namespace MIOConfigurator
                 port.PortModbusAddress = Convert.ToByte(PortModbusAddress.Text);
             }
         }
+        
+        private void CmdRestart_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (SelectedDevice != null)
+            {
+                if (AskUserToSaveDeviceConfiguration())
+                {
+                    _workerCompletedAction += RestartDevice;
+                    SaveDeviceConfiguration();
+                }
+                RestartDevice();
+            }
+        }
+               
+        public static RoutedCommand AddRouteCommand = new RoutedCommand();
+        public static RoutedCommand DelRouteCommand = new RoutedCommand();
 
-        private void CmdSaveConfiguration_OnClick(object sender, RoutedEventArgs e)
+        private void AddRouteCommandExecute(object sender, ExecutedRoutedEventArgs e)
+        {
+            DeviceRoutingTableElement addedElement = new DeviceRoutingTableElement();
+            SelectedDevice.RoutingMap.Add(addedElement);
+            RoutingMapGrid.ScrollIntoView(SelectedDevice.RoutingMap.Last());
+            //RoutingMapGrid.RowValidationRules[0].Validate(addedElement,CultureInfo.CurrentCulture);
+        }
+        private void DelRouteCommandExecute(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (RoutingMapGrid.SelectedItem is DeviceRoutingTableElement)
+                SelectedDevice.RoutingMap.Remove((DeviceRoutingTableElement)RoutingMapGrid.SelectedItem);
+        }
+
+        private bool IsSlectedDeviceConfigurationValid()
+        {
+            //routing
+            if (RoutingMapGrid != null)
+            {
+                if (RoutingMapGrid.Items != null)
+                {
+                    for (int i = 0; i < RoutingMapGrid.Items.Count; i++)
+                    {
+                        DataGridRow row = GetRow(RoutingMapGrid, i);
+                        if (row != null && Validation.GetHasError(row))
+                        {
+                            return false;
+                        }
+                    }   
+                }                
+            }
+            //modbusquery
+            if (ModbusQueryConfigurationGrid != null)
+            {
+                if (TextBoxContainerHasErrors(ModbusQueryConfigurationGrid))
+                    return false;   
+            }            
+            return true;      
+        }
+
+        private bool TextBoxContainerHasErrors(DependencyObject obj)
+        {
+            foreach (object child in LogicalTreeHelper.GetChildren(obj))
+            {
+                TextBox element = child as TextBox;
+                if (element == null) continue;
+
+                if (Validation.GetHasError(element))
+                {
+                    return true;
+                }
+
+                if (TextBoxContainerHasErrors(element))
+                    return true;
+            }
+            return false;
+        }
+
+        private void RouteCommandCanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = IsSlectedDeviceConfigurationValid();      
+        }
+        public static DataGridRow GetRow(DataGrid grid, int index)
+        {
+            DataGridRow row = (DataGridRow)grid.ItemContainerGenerator.ContainerFromIndex(index);
+            if (row == null)
+            {
+                // May be virtualized, bring into view and try again.
+                grid.UpdateLayout();
+                grid.ScrollIntoView(grid.Items[index]);
+                row = (DataGridRow)grid.ItemContainerGenerator.ContainerFromIndex(index);
+            }
+            return row;
+        }
+
+
+        /* private void RouteToTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+           if (String.IsNullOrEmpty(((TextBox) sender).Text))
+                return;
+            DeviceValidator validator = new DeviceValidator(SelectedDevice);
+            DeviceRoutingTableElement elementToValidate = (DeviceRoutingTableElement)RoutingMapGrid.SelectedItem;
+            elementToValidate.RouteTo = Convert.ToUInt16(((TextBox)sender).Text);
+            if (validator.ValidateRoutingMapElement(elementToValidate) == false)
+            {
+                ((TextBox)sender).t
+            }
+        }
+       
+        private void RoutingMapGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+        {
+           
+            if (e.EditAction == DataGridEditAction.Commit)
+            {
+                DeviceValidator validator = new DeviceValidator(SelectedDevice);
+                DeviceRoutingTableElement elementToValidate = ((DeviceRoutingTableElement) e.Row.Item);
+                
+                if (e.Column.DisplayIndex == 0)
+                    elementToValidate.RouteTo = Convert.ToUInt16(((DataGridCell)e.EditingElement).Content);
+               
+                if (e.Column.DisplayIndex == 1)
+                    elementToValidate.RouteFrom = Convert.ToUInt16(((TextBlock)e.EditingElement).Text);
+
+                if (validator.ValidateRoutingMapElement(elementToValidate) == false)
+                {
+                    e.EditingElement.ToolTip = validator.ToString();
+                    e.Cancel = true;
+                }
+            } 
+        }*/
+
+        /*private int errorCount;
+        private void RoutingMapGrid_OnError(object sender, ValidationErrorEventArgs e)
+        {
+            switch (e.Action)
+            {
+                case ValidationErrorEventAction.Added:
+                    {
+                        errorCount++; break;
+                    }
+                case ValidationErrorEventAction.Removed:
+                    {
+                        errorCount--; break;
+                    }
+            }
+            AddRoute.IsEnabled = errorCount == 0;
+            DelRoute.IsEnabled = errorCount == 0;
+        }*/
+
+        private void SaveCommandExecute(object sender, ExecutedRoutedEventArgs e)
         {
             SaveDeviceConfiguration();
+        }
+
+        private void ModbusQueriesTreeView_OnSelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            if (e.NewValue is TreeViewItem)
+            {
+                if (((TreeViewItem) e.NewValue).Tag is DeviceModbusMasterQuery)
+                {
+                    SelectedModbusQuery = (DeviceModbusMasterQuery) ((TreeViewItem) e.NewValue).Tag;
+                }
+                else
+                {
+                    SelectedModbusQuery = null;
+                }
+            }            
         }
     }
 }
