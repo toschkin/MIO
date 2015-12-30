@@ -896,19 +896,46 @@ namespace MIOConfigurator
 
         private bool IsSlectedDeviceConfigurationValid()
         {
-            if (RoutingMapGrid == null)
-                return false;
-            if (RoutingMapGrid.Items == null)
-                return false;
-            for (int i = 0; i < RoutingMapGrid.Items.Count; i++)
+            //routing
+            if (RoutingMapGrid != null)
             {
-                DataGridRow row = GetRow(RoutingMapGrid, i);
-                if (row != null && Validation.GetHasError(row))
+                if (RoutingMapGrid.Items != null)
                 {
-                    return false;
-                }
+                    for (int i = 0; i < RoutingMapGrid.Items.Count; i++)
+                    {
+                        DataGridRow row = GetRow(RoutingMapGrid, i);
+                        if (row != null && Validation.GetHasError(row))
+                        {
+                            return false;
+                        }
+                    }   
+                }                
             }
+            //modbusquery
+            if (ModbusQueryConfigurationGrid != null)
+            {
+                if (TextBoxContainerHasErrors(ModbusQueryConfigurationGrid))
+                    return false;   
+            }            
             return true;      
+        }
+
+        private bool TextBoxContainerHasErrors(DependencyObject obj)
+        {
+            foreach (object child in LogicalTreeHelper.GetChildren(obj))
+            {
+                TextBox element = child as TextBox;
+                if (element == null) continue;
+
+                if (Validation.GetHasError(element))
+                {
+                    return true;
+                }
+
+                if (TextBoxContainerHasErrors(element))
+                    return true;
+            }
+            return false;
         }
 
         private void RouteCommandCanExecute(object sender, CanExecuteRoutedEventArgs e)
