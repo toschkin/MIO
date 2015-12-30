@@ -36,7 +36,7 @@ namespace Modbus.Core
                         {
                             if (((ModbusPropertyAttribute)attr).Access >= accessType)
                             {
-                                lstTypesOfClassMembers.Add(item.GetValue(obj));    
+                                lstTypesOfClassMembers.Add(item.GetValue(obj,null));    
                                 break;
                             }
                         }                        
@@ -143,8 +143,8 @@ namespace Modbus.Core
                             if (((ModbusPropertyAttribute)attr).Access >= accessType)
                             {
                                 if (item.PropertyType == arrayValues[i].GetType())
-                                {                                    
-                                    item.SetValue(obj, Convert.ChangeType(arrayValues[i], item.PropertyType));
+                                {
+                                    item.SetValue(obj, Convert.ChangeType(arrayValues[i], item.PropertyType), null);
                                     i++;
                                 }                                    
                                 else
@@ -459,7 +459,7 @@ namespace Modbus.Core
                         {
                             if (((ModbusPropertyAttribute)attr).Access >= accessType)
                             {
-                                obj = OrderedPropertiesGetter.GetObjectPropertiesInDeclarationOrder(obj)[i].GetValue(obj);
+                                obj = OrderedPropertiesGetter.GetObjectPropertiesInDeclarationOrder(obj)[i].GetValue(obj, null);
                                 break;
                             }
                         }
