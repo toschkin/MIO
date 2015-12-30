@@ -442,9 +442,9 @@
                                               SelectedIndex="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Mode=TwoWay, Path=SelectedDevice.DiscreetOutputModuleConfiguration.OutputType1}"
                                               IsEnabled="{qc:Binding '$P!=1',P={Binding ElementName=ParallelChannel4, Path=SelectedIndex}}">
                                         <ComboBoxItem>Не задействован</ComboBoxItem>
-                                        <ComboBoxItem>Одинарное переключение</ComboBoxItem>
+                                        <ComboBoxItem Visibility="Collapsed">Одинарное переключение</ComboBoxItem>
                                         <ComboBoxItem>Двойное переключение</ComboBoxItem>
-                                        <ComboBoxItem IsEnabled="False">Параллельный канал</ComboBoxItem>
+                                        <ComboBoxItem Visibility="Collapsed" IsEnabled="False">Параллельный канал</ComboBoxItem>
                                     </ComboBox>
 
                                     <TextBlock Grid.Row ="1" Grid.Column="0" HorizontalAlignment ="Right" Text="Тип выхода №2:" Padding="5"></TextBlock>
@@ -468,7 +468,7 @@
                                         <ComboBoxItem Visibility="Collapsed">Выход №1</ComboBoxItem>
                                         <ComboBoxItem Visibility="Collapsed">Выход №2</ComboBoxItem>
                                         <ComboBoxItem 
-                                            Visibility="{qc:Binding '$P!=2?Visibility.Visible:Visibility.Collapsed', P={Binding  ElementName=Output3Type, Path=SelectedIndex}}">
+                                            Visibility="Collapsed">
                                             Выход №3</ComboBoxItem>
                                         <ComboBoxItem
                                             Visibility="{qc:Binding '$P!=2?Visibility.Visible:Visibility.Collapsed', P={Binding  ElementName=Output4Type, Path=SelectedIndex}}">
@@ -480,9 +480,9 @@
                                               SelectedIndex="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Mode=TwoWay, Path=SelectedDevice.DiscreetOutputModuleConfiguration.OutputType3}"
                                               IsEnabled="{qc:Binding '$P!=3',P={Binding ElementName=ParallelChannel2, Path=SelectedIndex}}">
                                         <ComboBoxItem>Не задействован</ComboBoxItem>
-                                        <ComboBoxItem>Одинарное переключение</ComboBoxItem>
+                                        <ComboBoxItem Visibility="Collapsed">Одинарное переключение</ComboBoxItem>
                                         <ComboBoxItem>Двойное переключение</ComboBoxItem>
-                                        <ComboBoxItem IsEnabled="False">Параллельный канал</ComboBoxItem>
+                                        <ComboBoxItem Visibility="Collapsed" IsEnabled="False">Параллельный канал</ComboBoxItem>
                                     </ComboBox>
 
                                     <TextBlock Grid.Row ="3" Grid.Column="0" HorizontalAlignment ="Right" Text="Тип выхода №4:" Padding="5"></TextBlock>
@@ -504,7 +504,7 @@
                                               SelectedIndex="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Mode=TwoWay, Path=SelectedDevice.DiscreetOutputModuleConfiguration.ParallelChannelForOutput4}">
                                         <ComboBoxItem>Нет</ComboBoxItem>
                                         <ComboBoxItem
-                                            Visibility="{qc:Binding '$P!=2?Visibility.Visible:Visibility.Collapsed', P={Binding  ElementName=Output1Type, Path=SelectedIndex}}">
+                                            Visibility="Collapsed">
                                             Выход №1</ComboBoxItem>
                                         <ComboBoxItem
                                             Visibility="{qc:Binding '$P!=2?Visibility.Visible:Visibility.Collapsed', P={Binding  ElementName=Output2Type, Path=SelectedIndex}}">
