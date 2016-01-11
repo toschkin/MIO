@@ -61,7 +61,7 @@
     <Compile Include="ModbusDataPoint.cs" />
     <Compile Include="ModbusErrorCode.cs" />
     <Compile Include="ModbusLogger.cs" />
-    <Compile Include="OrderedPropertiesGetter.cs" />
+    <Compile Include="OrderedGetter.cs" />
     <Compile Include="RawSerialProtocol.cs" />
     <Compile Include="ModbusRTUProtocol.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

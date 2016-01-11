@@ -50,24 +50,37 @@ namespace MIOConfig
         {
              get
              {
-                 if (_deviceConfiguration != null)                 
-                     return (UInt16)_deviceConfiguration.RoutingTable.Count;
-                 
+                 if (_deviceConfiguration != null)
+                 {
+                     return (UInt16)_deviceConfiguration.RoutingTable.Aggregate(0, (current, query) => query.RouteConfigured ? current + 1 : current);
+                     // was  return (UInt16)_deviceConfiguration.RoutingTable.Count;
+                 }                                      
                  return 0;
              }
              set
              {
                  if (_deviceConfiguration != null)
                  {
-                     if (value > _deviceConfiguration.RoutingTable.Count)
+                     int newValue = value;
+                     if (newValue > _deviceConfiguration.RoutingTable.Count)
+                         newValue = _deviceConfiguration.RoutingTable.Count;
+                     for (int route = 0; route < newValue; route++)
+                     {
+                         _deviceConfiguration.RoutingTable[route].RouteConfigured = true;
+                     }
+                     for (int route = newValue; route < _deviceConfiguration.RoutingTable.Count; route++)
+                     {
+                         _deviceConfiguration.RoutingTable[route].RouteConfigured = false;
+                     }
+                     /*if (value > _deviceConfiguration.RoutingTable.Count)
                      {
                          int addCount = value - _deviceConfiguration.RoutingTable.Count;
 
                          for (int i = 0; i < addCount; i++)
-                             _deviceConfiguration.RoutingTable.Add(new DeviceRoutingTableElement());
+                             _deviceConfiguration.RoutingTable.Add(new DeviceRoutingTableElement());                                                  
                      }
                     
-                    _deviceConfiguration.RoutingTable.ToList().RemoveRange(value, _deviceConfiguration.RoutingTable.Count - value);    
+                    _deviceConfiguration.RoutingTable.ToList().RemoveRange(value, _deviceConfiguration.RoutingTable.Count - value);    */
                  }                 
                  _routingTableSize = value;
              }

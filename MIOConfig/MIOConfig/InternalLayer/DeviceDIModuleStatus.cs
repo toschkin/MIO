@@ -35,7 +35,7 @@ namespace MIOConfig
             {
                 int numeral = 0;
                 Byte i = 0;
-                foreach (var field in GetType().GetFields())
+                foreach (var field in OrderedGetter.GetObjectFieldsInDeclarationOrder(this))
                 {
                     if ((bool)field.GetValue(this))
                         numeral |= 1 << i;
@@ -46,7 +46,7 @@ namespace MIOConfig
             set
             {
                 Byte i = 0;
-                foreach (var field in GetType().GetFields())
+                foreach (var field in OrderedGetter.GetObjectFieldsInDeclarationOrder(this))
                 {
                     field.SetValue(this, (value & (1 << i++)) != 0);
                 }

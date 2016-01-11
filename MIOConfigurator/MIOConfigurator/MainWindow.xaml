@@ -522,6 +522,7 @@
                             <CheckBox DockPanel.Dock="Top" Content="Модуль в работе" Margin="10,10,10,0" 
                                               IsChecked="{Binding  Path=SelectedDevice.RoutingEnabled, Mode=TwoWay, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}">
                             </CheckBox>
+                            <!--
                             <StackPanel Margin="10" Orientation="Horizontal" DockPanel.Dock="Bottom">
                                 <Button x:Name="AddRoute" Style="{DynamicResource EmptyButtonStyle}" Command="{x:Static local:MainWindow.AddRouteCommand}">
                                     <Image Height="32" Width="32" Source="Images/add-icon.png" Style="{DynamicResource ButtonImageHoverStyle}">
@@ -541,7 +542,7 @@
                                         <DropShadowEffect Direction="310" Color="#FFA09C9C"/>
                                     </TextBlock.Effect></TextBlock>
                             </StackPanel>
-
+                            -->
                             <DockPanel>
                                 <Border DockPanel.Dock="Top" Margin="10,10,10,0" BorderThickness="1" BorderBrush="DarkOliveGreen">
                                     <TextBlock  Padding="4" Text="Карта пользовательских регистров" TextAlignment="Center" Foreground="Yellow" FontSize="14">

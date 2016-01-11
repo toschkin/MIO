@@ -24,7 +24,7 @@ namespace Modbus.Core
                 throw new ArgumentNullException();
 
             List<object> lstTypesOfClassMembers = new List<object>();
-            PropertyInfo[] membersOfClass = OrderedPropertiesGetter.GetObjectPropertiesInDeclarationOrder(obj);
+            PropertyInfo[] membersOfClass = OrderedGetter.GetObjectPropertiesInDeclarationOrder(obj);
             foreach (var item in membersOfClass)
             {
                 if (GetTypeHelper.IsNumericType(item.PropertyType))
@@ -56,7 +56,7 @@ namespace Modbus.Core
                 throw new ArgumentNullException();
                         
             List<Type> lstTypesOfClassMembers = new List<Type>();
-            PropertyInfo[] membersOfClass = OrderedPropertiesGetter.GetObjectPropertiesInDeclarationOrder(obj);
+            PropertyInfo[] membersOfClass = OrderedGetter.GetObjectPropertiesInDeclarationOrder(obj);
             foreach (var item in membersOfClass)
             {
                 if (GetTypeHelper.IsNumericType(item.PropertyType))
@@ -93,7 +93,7 @@ namespace Modbus.Core
                 if (item == null)
                     throw new ArgumentNullException();
 
-                PropertyInfo[] membersOfClass = OrderedPropertiesGetter.GetObjectPropertiesInDeclarationOrder(item);
+                PropertyInfo[] membersOfClass = OrderedGetter.GetObjectPropertiesInDeclarationOrder(item);
                 foreach (var property in membersOfClass)
                 {
                     if (GetTypeHelper.IsNumericType(property.PropertyType))
@@ -130,11 +130,11 @@ namespace Modbus.Core
             if (arrayValues == null)
                 throw new ArgumentNullException();
 
-            if (OrderedPropertiesGetter.GetObjectPropertiesInDeclarationOrder(obj).Length >= arrayValues.Length)
+            if (OrderedGetter.GetObjectPropertiesInDeclarationOrder(obj).Length >= arrayValues.Length)
             {
                 //first we check that arrayValues has same value types with object properties
                 int i = 0;
-                foreach (var item in OrderedPropertiesGetter.GetObjectPropertiesInDeclarationOrder(obj))
+                foreach (var item in OrderedGetter.GetObjectPropertiesInDeclarationOrder(obj))
                 {
                     if ((item.CanWrite) && (item.GetCustomAttributes(typeof(ModbusPropertyAttribute), false).Length != 0))
                     {
@@ -143,8 +143,8 @@ namespace Modbus.Core
                             if (((ModbusPropertyAttribute)attr).Access >= accessType)
                             {
                                 if (item.PropertyType == arrayValues[i].GetType())
-                                {
-                                    item.SetValue(obj, Convert.ChangeType(arrayValues[i], item.PropertyType), null);
+                                {                                    
+                                    item.SetValue(obj, Convert.ChangeType(arrayValues[i], item.PropertyType),null);
                                     i++;
                                 }                                    
                                 else
@@ -450,16 +450,16 @@ namespace Modbus.Core
                         
             if (!GetTypeHelper.IsNumericType(obj.GetType()))
             {
-                for (int i = OrderedPropertiesGetter.GetObjectPropertiesInDeclarationOrder(obj).Length-1; i >=0; i--)
+                for (int i = OrderedGetter.GetObjectPropertiesInDeclarationOrder(obj).Length-1; i >=0; i--)
                 {
-                    if ((OrderedPropertiesGetter.GetObjectPropertiesInDeclarationOrder(obj)[i].CanWrite) &&
-                       (OrderedPropertiesGetter.GetObjectPropertiesInDeclarationOrder(obj)[i].GetCustomAttributes(typeof(ModbusPropertyAttribute), false).Length != 0))
+                    if ((OrderedGetter.GetObjectPropertiesInDeclarationOrder(obj)[i].CanWrite) &&
+                       (OrderedGetter.GetObjectPropertiesInDeclarationOrder(obj)[i].GetCustomAttributes(typeof(ModbusPropertyAttribute), false).Length != 0))
                     {
-                        foreach (var attr in OrderedPropertiesGetter.GetObjectPropertiesInDeclarationOrder(obj)[i].GetCustomAttributes(typeof(ModbusPropertyAttribute), false))
+                        foreach (var attr in OrderedGetter.GetObjectPropertiesInDeclarationOrder(obj)[i].GetCustomAttributes(typeof(ModbusPropertyAttribute), false))
                         {
                             if (((ModbusPropertyAttribute)attr).Access >= accessType)
                             {
-                                obj = OrderedPropertiesGetter.GetObjectPropertiesInDeclarationOrder(obj)[i].GetValue(obj, null);
+                                obj = OrderedGetter.GetObjectPropertiesInDeclarationOrder(obj)[i].GetValue(obj,null);
                                 break;
                             }
                         }

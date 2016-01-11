@@ -47,7 +47,7 @@ namespace MIOConfig
             {
                 int numeral = 0;
                 Byte i = 0;
-                foreach (var field in GetType().GetFields())
+                foreach (var field in OrderedGetter.GetObjectFieldsInDeclarationOrder(this))
                 {
                     if ((bool)field.GetValue(this))
                         numeral |= 1 << i;
@@ -58,7 +58,7 @@ namespace MIOConfig
             set
             {
                 Byte i = 0;
-                foreach (var field in GetType().GetFields())
+                foreach (var field in OrderedGetter.GetObjectFieldsInDeclarationOrder(this))
                 {
                     field.SetValue(this, (value & (1 << i++)) != 0);
                 }
@@ -137,13 +137,35 @@ namespace MIOConfig
                 }
                 _deviceUartChannelsCount = value;
             }
-        }       
+        }
+
+        private UInt16 _deviceUserRegistersCount;
 
         /// <summary>
         /// Holding regs|addr.: 1002|count: 1| R/O
         /// </summary>  
-        [ModbusProperty(Access = ModbusRegisterAccessType.AccessRead)]      
-        public UInt16 DeviceUserRegistersCount { get; set; }
+        [ModbusProperty(Access = ModbusRegisterAccessType.AccessRead)]
+        public UInt16 DeviceUserRegistersCount
+        {
+            get { return _deviceUserRegistersCount; }
+            set
+            {
+                _deviceUserRegistersCount = value;
+                if (_deviceConfiguration != null && _deviceConfiguration.RoutingTable != null)
+                {
+                    if (value > _deviceConfiguration.RoutingTable.Count)
+                    {
+                        int addCount = value - _deviceConfiguration.RoutingTable.Count;
+                        for (int i = 0; i < addCount; i++)
+                        {
+                            _deviceConfiguration.RoutingTable.Add(new DeviceRoutingTableElement());
+                        }
+                        return;
+                    }
+                    _deviceConfiguration.RoutingTable.ToList().RemoveRange(value, _deviceConfiguration.RoutingTable.Count - value);
+                }
+            }
+        }
 
         /// <summary>
         /// Holding regs|addr.: 1003|count: 1| R/O

@@ -9,7 +9,13 @@ namespace MIOConfig
 {
     [Serializable]
     public class DeviceRoutingTableElement
-    {               
+    {
+        public DeviceRoutingTableElement()
+        {
+            RouteConfigured = false;
+        }
+
+
         /// <summary>
         /// Holding regs|addr.: 1007+7*UartPorts.Count + 5*ModuleDIPresent + 10*ModuleDOPresent+2+[index]*2 |count: 1| R/W
         /// </summary>
@@ -25,5 +31,7 @@ namespace MIOConfig
         /// 
         [ModbusProperty(Access = ModbusRegisterAccessType.AccessReadWrite)]
         public UInt16 RouteTo { get; set;}
+
+        public bool RouteConfigured { get; set; }
     }
 }

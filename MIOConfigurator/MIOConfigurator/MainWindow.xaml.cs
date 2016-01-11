@@ -897,7 +897,7 @@ namespace MIOConfigurator
         private bool IsSlectedDeviceConfigurationValid()
         {
             //routing
-            if (RoutingMapGrid != null)
+            /*if (RoutingMapGrid != null)
             {
                 if (RoutingMapGrid.Items != null)
                 {
@@ -910,7 +910,7 @@ namespace MIOConfigurator
                         }
                     }   
                 }                
-            }
+            }*/
             //modbusquery
             if (ModbusQueryConfigurationGrid != null)
             {

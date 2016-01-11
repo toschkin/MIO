@@ -19,7 +19,7 @@ namespace Modbus.Core
             UInt32 totalLengthInBytes = 0;
             foreach (var element in array)
             {
-                foreach (var field in OrderedPropertiesGetter.GetObjectPropertiesInDeclarationOrder(element))
+                foreach (var field in OrderedGetter.GetObjectPropertiesInDeclarationOrder(element))
                 {
                     if ((field.CanWrite) &&
                         (field.GetCustomAttributes(typeof (ModbusPropertyAttribute), false).Length != 0))
@@ -65,7 +65,7 @@ namespace Modbus.Core
                 throw new ArgumentNullException();
 
             UInt32 totalLengthInBytes = 0;
-            foreach (var field in OrderedPropertiesGetter.GetObjectPropertiesInDeclarationOrder(obj))
+            foreach (var field in OrderedGetter.GetObjectPropertiesInDeclarationOrder(obj))
             {
 
                 if ((field.CanWrite) &&
