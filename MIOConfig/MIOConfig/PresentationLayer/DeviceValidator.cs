@@ -105,6 +105,8 @@ namespace MIOConfig.PresentationLayer
             }
             for (int port = 0; port < _device.Configuration.ModbusMasterQueriesOnUartPorts.Count; port++)
             {
+                if (_device.Configuration.UartPorts[port].PortProtocolType != Definitions.MODBUS_MASTER_PROTOCOL)
+                    continue;
                 for (int query = 0; query < _device.Configuration.ModbusMasterQueriesOnUartPorts[port].Count; query++)
                 {
                     if (_device.Configuration.ModbusMasterQueriesOnUartPorts[port][query].QueryConfigured)
@@ -260,6 +262,8 @@ namespace MIOConfig.PresentationLayer
 
             for (int port = 0; port < _device.Configuration.ModbusMasterQueriesOnUartPorts.Count; port++)
             {
+                if (_device.Configuration.UartPorts[port].PortProtocolType != Definitions.MODBUS_MASTER_PROTOCOL)
+                    continue;
                 for (int query = 0; query < _device.Configuration.ModbusMasterQueriesOnUartPorts[port].Count; query++)
                 {
                     if (_device.Configuration.ModbusMasterQueriesOnUartPorts[port][query].QueryConfigured && modbusQuery != _device.Configuration.ModbusMasterQueriesOnUartPorts[port][query])

@@ -560,7 +560,7 @@
 
                                 <DataGrid x:Name="RoutingMapGrid" Margin="10,3,10,10" AutoGenerateColumns="False" SelectionMode="Single" CanUserSortColumns="False" CanUserAddRows="False" CanUserResizeRows="False"
                                             ItemsSource="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedDevice.RoutingMap}"
-                                            Background="AliceBlue" ColumnWidth="*">
+                                            Background="AliceBlue" ColumnWidth="*" EnableRowVirtualization="False">
                                     <DataGrid.Resources>
                                         <Style TargetType="{x:Type DataGridColumnHeader}">
                                             <Setter Property="Background" Value="Transparent" />
@@ -569,6 +569,39 @@
                                         </Style>
                                     </DataGrid.Resources>
                                     <DataGrid.Columns>
+                                        <DataGridTextColumn Header="№" Width="Auto" IsReadOnly="True" 
+                                                            Binding="{qc:Binding '$P.GetIndex()+1', P={Binding RelativeSource={RelativeSource AncestorType=DataGridRow}}}"
+                                                            Foreground="Gray">
+                                            <DataGridTextColumn.CellStyle>
+                                                <Style TargetType="{x:Type DataGridCell}">
+                                                    <Setter Property="HorizontalContentAlignment" Value="Center"></Setter>
+                                                    <Setter Property="Background">
+                                                        <Setter.Value>
+                                                            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                                                <GradientStop Color="Gainsboro" Offset="0"></GradientStop>
+                                                                <GradientStop Color="White" Offset="1"></GradientStop>
+                                                            </LinearGradientBrush>
+                                                        </Setter.Value>    
+                                                    </Setter>
+                                                </Style>  
+                                            </DataGridTextColumn.CellStyle>
+                                            <DataGridTextColumn.HeaderStyle>
+                                                <Style TargetType="{x:Type DataGridColumnHeader}">
+                                                    <Setter Property="HorizontalContentAlignment" Value="Center"></Setter>
+                                                    <Setter Property="Padding" Value="5"></Setter>
+                                                    <Setter Property="BorderBrush" Value="DarkGray"></Setter>
+                                                    <Setter Property="BorderThickness" Value="1"></Setter>
+                                                    <Setter Property="Background">
+                                                        <Setter.Value>
+                                                            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                                                <GradientStop Color="Gainsboro" Offset="0"></GradientStop>
+                                                                <GradientStop Color="White" Offset="1"></GradientStop>
+                                                            </LinearGradientBrush>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                </Style>
+                                            </DataGridTextColumn.HeaderStyle>
+                                        </DataGridTextColumn>
                                         <DataGridTemplateColumn Header="Регистр назначения">
                                             <DataGridTemplateColumn.HeaderStyle>
                                                 <Style TargetType="{x:Type DataGridColumnHeader}">
@@ -597,7 +630,7 @@
                                                         x:Name="TextBoxRouteTo"
                                                         wpf:TextBoxMaskBehavior.Mask="Integer"
         		                                        wpf:TextBoxMaskBehavior.MinimumValue="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path= SelectedDevice.UserRegistersStartAddressOffset}"
-        		                                        wpf:TextBoxMaskBehavior.MaximumValue="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path= SelectedDevice.UserRegistersEndAddressOffset}">
+        		                                        wpf:TextBoxMaskBehavior.MaximumValue="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path= SelectedDevice.UserRegistersEndAddressOffset}">                                                        
                                                         <Binding Path="RouteTo" Mode="TwoWay">
                                                         </Binding>
                                                     </TextBox>
