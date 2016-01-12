@@ -14,12 +14,14 @@ namespace MIOConfigurator.Data
             if (value is BindingGroup)
             {
                 DeviceRoutingTableElement elementToValidate = ((BindingGroup) value).Items[0] as DeviceRoutingTableElement;
-                if (Validator != null)
+                if (Validator != null && elementToValidate != null)
                 {
                     if (Validator.ValidateRoutingMapElement(elementToValidate) == false)
                     {
+                        elementToValidate.RouteConfigured = false;
                         return new ValidationResult(false, Validator.ToString());
                     }
+                    elementToValidate.RouteConfigured = true;
                 }    
             }            
             return ValidationResult.ValidResult;            

@@ -96,6 +96,12 @@ namespace MIOConfig.PresentationLayer
                     ValidationErrorList.Add(String.Format("Наложение целевого регистра маршрута с маршрутом №{0}", route + 1));
                     retCode = false;
                 }
+
+                if (element.RouteFrom == _device.RoutingMap[route].RouteTo && element.RouteTo == _device.RoutingMap[route].RouteFrom && element != _device.RoutingMap[route])
+                {
+                    ValidationErrorList.Add(String.Format("Зацикливание маршрута с маршрутом №{0}", route + 1));
+                    retCode = false;
+                }
             }
             for (int port = 0; port < _device.Configuration.ModbusMasterQueriesOnUartPorts.Count; port++)
             {
@@ -211,8 +217,6 @@ namespace MIOConfig.PresentationLayer
             return true;
         }
 
-        #endregion
-
         public bool ValidateModbusMasterQuery(DeviceModbusMasterQuery modbusQuery)
         {
             ValidationErrorList.Clear();
@@ -275,5 +279,8 @@ namespace MIOConfig.PresentationLayer
             }
             return retCode;
         }
+        #endregion
+
+        
     }
 }

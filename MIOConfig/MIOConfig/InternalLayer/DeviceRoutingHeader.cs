@@ -51,8 +51,13 @@ namespace MIOConfig
              get
              {
                  if (_deviceConfiguration != null)
-                 {
-                     return (UInt16)_deviceConfiguration.RoutingTable.Aggregate(0, (current, query) => query.RouteConfigured ? current + 1 : current);
+                 {                     
+                     for (UInt16 route = 0; route < _deviceConfiguration.RoutingTable.Count; route++)
+                     {
+                         if (_deviceConfiguration.RoutingTable[route].RouteConfigured == false)
+                             return route;
+                     }
+                     return (UInt16)_deviceConfiguration.RoutingTable.Count;
                      // was  return (UInt16)_deviceConfiguration.RoutingTable.Count;
                  }                                      
                  return 0;
