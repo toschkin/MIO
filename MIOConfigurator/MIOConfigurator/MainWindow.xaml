@@ -522,8 +522,17 @@
                             <CheckBox DockPanel.Dock="Top" Content="Модуль в работе" Margin="10,10,10,0" 
                                               IsChecked="{Binding  Path=SelectedDevice.RoutingEnabled, Mode=TwoWay, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}">
                             </CheckBox>
-                            <!--
+                                                        
                             <StackPanel Margin="10" Orientation="Horizontal" DockPanel.Dock="Bottom">
+                                <TextBlock FontSize="12" TextAlignment="Center" Text="Количество настроенных маршрутов:" >
+                                    <TextBlock.Effect>
+                                        <DropShadowEffect Direction="310" Color="#FFA09C9C"/>
+                                    </TextBlock.Effect>
+                                </TextBlock>
+                                <TextBlock Margin="10,0,0,0" FontSize="16" FontWeight="Bold" TextAlignment="Center" Foreground="Green" 
+                                           Text="{Binding UpdateSourceTrigger=PropertyChanged, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedDevice.ConfiguredRoutingMapSize}">
+                                </TextBlock>
+                                <!--
                                 <Button x:Name="AddRoute" Style="{DynamicResource EmptyButtonStyle}" Command="{x:Static local:MainWindow.AddRouteCommand}">
                                     <Image Height="32" Width="32" Source="Images/add-icon.png" Style="{DynamicResource ButtonImageHoverStyle}">
                                     </Image>
@@ -541,8 +550,9 @@
                                     <TextBlock.Effect>
                                         <DropShadowEffect Direction="310" Color="#FFA09C9C"/>
                                     </TextBlock.Effect></TextBlock>
+                                -->
                             </StackPanel>
-                            -->
+                            
                             <DockPanel>
                                 <Border DockPanel.Dock="Top" Margin="10,10,10,0" BorderThickness="1" BorderBrush="DarkOliveGreen">
                                     <TextBlock  Padding="4" Text="Карта пользовательских регистров" TextAlignment="Center" Foreground="Yellow" FontSize="14">
@@ -557,7 +567,6 @@
                                 </Border>
 
                                 <data:Proxy In="{Binding SelectedDeviceValidator, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Out="{Binding ElementName=ElementValidationRule, Path=Validator}"/>                                
-
                                 <DataGrid x:Name="RoutingMapGrid" Margin="10,3,10,10" AutoGenerateColumns="False" SelectionMode="Single" CanUserSortColumns="False" CanUserAddRows="False" CanUserResizeRows="False"
                                             ItemsSource="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedDevice.RoutingMap}"
                                             Background="AliceBlue" ColumnWidth="*" EnableRowVirtualization="False">
@@ -694,7 +703,7 @@
                                             </Grid>
                                         </ControlTemplate>
                                     </DataGrid.RowValidationErrorTemplate>
-                                </DataGrid>
+                                </DataGrid>                                
                             </DockPanel>
                         </DockPanel>
                     </TabItem>

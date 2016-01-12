@@ -28,6 +28,10 @@ namespace MIOConfig.PresentationLayer
 
         public List<String> ValidationErrorList { get; set; }
 
+        public void NotifyOnValidation()
+        {
+            _device.NotifyPropertyChanged("ConfiguredRoutingMapSize");
+        }
         #region Validation Methods
 
         public bool CanAddModbusMasterQuery(DeviceModbusMasterQuery modbusQuery)

@@ -24,7 +24,7 @@ namespace MIOConfig
         
         [field: NonSerialized]
         public event PropertyChangedEventHandler PropertyChanged;
-        private void NotifyPropertyChanged(string info)
+        public void NotifyPropertyChanged(string info)
         {
             if (PropertyChanged != null)
             {
@@ -178,6 +178,15 @@ namespace MIOConfig
             }
         }
 
+        public UInt16 ConfiguredRoutingMapSize
+        {
+            get
+            {
+                if (Configuration.RoutingHeader != null)
+                    return Configuration.RoutingHeader.RoutingTableSize;
+                return 0;
+            }
+        }
         public ObservableCollection<DeviceRoutingTableElement> RoutingMap
         {
             get
