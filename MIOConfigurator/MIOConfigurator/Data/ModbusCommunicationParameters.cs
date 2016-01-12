@@ -170,7 +170,7 @@ namespace MIOConfigurator
             {
                 if (Registry.CurrentUser.OpenSubKey(_registryNode) != null)
                     return (StopBits)Enum.Parse(typeof(StopBits), (string)Registry.CurrentUser.OpenSubKey(_registryNode).GetValue("StopBits", StopBits.Two.ToString()));
-                return StopBits.Two;
+                return StopBits.One;
             }
             set
             {

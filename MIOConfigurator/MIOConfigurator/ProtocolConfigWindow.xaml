@@ -39,7 +39,7 @@
         		commonWPF:TextBoxMaskBehavior.Mask="Integer"
         		commonWPF:TextBoxMaskBehavior.MinimumValue="0"
         		commonWPF:TextBoxMaskBehavior.MaximumValue="1000000"/>
-        <Label Grid.Column="2" Grid.Row ="2" Content="Таймаут ответа:" HorizontalAlignment="Right" Margin="0,0,0,0" VerticalAlignment="Top" Width="Auto" Height="Auto" HorizontalContentAlignment="Right"/>
+        <Label Grid.Column="2" Grid.Row ="2" Content="Интервал тишины:" HorizontalAlignment="Right" Margin="0,0,0,0" VerticalAlignment="Top" Width="Auto" Height="Auto" HorizontalContentAlignment="Right"/>
         <TextBox Grid.Column="3" Grid.Row ="2" x:Name="ModbusSilentInterval" HorizontalAlignment="Stretch" Height="Auto" Margin="5,5,15,5" TextWrapping="Wrap" Text="100000" VerticalAlignment="Top"
         		commonWPF:TextBoxMaskBehavior.Mask="Integer"
         		commonWPF:TextBoxMaskBehavior.MinimumValue="0"

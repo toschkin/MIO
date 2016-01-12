@@ -167,6 +167,7 @@ namespace MIOConfig
             }
         }
 
+        private UInt16 _deviceMaximumModbusMasterRequestsToSubDeviceCount;
         /// <summary>
         /// Holding regs|addr.: 1003|count: 1| R/O
         /// </summary>  
@@ -177,11 +178,12 @@ namespace MIOConfig
             {
                 if (_deviceConfiguration != null && _deviceConfiguration.ModbusMasterQueriesOnUartPorts != null && _deviceConfiguration.ModbusMasterQueriesOnUartPorts.Count > 0)
                     return (UInt16)_deviceConfiguration.ModbusMasterQueriesOnUartPorts[0].Count;
-                return 0;
+                return _deviceMaximumModbusMasterRequestsToSubDeviceCount;
                 //return 1;
             }
             set
             {
+                _deviceMaximumModbusMasterRequestsToSubDeviceCount = value;
                 /*if (value < 1)
                     value = 1;*/
                 if (_deviceConfiguration == null || _deviceConfiguration.ModbusMasterQueriesOnUartPorts == null) 
@@ -224,24 +226,22 @@ namespace MIOConfig
 
         #region Methods        
         public bool IsValidHeader()
-        {
-            //by now 
-            return true;
+        {            
             List<Byte> byteRepresentationOfHeader = new List<byte>
             {
-                BitConverter.GetBytes(DeviceConsistenceRegister).ElementAt(1),
                 BitConverter.GetBytes(DeviceConsistenceRegister).ElementAt(0),
-                BitConverter.GetBytes(DeviceUartChannelsCount).ElementAt(1),
+                BitConverter.GetBytes(DeviceConsistenceRegister).ElementAt(1),
                 BitConverter.GetBytes(DeviceUartChannelsCount).ElementAt(0),
-                BitConverter.GetBytes(DeviceUserRegistersCount).ElementAt(1),
+                BitConverter.GetBytes(DeviceUartChannelsCount).ElementAt(1),
                 BitConverter.GetBytes(DeviceUserRegistersCount).ElementAt(0),
-                BitConverter.GetBytes(DeviceMaximumModbusMasterRequestsToSubDeviceCount).ElementAt(1),
+                BitConverter.GetBytes(DeviceUserRegistersCount).ElementAt(1),
                 BitConverter.GetBytes(DeviceMaximumModbusMasterRequestsToSubDeviceCount).ElementAt(0),
-                BitConverter.GetBytes(DeviceVersion).ElementAt(1),
+                BitConverter.GetBytes(DeviceMaximumModbusMasterRequestsToSubDeviceCount).ElementAt(1),
                 BitConverter.GetBytes(DeviceVersion).ElementAt(0),
+                BitConverter.GetBytes(DeviceVersion).ElementAt(1),
                 //need to ask gerasimchuk and test
-                BitConverter.GetBytes(DeviceHeaderCrc16).ElementAt(0),
-                BitConverter.GetBytes(DeviceHeaderCrc16).ElementAt(1)
+                BitConverter.GetBytes(DeviceHeaderCrc16).ElementAt(1),
+                BitConverter.GetBytes(DeviceHeaderCrc16).ElementAt(0)
             };
             //only by now , need to be cleared
             if (Crc16.CheckCrc(byteRepresentationOfHeader.ToArray()))

@@ -193,8 +193,8 @@ namespace MIOConfig
 
             configuration.HeaderFields.DeviceConsistenceRegister = tempHeader.DeviceConsistenceRegister;
             configuration.HeaderFields.DeviceHeaderCrc16 = tempHeader.DeviceHeaderCrc16;
-            configuration.HeaderFields.DeviceMaximumModbusMasterRequestsToSubDeviceCount = tempHeader.DeviceMaximumModbusMasterRequestsToSubDeviceCount;
             configuration.HeaderFields.DeviceUartChannelsCount = tempHeader.DeviceUartChannelsCount;
+            configuration.HeaderFields.DeviceMaximumModbusMasterRequestsToSubDeviceCount = tempHeader.DeviceMaximumModbusMasterRequestsToSubDeviceCount;            
             configuration.HeaderFields.DeviceUserRegistersCount = tempHeader.DeviceUserRegistersCount;
             configuration.HeaderFields.DeviceVersion = tempHeader.DeviceVersion;
             configuration.LastConfigurationTime = tempConfigurationTime;

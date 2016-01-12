@@ -454,7 +454,7 @@
                                                 P0={Binding  ElementName=Output1Type, Path=SelectedIndex},
                                                 P1={Binding ElementName=ParallelChannel4, Path=SelectedIndex}}">
                                         <ComboBoxItem>Не задействован</ComboBoxItem>
-                                        <ComboBoxItem>Одинарное переключение</ComboBoxItem>
+                                        <ComboBoxItem Visibility="Collapsed">Одинарное переключение</ComboBoxItem>
                                         <ComboBoxItem Visibility="{qc:Binding '$P==2?Visibility.Visible:Visibility.Collapsed', P={Binding  ElementName=Output1Type, Path=SelectedIndex}}">
                                             Двойное переключение</ComboBoxItem>
                                         <ComboBoxItem IsEnabled="False">Параллельный канал</ComboBoxItem>
@@ -480,7 +480,7 @@
                                               SelectedIndex="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Mode=TwoWay, Path=SelectedDevice.DiscreetOutputModuleConfiguration.OutputType3}"
                                               IsEnabled="{qc:Binding '$P!=3',P={Binding ElementName=ParallelChannel2, Path=SelectedIndex}}">
                                         <ComboBoxItem>Не задействован</ComboBoxItem>
-                                        <ComboBoxItem Visibility="Collapsed">Одинарное переключение</ComboBoxItem>
+                                        <ComboBoxItem>Одинарное переключение</ComboBoxItem>
                                         <ComboBoxItem>Двойное переключение</ComboBoxItem>
                                         <ComboBoxItem Visibility="Collapsed" IsEnabled="False">Параллельный канал</ComboBoxItem>
                                     </ComboBox>

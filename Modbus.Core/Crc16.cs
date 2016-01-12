@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Modbus.Core
 {
@@ -53,6 +54,11 @@ namespace Modbus.Core
         /// <returns>true on success, otherwise false</returns>            
         public static bool CheckCrc(Byte[] packet, UInt16 polynom = 0xA001)
         {
+            StringBuilder stb = new StringBuilder();
+            for (int pos = 0; pos < packet.Length - 2; pos++)
+            {
+                stb.AppendFormat("{0:X2}", packet[pos]);
+            }
             if (packet == null)
                 return false;
             if ((packet.Length < 5) || (packet.Length > 256))

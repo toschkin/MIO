@@ -197,8 +197,15 @@ namespace MIOConfig
 
         public ObservableCollection<ObservableCollection<DeviceModbusMasterQuery>> ModbusMasterPortsQueries
         {
-            get { return Configuration.ModbusMasterQueriesOnUartPorts; }
-            set { Configuration.ModbusMasterQueriesOnUartPorts = value; }
+            get
+            {
+                return Configuration.ModbusMasterQueriesOnUartPorts;
+                
+            }
+            set
+            {
+                Configuration.ModbusMasterQueriesOnUartPorts = value;
+            }
         }
 
         #endregion       

@@ -149,7 +149,7 @@ namespace MIOConfig
                 
             if (HeaderFields.ModuleRouter && RoutingTable != null)
             {
-                for (int route = 0; route < RoutingHeader.RoutingTableSize && listIndex < listOfConfigurationItems.Count; route++)
+                for (int route = 0; route < HeaderFields.DeviceUserRegistersCount && listIndex < listOfConfigurationItems.Count; route++)
                 {
                     RoutingTable[route] = listOfConfigurationItems[listIndex++] as DeviceRoutingTableElement;
                 }    
