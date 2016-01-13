@@ -222,21 +222,30 @@ namespace MIOConfig
         public Byte PortMasterRequestCount 
         {            
             get
-            {                
-                if (_deviceConfiguration != null)               
-                    return  (Byte)_deviceConfiguration.ModbusMasterQueriesOnUartPorts[_deviceConfiguration.UartPorts.IndexOf(this)].Aggregate(0, (current, query) => query.QueryConfigured ? current + 1 : current);
+            {
+                if (_deviceConfiguration != null)
+                {
+                    for (Byte query = 0; query < _deviceConfiguration.ModbusMasterQueriesOnUartPorts[_deviceConfiguration.UartPorts.IndexOf(this)].Count; query++)
+                    {
+                        if (
+                            _deviceConfiguration.ModbusMasterQueriesOnUartPorts[
+                                _deviceConfiguration.UartPorts.IndexOf(this)][query].QueryConfigured == false)
+                            return query;
+                    }
+                }
+                //return  (Byte)_deviceConfiguration.ModbusMasterQueriesOnUartPorts[_deviceConfiguration.UartPorts.IndexOf(this)].Aggregate(0, (current, query) => query.QueryConfigured ? current + 1 : current);
                 return _portMasterRequestCount;
             }
             set
             {
                 _portMasterRequestCount = value;//only stub for modbus
-                /*if (_deviceConfiguration != null)
+                if (_deviceConfiguration != null)
                 {
                     for (int query = 0; query < value; query++)
                     {
                         _deviceConfiguration.ModbusMasterQueriesOnUartPorts[_deviceConfiguration.UartPorts.IndexOf(this)][query].QueryConfigured = true;
                     }
-                } */
+                }
             }
         }
 

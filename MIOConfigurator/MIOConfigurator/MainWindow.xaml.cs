@@ -1028,6 +1028,17 @@ namespace MIOConfigurator
                     SelectedModbusQuery = null;
                 }
             }            
-        }        
+        }
+
+        private void QueryConfiguredCheckBox_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (ModbusQueriesTreeView.SelectedItem is TreeViewItem)
+            {
+                if (QueryConfiguredCheckBox.IsChecked == false)
+                    ((TreeViewItem)ModbusQueriesTreeView.SelectedItem).Foreground = Brushes.Gray;
+                else
+                    ((TreeViewItem)ModbusQueriesTreeView.SelectedItem).Foreground = Brushes.Black;
+            }
+        }             
     }
 }

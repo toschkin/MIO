@@ -16,7 +16,7 @@ namespace MIOConfig
                 return true;
             if ((End1 >= Start2) && (End1 <= End2))
                 return true;
-            return true;
+            return false;
         }
 
         public static object CloneObject(object objSource)

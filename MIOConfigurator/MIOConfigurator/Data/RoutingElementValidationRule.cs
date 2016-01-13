@@ -12,19 +12,22 @@ namespace MIOConfigurator.Data
         public override ValidationResult Validate(object value,System.Globalization.CultureInfo cultureInfo)
         {
             if (value is BindingGroup)
-            {                
-                DeviceRoutingTableElement elementToValidate = ((BindingGroup) value).Items[0] as DeviceRoutingTableElement;
-                if (Validator != null && elementToValidate != null)
+            {
+                if (((BindingGroup)value).Items != null && ((BindingGroup)value).Items.Count>0)
                 {
-                    if (Validator.ValidateRoutingMapElement(elementToValidate) == false)
+                    DeviceRoutingTableElement elementToValidate = ((BindingGroup)value).Items[0] as DeviceRoutingTableElement;
+                    if (Validator != null && elementToValidate != null)
                     {
-                        elementToValidate.RouteConfigured = false;
+                        if (Validator.ValidateRoutingMapElement(elementToValidate) == false)
+                        {
+                            elementToValidate.RouteConfigured = false;
+                            Validator.NotifyOnValidation();
+                            return new ValidationResult(false, Validator.ToString());
+                        }
+                        elementToValidate.RouteConfigured = true;
                         Validator.NotifyOnValidation();
-                        return new ValidationResult(false, Validator.ToString());
-                    }                    
-                    elementToValidate.RouteConfigured = true;
-                    Validator.NotifyOnValidation();
-                }    
+                    }  
+                }                  
             }            
             return ValidationResult.ValidResult;            
         }

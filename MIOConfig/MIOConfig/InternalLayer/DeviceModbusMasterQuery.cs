@@ -18,7 +18,8 @@ namespace MIOConfig
        
         public bool QueryConfigured
         {
-            get { return RegistersCount > 0; }            
+            //get { return RegistersCount > 0; }            
+            get; set;
         }
    
         [ModbusProperty(Access = ModbusRegisterAccessType.AccessReadWrite)]

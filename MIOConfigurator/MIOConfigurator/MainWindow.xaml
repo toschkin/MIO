@@ -714,7 +714,9 @@
                                 <ColumnDefinition Width="1*"></ColumnDefinition>
                                 <ColumnDefinition Width="2*"></ColumnDefinition>
                             </Grid.ColumnDefinitions>
-                            <TreeView Grid.Column="0" Grid.Row="0" Margin="5" x:Name="ModbusQueriesTreeView" Background="AliceBlue" SelectedItemChanged="ModbusQueriesTreeView_OnSelectedItemChanged"></TreeView>
+                            <TreeView Grid.Column="0" Grid.Row="0" Margin="5" x:Name="ModbusQueriesTreeView" Background="AliceBlue" 
+                                      SelectedItemChanged="ModbusQueriesTreeView_OnSelectedItemChanged">                                
+                            </TreeView>
                             <StackPanel Grid.Column="1" Grid.Row="0">
 
                                 <data:Proxy In="{Binding SelectedDeviceValidator, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Out="{Binding ElementName=RouteStartAddressValidationRule, Path=Validator}"/>
@@ -727,6 +729,9 @@
                                 <data:Proxy In="{Binding SelectedModbusQuery, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Out="{Binding ElementName=QueryStatusAddressValidationRule, Path=SelectedQuery}"/>
 
                                 <TextBlock   Text="Настройка запроса Modbus master" Margin="10"></TextBlock>
+                                <CheckBox x:Name="QueryConfiguredCheckBox" Content="Запрос настроен" Margin="10,0" 
+                                          IsChecked="{Binding Path=SelectedModbusQuery.QueryConfigured, Mode=TwoWay, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}" Click="QueryConfiguredCheckBox_OnClick" >                                    
+                                </CheckBox>
                                 <Grid Margin="10,5,10,0" x:Name ="ModbusQueryConfigurationGrid">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="2*"></ColumnDefinition>
