@@ -212,5 +212,37 @@ namespace MIOConfigurator
                     Registry.CurrentUser.OpenSubKey(Constants.registryAppNode, RegistryKeyPermissionCheck.ReadWriteSubTree).SetValue("SilentInterval", value.ToString());
             }
         }
+        public int DefaultModbusWriteCapacity
+        {
+            get
+            {
+                if (Registry.CurrentUser.OpenSubKey(_registryNode) != null)
+                    return Convert.ToInt32(Registry.CurrentUser.OpenSubKey(_registryNode).GetValue("WriteCapacity", "123"));
+                return 123;
+            }
+            set
+            {
+                if (value < 0)
+                    value = 0;
+                if (Registry.CurrentUser.OpenSubKey(_registryNode, RegistryKeyPermissionCheck.ReadWriteSubTree) != null)
+                    Registry.CurrentUser.OpenSubKey(Constants.registryAppNode, RegistryKeyPermissionCheck.ReadWriteSubTree).SetValue("WriteCapacity", value.ToString());
+            }
+        }
+        public int DefaultModbusReadCapacity
+        {
+            get
+            {
+                if (Registry.CurrentUser.OpenSubKey(_registryNode) != null)
+                    return Convert.ToInt32(Registry.CurrentUser.OpenSubKey(_registryNode).GetValue("ReadCapacity", "125"));
+                return 125;
+            }
+            set
+            {
+                if (value < 0)
+                    value = 0;
+                if (Registry.CurrentUser.OpenSubKey(_registryNode, RegistryKeyPermissionCheck.ReadWriteSubTree) != null)
+                    Registry.CurrentUser.OpenSubKey(Constants.registryAppNode, RegistryKeyPermissionCheck.ReadWriteSubTree).SetValue("ReadCapacity", value.ToString());
+            }
+        }
     }
 }

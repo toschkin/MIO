@@ -45,6 +45,8 @@ namespace MIOConfigurator
                 return;
             }
             _protocol.SilentInterval = Convert.ToInt32(ModbusSilentInterval.Text);
+            _protocol.WriteRegistersPerQueryCapacity = Convert.ToByte(ModbusWriteCapacity.Text);
+            _protocol.ReadRegistersPerQueryCapacity = Convert.ToByte(ModbusReadCapacity.Text);
 
             currentCommunicationParameters.DefaultComPort = (string)ComPorts.SelectedItem;
             currentCommunicationParameters.DefaultComSpeed = (int)ComSpeed.SelectedItem;
@@ -53,6 +55,8 @@ namespace MIOConfigurator
             currentCommunicationParameters.DefaultComStopBits = (StopBits) ComStopBits.SelectedItem;
             currentCommunicationParameters.DefaultModbusTimeOut = Convert.ToInt32(ModbusTimeout.Text);
             currentCommunicationParameters.DefaultModbusSilentInterval = Convert.ToInt32(ModbusSilentInterval.Text);
+            currentCommunicationParameters.DefaultModbusWriteCapacity = Convert.ToInt32(ModbusWriteCapacity.Text);
+            currentCommunicationParameters.DefaultModbusReadCapacity = Convert.ToInt32(ModbusReadCapacity.Text);
             DialogResult = true;            
         }
 
@@ -84,6 +88,9 @@ namespace MIOConfigurator
 
             ModbusTimeout.Text = currentCommunicationParameters.DefaultModbusTimeOut.ToString();
             ModbusSilentInterval.Text = currentCommunicationParameters.DefaultModbusSilentInterval.ToString();
+
+            ModbusReadCapacity.Text = currentCommunicationParameters.DefaultModbusReadCapacity.ToString();
+            ModbusWriteCapacity.Text = currentCommunicationParameters.DefaultModbusWriteCapacity.ToString();
         }
     }
 }
