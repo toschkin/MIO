@@ -32,7 +32,7 @@ namespace MIOConfig
                 if (_configuration.HeaderFields.ModuleModbusMaster)
                 {
                     //error here
-                    /*foreach (var query in from port in _configuration.ModbusMasterQueriesOnUartPorts
+                    foreach (var query in from port in _configuration.ModbusMasterQueriesOnUartPorts
                                           from query in port
                                           where (query.QueryConfigured && (((register.Address >= query.RouteStartAddress)
                                           && (register.Address < query.RouteStartAddress + query.RegistersCount))
@@ -40,7 +40,7 @@ namespace MIOConfig
                                           select query)
                     {
                         register.Source.Add(query);
-                    } */   
+                    }  
                 }                
                 userRegisters.Add(register);
             }            
