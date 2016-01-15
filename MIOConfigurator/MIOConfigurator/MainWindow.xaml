@@ -730,7 +730,9 @@
 
                                 <TextBlock   Text="Настройка запроса Modbus master" Margin="10"></TextBlock>
                                 <CheckBox x:Name="QueryConfiguredCheckBox" Content="Запрос настроен" Margin="10,0" 
-                                          IsChecked="{Binding Path=SelectedModbusQuery.QueryConfigured, Mode=TwoWay, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}" Click="QueryConfiguredCheckBox_OnClick" >                                    
+                                          IsChecked="{Binding Path=SelectedModbusQuery.QueryConfigured, Mode=TwoWay, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}" 
+                                          Click="QueryConfiguredCheckBox_OnClick" 
+                                          IsEnabled="{qc:Binding '$P==null?false:true', P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedModbusQuery}}">
                                 </CheckBox>
                                 <Grid Margin="10,5,10,0" x:Name ="ModbusQueryConfigurationGrid">
                                     <Grid.ColumnDefinitions>
