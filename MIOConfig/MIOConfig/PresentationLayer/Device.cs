@@ -278,7 +278,7 @@ namespace MIOConfig
 
         public ReaderSaverErrors RestartDevice(ModbusReaderSaver saver)
         {
-            UInt16 oldOffset = saver.RegisterReadAddressOffset;
+            UInt16 oldOffset = saver.RegisterWriteAddressOffset;
             saver.RegisterWriteAddressOffset = Definitions.DEVICE_STATE_OFFSET;
             ReaderSaverErrors code = saver.RestartDevice();
             saver.RegisterWriteAddressOffset = oldOffset;
