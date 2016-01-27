@@ -58,7 +58,7 @@ namespace MIOConfig
             {
                 if ((_outputType1 == (Byte)OutputTypes.DoubleOutput) && (value != (Byte)OutputTypes.DoubleOutput))
                 {
-                    OutputType2 = value;
+                    OutputType2 = 0;
                     ParallelChannelForOutput2 = 0;
                 }
                 if (value == (Byte)OutputTypes.DoubleOutput)
@@ -229,7 +229,7 @@ namespace MIOConfig
             {
                 if ((_outputType3 == (Byte)OutputTypes.DoubleOutput) && (value != (Byte)OutputTypes.DoubleOutput))
                 {
-                    OutputType4 = value;                    
+                    OutputType4 = 0;                    
                     ParallelChannelForOutput4 = 0;
                 }
                 if (value == (Byte)OutputTypes.DoubleOutput)

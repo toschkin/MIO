@@ -467,8 +467,7 @@
                                         <ComboBoxItem>Нет</ComboBoxItem>
                                         <ComboBoxItem Visibility="Collapsed">Выход №1</ComboBoxItem>
                                         <ComboBoxItem Visibility="Collapsed">Выход №2</ComboBoxItem>
-                                        <ComboBoxItem>
-                                            Выход №3</ComboBoxItem>
+                                        <ComboBoxItem>Выход №3</ComboBoxItem>
                                         <ComboBoxItem
                                             Visibility="{qc:Binding '$P!=2?Visibility.Visible:Visibility.Collapsed', P={Binding  ElementName=Output4Type, Path=SelectedIndex}}">
                                             Выход №4</ComboBoxItem>
@@ -784,7 +783,7 @@
                                         <TextBox.Text>
                                             <Binding RelativeSource="{RelativeSource FindAncestor,AncestorType=Window}" Path="SelectedModbusQuery.RegistersCount" Mode="TwoWay" NotifyOnValidationError="True">
                                                 <Binding.ValidationRules>
-                                                    <data:ModbusQueryValidationRule x:Name="RegistersCountValidationRule" FieldNameToValidate="RegistersCount"></data:ModbusQueryValidationRule>
+                                                    <data:ModbusQueryValidationRule x:Name="RegistersCountValidationRule" FieldNameToValidate="RegistersCount" ValidatesOnTargetUpdated="True"></data:ModbusQueryValidationRule>
                                                 </Binding.ValidationRules>
                                             </Binding>
                                         </TextBox.Text>
@@ -798,7 +797,7 @@
                                         <TextBox.Text>
                                             <Binding RelativeSource="{RelativeSource FindAncestor,AncestorType=Window}" Path="SelectedModbusQuery.RouteStartAddress" Mode="TwoWay" NotifyOnValidationError="True">
                                                 <Binding.ValidationRules>
-                                                    <data:ModbusQueryValidationRule x:Name="RouteStartAddressValidationRule" FieldNameToValidate="RouteStartAddress"></data:ModbusQueryValidationRule>
+                                                    <data:ModbusQueryValidationRule x:Name="RouteStartAddressValidationRule" FieldNameToValidate="RouteStartAddress" ValidatesOnTargetUpdated="True"></data:ModbusQueryValidationRule>
                                                 </Binding.ValidationRules>    
                                             </Binding>                                            
                                         </TextBox.Text>                                        
@@ -812,7 +811,7 @@
                                         <TextBox.Text>
                                             <Binding RelativeSource="{RelativeSource FindAncestor,AncestorType=Window}" Path="SelectedModbusQuery.QueryStatusAddress" Mode="TwoWay" NotifyOnValidationError="True">
                                                 <Binding.ValidationRules>
-                                                    <data:ModbusQueryValidationRule x:Name="QueryStatusAddressValidationRule" FieldNameToValidate="QueryStatusAddress"></data:ModbusQueryValidationRule>
+                                                    <data:ModbusQueryValidationRule x:Name="QueryStatusAddressValidationRule" FieldNameToValidate="QueryStatusAddress" ValidatesOnTargetUpdated="True" ></data:ModbusQueryValidationRule>
                                                 </Binding.ValidationRules>
                                             </Binding>
                                         </TextBox.Text>
