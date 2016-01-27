@@ -323,7 +323,7 @@
                                             </Grid.RowDefinitions>
                                             <TextBlock Grid.Row ="0" Grid.Column="0" HorizontalAlignment ="Right" Text="Протокол обмена:" Padding="5"></TextBlock>
                                             <ComboBox x:Name="PortProtocolType" Grid.Row ="0" Grid.Column="1" Margin="5,5,5,5" 
-                                                      SelectedIndex="{Binding Path=SelectedPortConfiguration.PortProtocolType, Mode=TwoWay, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}">
+                                                      SelectedIndex="{Binding Path=SelectedPortConfiguration.PortProtocolType, Mode=TwoWay, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}" SelectionChanged="PortProtocolType_OnSelectionChanged">
                                                 <ComboBoxItem Visibility="{qc:MultiBinding 
                                                     '($P0==0)||(!$P1) ? Visibility.Collapsed : Visibility.Visible', 
                                                     P0={Binding ElementName=UartPots, Path=SelectedIndex},
@@ -393,8 +393,8 @@
                                 <TextBlock Grid.Row ="0" Grid.Column="0" HorizontalAlignment ="Right" Text="Время гистерезиса на переключения (мс):" Padding="5"></TextBlock>
                                 <TextBox Grid.Column="1" Margin="5,5,5,5"                                                         
                                                     wpf:TextBoxMaskBehavior.Mask="Integer"
-        		                                    wpf:TextBoxMaskBehavior.MinimumValue="0"
-        		                                    wpf:TextBoxMaskBehavior.MaximumValue="65535"
+        		                                    wpf:TextBoxMaskBehavior.MinimumValue="20"
+        		                                    wpf:TextBoxMaskBehavior.MaximumValue="1000"
                                                     Text="{Binding Path=SelectedDevice.DiscreetInputModuleConfiguration.HysteresisTime, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}">
                                 </TextBox>
                             </Grid>
@@ -418,8 +418,8 @@
                                 <TextBlock Grid.Row ="0" Grid.Column="0" HorizontalAlignment ="Right" Text="Длина импульса (мс):" Padding="5"></TextBlock>
                                 <TextBox Grid.Column="1" Margin="5,5,5,5"                                                         
                                                     wpf:TextBoxMaskBehavior.Mask="Integer"
-        		                                    wpf:TextBoxMaskBehavior.MinimumValue="0"
-        		                                    wpf:TextBoxMaskBehavior.MaximumValue="65535"
+        		                                    wpf:TextBoxMaskBehavior.MinimumValue="100"
+        		                                    wpf:TextBoxMaskBehavior.MaximumValue="4000"
                                                     Text="{Binding Path=SelectedDevice.DiscreetOutputModuleConfiguration.PulseDurationTime, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}">
                                 </TextBox>
                             </Grid>
@@ -467,8 +467,7 @@
                                         <ComboBoxItem>Нет</ComboBoxItem>
                                         <ComboBoxItem Visibility="Collapsed">Выход №1</ComboBoxItem>
                                         <ComboBoxItem Visibility="Collapsed">Выход №2</ComboBoxItem>
-                                        <ComboBoxItem 
-                                            Visibility="Collapsed">
+                                        <ComboBoxItem>
                                             Выход №3</ComboBoxItem>
                                         <ComboBoxItem
                                             Visibility="{qc:Binding '$P!=2?Visibility.Visible:Visibility.Collapsed', P={Binding  ElementName=Output4Type, Path=SelectedIndex}}">
@@ -507,7 +506,7 @@
                                             Visibility="Collapsed">
                                             Выход №1</ComboBoxItem>
                                         <ComboBoxItem
-                                            Visibility="{qc:Binding '$P!=2?Visibility.Visible:Visibility.Collapsed', P={Binding  ElementName=Output2Type, Path=SelectedIndex}}">
+                                            Visibility="{qc:Binding '$P!=2?Visibility.Visible:Visibility.Collapsed', P={Binding  ElementName=Output3Type, Path=SelectedIndex}}">
                                             Выход №2</ComboBoxItem>
                                         <ComboBoxItem Visibility="Collapsed">Выход №3</ComboBoxItem>
                                         <ComboBoxItem Visibility="Collapsed">Выход №4</ComboBoxItem>
@@ -698,8 +697,8 @@
                                     <DataGrid.RowValidationErrorTemplate>
                                         <ControlTemplate>
                                             <Grid Margin="0,-2,0,-2" ToolTip="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGridRow}},Path=(Validation.Errors)[0].ErrorContent}">
-                                                <Ellipse StrokeThickness="0" Fill="Red" Width="{TemplateBinding FontSize}" Height="{TemplateBinding FontSize}" />
-                                                <TextBlock Text="!" FontSize="{TemplateBinding FontSize}" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"  VerticalAlignment="Center"/>
+                                                <Ellipse StrokeThickness="0" Fill="Yellow" Width="{TemplateBinding FontSize}" Height="{TemplateBinding FontSize}" />
+                                                <TextBlock Text="!" FontSize="{TemplateBinding FontSize}" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Center"  VerticalAlignment="Center"/>
                                             </Grid>
                                         </ControlTemplate>
                                     </DataGrid.RowValidationErrorTemplate>

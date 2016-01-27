@@ -1039,6 +1039,11 @@ namespace MIOConfigurator
                 else
                     ((TreeViewItem)ModbusQueriesTreeView.SelectedItem).Foreground = Brushes.Black;
             }
+        }
+
+        private void PortProtocolType_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {            
+            DrawTree();
         }             
     }
 }
