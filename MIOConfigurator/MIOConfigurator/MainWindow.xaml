@@ -495,10 +495,15 @@
                                             Двойное переключение</ComboBoxItem>
                                         <ComboBoxItem IsEnabled="False">Параллельный канал</ComboBoxItem>
                                     </ComboBox>
+                                    
+                                    <!-- WAS "{qc:Binding '$P==2?Visibility.Visible:Visibility.Collapsed', P={Binding  ElementName=Output3Type, Path=SelectedIndex}}"> -->
                                     <TextBlock Grid.Row ="3" Grid.Column="2" HorizontalAlignment ="Right" Text="Параллельный канал:" Padding="5"
-                                               Visibility="{qc:Binding '$P==2?Visibility.Visible:Visibility.Collapsed', P={Binding  ElementName=Output3Type, Path=SelectedIndex}}"></TextBlock>
+                                               Visibility= "Collapsed" >
+                                    </TextBlock>
+                                    
+                                    <!-- WAS "{qc:Binding '$P==2?Visibility.Visible:Visibility.Collapsed', P={Binding  ElementName=Output3Type, Path=SelectedIndex}}" -->
                                     <ComboBox x:Name="ParallelChannel4" Grid.Row ="3" Grid.Column="3" Margin="5,0,5,5"
-                                              Visibility="{qc:Binding '$P==2?Visibility.Visible:Visibility.Collapsed', P={Binding  ElementName=Output3Type, Path=SelectedIndex}}"
+                                              Visibility= "Collapsed"
                                               SelectedIndex="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Mode=TwoWay, Path=SelectedDevice.DiscreetOutputModuleConfiguration.ParallelChannelForOutput4}">
                                         <ComboBoxItem>Нет</ComboBoxItem>
                                         <ComboBoxItem
