@@ -85,6 +85,7 @@
     <Compile Include="DevicesFinderConfigWindow.xaml.cs">
       <DependentUpon>DevicesFinderConfigWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="EditableDataGrid.cs" />
     <Compile Include="ProtocolConfigWindow.xaml.cs">
       <DependentUpon>ProtocolConfigWindow.xaml</DependentUpon>
     </Compile>

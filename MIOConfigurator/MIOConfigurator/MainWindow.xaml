@@ -569,18 +569,18 @@
                                         </TextBlock.Background></TextBlock>
                                 </Border>
 
-                                <data:Proxy In="{Binding SelectedDeviceValidator, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Out="{Binding ElementName=ElementValidationRule, Path=Validator}"/>                                
-                                <DataGrid x:Name="RoutingMapGrid" Margin="10,3,10,10" AutoGenerateColumns="False" SelectionMode="Single" CanUserSortColumns="False" CanUserAddRows="False" CanUserResizeRows="False"
+                                <data:Proxy In="{Binding SelectedDeviceValidator, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Out="{Binding ElementName=ElementValidationRule, Path=Validator}"/>
+                                <local:EditableDataGrid x:Name="RoutingMapGrid" Margin="10,3,10,10" AutoGenerateColumns="False" SelectionMode="Single" CanUserSortColumns="False" CanUserAddRows="False" CanUserResizeRows="False"
                                             ItemsSource="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedDevice.RoutingMap}"
                                             Background="AliceBlue" ColumnWidth="*" EnableRowVirtualization="False">
-                                    <DataGrid.Resources>
+                                    <local:EditableDataGrid.Resources>
                                         <Style TargetType="{x:Type DataGridColumnHeader}">
                                             <Setter Property="Background" Value="Transparent" />
                                             <Setter Property="BorderBrush" Value="DarkGray"></Setter>
                                             <Setter Property="BorderThickness" Value="1"></Setter>
                                         </Style>
-                                    </DataGrid.Resources>
-                                    <DataGrid.Columns>
+                                    </local:EditableDataGrid.Resources>
+                                    <local:EditableDataGrid.Columns>
                                         <DataGridTextColumn Header="№" Width="Auto" IsReadOnly="True" 
                                                             Binding="{qc:Binding '$P.GetIndex()+1', P={Binding RelativeSource={RelativeSource AncestorType=DataGridRow}}}"
                                                             Foreground="Gray">
@@ -692,21 +692,22 @@
                                                 </DataTemplate>
                                             </DataGridTemplateColumn.CellEditingTemplate>
                                         </DataGridTemplateColumn>
-                                    </DataGrid.Columns>
+                                    </local:EditableDataGrid.Columns>
 
-                                    <DataGrid.RowValidationRules>
+                                    <local:EditableDataGrid.RowValidationRules>
                                         <data:RoutingElementValidationRule x:Name="ElementValidationRule" ValidationStep="CommittedValue" ValidatesOnTargetUpdated="True"/>
-                                    </DataGrid.RowValidationRules>
+                                    </local:EditableDataGrid.RowValidationRules>
 
-                                    <DataGrid.RowValidationErrorTemplate>
+                                    <local:EditableDataGrid.RowValidationErrorTemplate>
                                         <ControlTemplate>
-                                            <Grid Margin="0,-2,0,-2" ToolTip="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGridRow}},Path=(Validation.Errors)[0].ErrorContent}">
+                                            <Grid Margin="0,-2,0,-2" 
+                                                ToolTip="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGridRow}},Path=(Validation.Errors)[0].ErrorContent}">
                                                 <Ellipse StrokeThickness="0" Fill="Yellow" Width="{TemplateBinding FontSize}" Height="{TemplateBinding FontSize}" />
                                                 <TextBlock Text="!" FontSize="{TemplateBinding FontSize}" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Center"  VerticalAlignment="Center"/>
                                             </Grid>
                                         </ControlTemplate>
-                                    </DataGrid.RowValidationErrorTemplate>
-                                </DataGrid>                                
+                                    </local:EditableDataGrid.RowValidationErrorTemplate>
+                                </local:EditableDataGrid>                                
                             </DockPanel>
                         </DockPanel>
                     </TabItem>
