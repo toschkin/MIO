@@ -109,7 +109,7 @@ namespace MIOConfigurator
 
 
         private BackgroundWorker mainWindowBackgroundWorker = new BackgroundWorker();
-
+        
         public bool DeviceConfigurationChanged
         {
             get
@@ -234,9 +234,11 @@ namespace MIOConfigurator
         {            
             if (DevicesList.SelectedItem != null)
             {
-                if (IsSlectedDeviceConfigurationValid()==false)
+                DeviceValidator dv= new DeviceValidator(SelectedDevice);
+
+                if (dv.IsFullDeviceValid() == false)
                 {
-                    MessageBox.Show("В конфигурции устройства обнаружены ошибки!\nКонфигурация не может быть записана.",Constants.messageBoxTitle,MessageBoxButton.OK,MessageBoxImage.Stop);
+                    MessageBox.Show("В конфигурции устройства обнаружены ошибки!\nКонфигурация не может быть записана.\n" + dv.ToString(), Constants.messageBoxTitle, MessageBoxButton.OK, MessageBoxImage.Stop);
                     return;
                 }
                 _deviceReaderSaver.SlaveAddress = ((Device)DevicesList.SelectedItem).ModbusAddress;
@@ -942,7 +944,8 @@ namespace MIOConfigurator
 
         private void RouteCommandCanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
-            e.CanExecute = IsSlectedDeviceConfigurationValid();      
+            //e.CanExecute = IsSlectedDeviceConfigurationValid();
+            e.CanExecute = true;
         }
         public static DataGridRow GetRow(DataGrid grid, int index)
         {
@@ -1023,6 +1026,7 @@ namespace MIOConfigurator
                 if (((TreeViewItem) e.NewValue).Tag is DeviceModbusMasterQuery)
                 {
                     SelectedModbusQuery = (DeviceModbusMasterQuery) ((TreeViewItem) e.NewValue).Tag;
+                    PerformFullValidation();
                 }
                 else
                 {
@@ -1045,6 +1049,104 @@ namespace MIOConfigurator
         private void PortProtocolType_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {            
             DrawTree();
+        }
+
+        private void CmdReadFromFile_OnClick(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "MIO configuration file|*.mio";
+            openFileDialog.Title = "Прочитать конфигурацию";
+            openFileDialog.ShowDialog();
+            if (openFileDialog.FileName != "")
+            {
+                FileReaderSaver reader = new FileReaderSaver(openFileDialog.FileName);
+                if (SelectedDevice != null && SelectedDevice.ConfigurationReadFromDevice)
+                {
+                    ReaderSaverErrors Result = reader.ReadDeviceConfiguration(SelectedDevice);
+                    if (Result != ReaderSaverErrors.CodeOk)
+                    {
+                        СurrentlyProcessed.Text = "Чтение конфигурации завершено c ошибкой: " + Result.GetDescription();
+                    }
+                    else
+                    {
+                        UartPots.SelectedIndex = 0;
+                        DrawConfigurationTabs();
+
+                        NotifyPropertyChanged("SelectedDevice");                        
+                        NotifyPropertyChanged("SelectedPortConfiguration");             
+                        NotifyPropertyChanged("SelectedModbusQuery");
+
+                        СurrentlyProcessed.Text = "Чтение конфигурации завершено успешно";
+                    }
+                }
+            }            
+        }
+
+        private void CmdWriteToFile_OnClick(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "MIO configuration file|*.mio";
+            saveFileDialog.Title = "Сохранить конфигурацию";
+            saveFileDialog.ShowDialog();
+
+            // If the file name is not an empty string open it for saving.
+            if (saveFileDialog.FileName != "")
+            {                
+                FileReaderSaver saver = new FileReaderSaver(saveFileDialog.FileName);
+                if (SelectedDevice != null && SelectedDevice.ConfigurationReadFromDevice)
+                {
+                    ReaderSaverErrors Result = saver.SaveDeviceConfiguration(SelectedDevice);
+                    if (Result != ReaderSaverErrors.CodeOk)
+                    {
+                        СurrentlyProcessed.Text = "Запись конфигурации завершена c ошибкой: " + Result.GetDescription();
+                    }
+                    else
+                    {                        
+                        СurrentlyProcessed.Text = "Запись конфигурации завершена успешно";
+                    }
+                }                    
+            }
+        }
+
+        private void PerformFullValidation()
+        {
+            BindingExpression be = RoutingMapGrid.GetBindingExpression(DataGrid.ItemsSourceProperty);
+            if (be != null)
+                be.UpdateSource();
+            be = StartAddressOfModbusQueryTextBox.GetBindingExpression(TextBox.TextProperty);
+            if (be != null)
+                be.UpdateSource();
+            be = StatusAddressOfModbusQueryTextBox.GetBindingExpression(TextBox.TextProperty);
+            if (be != null)
+                be.UpdateSource();
+            be = RegistersCountInModbusQueryTextBox.GetBindingExpression(TextBox.TextProperty);
+            if (be != null)
+                be.UpdateSource();
+        }
+
+        private void ConfigurationTabs_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            PerformFullValidation();
+        }
+
+        private void RoutingMapGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+        {
+            PerformFullValidation();          
+        }
+
+        private void StatusAddressOfModbusQueryTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            PerformFullValidation();           
+        }
+
+        private void StartAddressOfModbusQueryTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            PerformFullValidation();
+        }
+
+        private void RegistersCountInModbusQueryTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            PerformFullValidation();
         }             
     }
 }

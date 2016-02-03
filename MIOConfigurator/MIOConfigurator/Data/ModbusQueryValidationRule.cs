@@ -30,8 +30,10 @@ namespace MIOConfigurator.Data
                     elementToValidate.RegistersCount = Convert.ToUInt16((string)value);  
                 if (Validator.ValidateModbusMasterQuery(elementToValidate) == false)
                 {
+                    Validator.NotifyOnValidation();
                     return new ValidationResult(false, Validator.ToString());
                 }
+                Validator.NotifyOnValidation();
             }          
             return ValidationResult.ValidResult;
         }

@@ -46,13 +46,16 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        <Style TargetType="TextBox">
+        <Style TargetType="{x:Type TextBox}">
             <Style.Triggers>
                 <Trigger Property="Validation.HasError" Value="True">
                     <Setter Property="ToolTip"
                         Value="{Binding RelativeSource={RelativeSource Self},
                     Path=(Validation.Errors)[0].ErrorContent}" />
                     <Setter Property="Foreground" Value="Red" />
+                </Trigger>
+                <Trigger Property="Validation.HasError" Value="False">                    
+                    <Setter Property="Foreground" Value="Black" />
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -152,7 +155,7 @@
             <ListBox x:Name="DevicesList" Grid.Row="1" Grid.Column="0" Margin="10,10,0,10" HorizontalAlignment="Stretch" 
                      HorizontalContentAlignment="Stretch" Background="Lavender" ItemsSource="{Binding Path=Devices, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}" SelectionChanged="DevicesList_OnSelectionChanged">
                 <ListBox.ContextMenu>
-                    <ContextMenu>
+                    <ContextMenu>                        
                         <MenuItem Header="_Удалить устройство из списка" 
                                   IsEnabled="{qc:Binding '$P!=-1', P={Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type ContextMenu}},Path=PlacementTarget.SelectedIndex}}"
                                   Style="{StaticResource ChildMenuStyle}" Click="CmdDelDeviceFromList_OnClick"/>
@@ -169,6 +172,15 @@
                         <MenuItem x:Name ="CmdRestart" Header="Выполнить перезагрузку устройства" 
                                   IsEnabled="{qc:Binding '$P!=-1', P={Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type ContextMenu}},Path=PlacementTarget.SelectedIndex}}" 
                                   Style="{StaticResource ChildMenuStyle}" Click="CmdRestart_OnClick" />
+                        <Separator></Separator>
+                        <MenuItem Header="Записать конфигурацию в файл" 
+                                  IsEnabled="{qc:MultiBinding '$P0!=-1 &amp;&amp; $P1==true', 
+                                    P0={Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type ContextMenu}},Path=PlacementTarget.SelectedIndex}, 
+                                    P1={Binding Path=SelectedDevice.ConfigurationReadFromDevice, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}}"                                  
+                                  Style="{StaticResource ChildMenuStyle}" Click="CmdWriteToFile_OnClick"/>
+                        <MenuItem Header="Прочитать конфигурацию из файла" 
+                                  IsEnabled="{qc:Binding '$P!=-1', P={Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type ContextMenu}},Path=PlacementTarget.SelectedIndex}}"
+                                  Style="{StaticResource ChildMenuStyle}" Click="CmdReadFromFile_OnClick"/>
                     </ContextMenu>
                 </ListBox.ContextMenu>
                 <ListBox.ItemTemplate>
@@ -195,7 +207,7 @@
                 ShowsPreview="False" Background="Lavender"></GridSplitter>
             <Grid Grid.Row="1" Grid.Column="2">
                 <TextBlock x:Name ="NoItemsTextBlock" Margin="0,10,10,10" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Нет элементов для отображения"/>
-                <TabControl x:Name ="ConfigurationTabs"  Margin="0,10,10,10" Background="Lavender" IsEnabled="{Binding WorkerStopped,RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, UpdateSourceTrigger=PropertyChanged}">
+                <TabControl x:Name ="ConfigurationTabs"  Margin="0,10,10,10" Background="Lavender" IsEnabled="{Binding WorkerStopped,RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, UpdateSourceTrigger=PropertyChanged}" SelectionChanged="ConfigurationTabs_OnSelectionChanged">
                     <TabControl.Resources>
                         <Style TargetType="{x:Type TabItem}">
                             <Setter Property="Template">
@@ -572,7 +584,7 @@
                                 <data:Proxy In="{Binding SelectedDeviceValidator, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Out="{Binding ElementName=ElementValidationRule, Path=Validator}"/>
                                 <local:EditableDataGrid x:Name="RoutingMapGrid" Margin="10,3,10,10" AutoGenerateColumns="False" SelectionMode="Single" CanUserSortColumns="False" CanUserAddRows="False" CanUserResizeRows="False"
                                             ItemsSource="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedDevice.RoutingMap}"
-                                            Background="AliceBlue" ColumnWidth="*" EnableRowVirtualization="False">
+                                            Background="AliceBlue" ColumnWidth="*" EnableRowVirtualization="False" CellEditEnding="RoutingMapGrid_CellEditEnding">
                                     <local:EditableDataGrid.Resources>
                                         <Style TargetType="{x:Type DataGridColumnHeader}">
                                             <Setter Property="Background" Value="Transparent" />
@@ -780,44 +792,44 @@
         		                                wpf:TextBoxMaskBehavior.MaximumValue="65535"
                                                 Text="{Binding Path=SelectedModbusQuery.RegistersStartAddress, Mode=TwoWay, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}"
                                                 IsEnabled="{qc:Binding '$P==null?false:true', P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedModbusQuery}}"></TextBox>
-                                    <TextBox Grid.Column="1" Grid.Row="3" Height ="Auto" HorizontalAlignment="Stretch" Margin="5" VerticalAlignment="Center"
+                                    <TextBox x:Name="RegistersCountInModbusQueryTextBox" Grid.Column="1" Grid.Row="3" Height ="Auto" HorizontalAlignment="Stretch" Margin="5" VerticalAlignment="Center"
                                                 wpf:TextBoxMaskBehavior.Mask="Integer"
         		                                wpf:TextBoxMaskBehavior.MinimumValue="0"
         		                                wpf:TextBoxMaskBehavior.MaximumValue="{qc:Binding '$P&gt;2?125:2000', P={Binding ElementName=ModbusFunctionCombobox, Path=SelectedIndex}}"                                                
                                                 IsEnabled="{qc:Binding '$P==null?false:true', P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedModbusQuery}}"
-                                                Validation.ErrorTemplate="{StaticResource ValidationFailed}">
+                                                Validation.ErrorTemplate="{StaticResource ValidationFailed}" LostFocus="RegistersCountInModbusQueryTextBox_LostFocus">
                                         <TextBox.Text>
                                             <Binding RelativeSource="{RelativeSource FindAncestor,AncestorType=Window}" Path="SelectedModbusQuery.RegistersCount" Mode="TwoWay" NotifyOnValidationError="True">
                                                 <Binding.ValidationRules>
-                                                    <data:ModbusQueryValidationRule x:Name="RegistersCountValidationRule" FieldNameToValidate="RegistersCount" ValidatesOnTargetUpdated="True"></data:ModbusQueryValidationRule>
+                                                    <data:ModbusQueryValidationRule x:Name="RegistersCountValidationRule" FieldNameToValidate="RegistersCount"></data:ModbusQueryValidationRule>
                                                 </Binding.ValidationRules>
                                             </Binding>
                                         </TextBox.Text>
                                     </TextBox>
-                                    <TextBox Grid.Column="1" Grid.Row="4" Height ="Auto" HorizontalAlignment="Stretch" Margin="5" VerticalAlignment="Center"
+                                    <TextBox x:Name="StartAddressOfModbusQueryTextBox"  Grid.Column="1" Grid.Row="4" Height ="Auto" HorizontalAlignment="Stretch" Margin="5" VerticalAlignment="Center"
                                                 wpf:TextBoxMaskBehavior.Mask="Integer"
         		                                wpf:TextBoxMaskBehavior.MinimumValue="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path= SelectedDevice.UserRegistersStartAddressOffset}"
         		                                wpf:TextBoxMaskBehavior.MaximumValue="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path= SelectedDevice.UserRegistersEndAddressOffset}"                                                
                                                 IsEnabled="{qc:Binding '$P==null?false:true', P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedModbusQuery}}"
-                                                Validation.ErrorTemplate="{StaticResource ValidationFailed}">
+                                                Validation.ErrorTemplate="{StaticResource ValidationFailed}" LostFocus="StartAddressOfModbusQueryTextBox_LostFocus">
                                         <TextBox.Text>
                                             <Binding RelativeSource="{RelativeSource FindAncestor,AncestorType=Window}" Path="SelectedModbusQuery.RouteStartAddress" Mode="TwoWay" NotifyOnValidationError="True">
                                                 <Binding.ValidationRules>
-                                                    <data:ModbusQueryValidationRule x:Name="RouteStartAddressValidationRule" FieldNameToValidate="RouteStartAddress" ValidatesOnTargetUpdated="True"></data:ModbusQueryValidationRule>
+                                                    <data:ModbusQueryValidationRule x:Name="RouteStartAddressValidationRule" FieldNameToValidate="RouteStartAddress"></data:ModbusQueryValidationRule>
                                                 </Binding.ValidationRules>    
                                             </Binding>                                            
                                         </TextBox.Text>                                        
                                     </TextBox>
-                                    <TextBox Grid.Column="1" Grid.Row="5" Height ="Auto" HorizontalAlignment="Stretch" Margin="5" VerticalAlignment="Center"
+                                    <TextBox x:Name="StatusAddressOfModbusQueryTextBox" Grid.Column="1" Grid.Row="5" Height ="Auto" HorizontalAlignment="Stretch" Margin="5" VerticalAlignment="Center"
                                                 wpf:TextBoxMaskBehavior.Mask="Integer"
         		                                wpf:TextBoxMaskBehavior.MinimumValue="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path= SelectedDevice.UserRegistersStartAddressOffset}"
         		                                wpf:TextBoxMaskBehavior.MaximumValue="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path= SelectedDevice.UserRegistersEndAddressOffset}"                                                
                                                 IsEnabled="{qc:Binding '$P==null?false:true', P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedModbusQuery}}"
-                                                Validation.ErrorTemplate="{StaticResource ValidationFailed}">
+                                                Validation.ErrorTemplate="{StaticResource ValidationFailed}" LostFocus="StatusAddressOfModbusQueryTextBox_LostFocus">
                                         <TextBox.Text>
                                             <Binding RelativeSource="{RelativeSource FindAncestor,AncestorType=Window}" Path="SelectedModbusQuery.QueryStatusAddress" Mode="TwoWay" NotifyOnValidationError="True">
                                                 <Binding.ValidationRules>
-                                                    <data:ModbusQueryValidationRule x:Name="QueryStatusAddressValidationRule" FieldNameToValidate="QueryStatusAddress" ValidatesOnTargetUpdated="True" ></data:ModbusQueryValidationRule>
+                                                    <data:ModbusQueryValidationRule x:Name="QueryStatusAddressValidationRule" FieldNameToValidate="QueryStatusAddress"></data:ModbusQueryValidationRule>
                                                 </Binding.ValidationRules>
                                             </Binding>
                                         </TextBox.Text>

@@ -223,33 +223,41 @@ namespace MIOConfig.PresentationLayer
             return true;
         }
 
-        public bool ValidateModbusMasterQuery(DeviceModbusMasterQuery modbusQuery)
+        public bool ValidateModbusMasterQuery(DeviceModbusMasterQuery modbusQuery,int portIndex = -1,int queryIndex=-1)
         {
+
+            String portAndQueryInfo = "";
+            if(portIndex>=0 && queryIndex>=0)
+                portAndQueryInfo = String.Format("[порт {0}, запрос {1}] ", portIndex + 1, queryIndex+1);
+            
+            if (modbusQuery.QueryConfigured == false)
+                return true;
+
             ValidationErrorList.Clear();
 
             bool retCode = true;
-
+           
             if ((modbusQuery.QueryStatusAddress >= modbusQuery.RouteStartAddress) && (modbusQuery.QueryStatusAddress < modbusQuery.RouteStartAddress + modbusQuery.RegistersCount))
             {
-                ValidationErrorList.Add("Наложение регистра статуса запроса с самим запросом");
+                ValidationErrorList.Add(portAndQueryInfo+"Наложение регистра статуса запроса Modbus с самим запросом ");
                 retCode = false;
             }
 
             if (modbusQuery.QueryStatusAddress < Definitions.USER_REGISTERS_OFFSET || modbusQuery.QueryStatusAddress > Definitions.USER_REGISTERS_OFFSET + _device.Configuration.HeaderFields.DeviceUserRegistersCount - 1)
             {
-                ValidationErrorList.Add(String.Format("Регистр статуса за пределами области пользовательских регистров: {0}..{1}", Definitions.USER_REGISTERS_OFFSET, Definitions.USER_REGISTERS_OFFSET + _device.Configuration.HeaderFields.DeviceUserRegistersCount - 1));
+                ValidationErrorList.Add(String.Format(portAndQueryInfo + "Регистр статуса запроса Modbus за пределами области пользовательских регистров: {0}..{1}", Definitions.USER_REGISTERS_OFFSET, Definitions.USER_REGISTERS_OFFSET + _device.Configuration.HeaderFields.DeviceUserRegistersCount - 1));
                 retCode = false;
             }
 
             if (modbusQuery.RouteStartAddress < Definitions.USER_REGISTERS_OFFSET || modbusQuery.RouteStartAddress > Definitions.USER_REGISTERS_OFFSET + _device.Configuration.HeaderFields.DeviceUserRegistersCount - 1)
             {
-                ValidationErrorList.Add(String.Format("Начало области целевых регистров запроса выходит за нижний предел области пользовательских регистров: {0}..{1}", Definitions.USER_REGISTERS_OFFSET, Definitions.USER_REGISTERS_OFFSET + _device.Configuration.HeaderFields.DeviceUserRegistersCount - 1));
+                ValidationErrorList.Add(String.Format(portAndQueryInfo + "Начало области целевых регистров запроса Modbus выходит за нижний предел области пользовательских регистров: {0}..{1}", Definitions.USER_REGISTERS_OFFSET, Definitions.USER_REGISTERS_OFFSET + _device.Configuration.HeaderFields.DeviceUserRegistersCount - 1));
                 retCode = false;
             }
 
             if (modbusQuery.RouteStartAddress + modbusQuery.RegistersCount - 1 > Definitions.USER_REGISTERS_OFFSET + _device.Configuration.HeaderFields.DeviceUserRegistersCount - 1)
             {
-                ValidationErrorList.Add(String.Format("Область целевых регистров запроса выходит за верхний предел области пользовательских регистров: {0}..{1}", Definitions.USER_REGISTERS_OFFSET, Definitions.USER_REGISTERS_OFFSET + _device.Configuration.HeaderFields.DeviceUserRegistersCount - 1));
+                ValidationErrorList.Add(String.Format(portAndQueryInfo + "Область целевых регистров запроса Modbus выходит за верхний предел области пользовательских регистров: {0}..{1}", Definitions.USER_REGISTERS_OFFSET, Definitions.USER_REGISTERS_OFFSET + _device.Configuration.HeaderFields.DeviceUserRegistersCount - 1));
                 retCode = false;
             }
 
@@ -259,7 +267,7 @@ namespace MIOConfig.PresentationLayer
                     &&
                     (_device.RoutingMap[route].RouteTo < modbusQuery.RouteStartAddress + modbusQuery.RegistersCount))
                 {
-                    ValidationErrorList.Add(String.Format("Наложение целевых регистров запроса с маршрутом №{0}", route + 1));
+                    ValidationErrorList.Add(String.Format(portAndQueryInfo + "Наложение целевых регистров запроса Modbus с маршрутом №{0}", route + 1));
                     retCode = false;
                 }
             }
@@ -274,18 +282,40 @@ namespace MIOConfig.PresentationLayer
                     {
                         if (Utility.IsIntersect(modbusQuery.RouteStartAddress, modbusQuery.RouteStartAddress + modbusQuery.RegistersCount - 1, _device.Configuration.ModbusMasterQueriesOnUartPorts[port][query].RouteStartAddress, _device.Configuration.ModbusMasterQueriesOnUartPorts[port][query].RouteStartAddress + _device.Configuration.ModbusMasterQueriesOnUartPorts[port][query].RegistersCount - 1))
                         {
-                            ValidationErrorList.Add(String.Format("Наложение целевых регистров запроса с запросом Modbus master: порт № {0}, запрос № {1}", port + 1, query + 1));
+                            ValidationErrorList.Add(String.Format(portAndQueryInfo + "Наложение целевых регистров запроса с запросом Modbus master: порт № {0}, запрос № {1}", port + 1, query + 1));
                             retCode = false;
                         }
                         if ((modbusQuery.QueryStatusAddress >= _device.Configuration.ModbusMasterQueriesOnUartPorts[port][query].RouteStartAddress) && (modbusQuery.QueryStatusAddress < _device.Configuration.ModbusMasterQueriesOnUartPorts[port][query].RouteStartAddress + _device.Configuration.ModbusMasterQueriesOnUartPorts[port][query].RegistersCount))
                         {
-                            ValidationErrorList.Add(String.Format("Наложение регистра статуса запроса с запросом Modbus master: порт № {0}, запрос № {1}", port + 1, query + 1));
+                            ValidationErrorList.Add(String.Format(portAndQueryInfo + "Наложение регистра статуса запроса с запросом Modbus master: порт № {0}, запрос № {1}", port + 1, query + 1));
                             retCode = false;
                         }
                     }
                 }
             }
+                        
             return retCode;
+        }
+
+        public bool IsFullDeviceValid()
+        {            
+            foreach (var route in _device.RoutingMap)
+            {
+                if (route.RouteConfigured)
+                {
+                    if (!ValidateRoutingMapElement(route))
+                        return false;    
+                }                
+            }
+            for (int port = 0; port < _device.ModbusMasterPortsQueries.Count; port++)
+            {
+                for (int query = 0; query < _device.ModbusMasterPortsQueries[port].Count; query++)
+                {
+                    if (!ValidateModbusMasterQuery(_device.ModbusMasterPortsQueries[port][query],port,query))
+                        return false;    
+                }
+            }           
+            return true;
         }
         #endregion
 
