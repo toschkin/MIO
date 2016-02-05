@@ -10,6 +10,18 @@ namespace MIOConfig
     [Serializable]
     public class DeviceModbusMasterQuery
     {
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            Type t = this.GetType();
+            foreach (var prop in t.GetProperties())
+            {
+                sb.AppendFormat("{0}={1}\t", prop.Name, prop.GetValue(this,null));
+
+            }
+            return sb.ToString();
+        }
+
         public DeviceModbusMasterQuery()
         {            
             SlaveAddress = 1;

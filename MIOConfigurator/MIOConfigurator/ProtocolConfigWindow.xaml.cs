@@ -39,7 +39,7 @@ namespace MIOConfigurator
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             
-            if (_protocol.Connect((string)ComPorts.SelectedItem, (int)ComSpeed.SelectedItem, (Byte)ComByteSize.SelectedItem, (StopBits)ComStopBits.SelectedItem, (Parity)ComParity.SelectedItem, Convert.ToInt32(ModbusTimeout.Text)) == false)
+            if (_protocol.Connect((string)ComPorts.SelectedItem, (int)ComSpeed.SelectedItem, (Byte)ComByteSize.SelectedItem, (StopBits)(ComStopBits.SelectedIndex+1), (Parity)ComParity.SelectedItem, Convert.ToInt32(ModbusTimeout.Text)) == false)
             {
                 MessageBox.Show("Не удалось подключиться на выбранный СОМ-порт: "+ComPorts.Text);
                 return;
@@ -52,7 +52,7 @@ namespace MIOConfigurator
             currentCommunicationParameters.DefaultComSpeed = (int)ComSpeed.SelectedItem;
             currentCommunicationParameters.DefaultComByteSize = (Byte)ComByteSize.SelectedItem;
             currentCommunicationParameters.DefaultComParity = (Parity) ComParity.SelectedItem;
-            currentCommunicationParameters.DefaultComStopBits = (StopBits) ComStopBits.SelectedItem;
+            currentCommunicationParameters.DefaultComStopBits = (StopBits) ComStopBits.SelectedIndex+1;
             currentCommunicationParameters.DefaultModbusTimeOut = Convert.ToInt32(ModbusTimeout.Text);
             currentCommunicationParameters.DefaultModbusSilentInterval = Convert.ToInt32(ModbusSilentInterval.Text);
             currentCommunicationParameters.DefaultModbusWriteCapacity = Convert.ToInt32(ModbusWriteCapacity.Text);
@@ -81,10 +81,10 @@ namespace MIOConfigurator
                 select parity;
             ComParity.SelectedItem = currentCommunicationParameters.DefaultComParity;
 
-            ComStopBits.ItemsSource = from bits in ModbusCommunicationParameters.AvailableComStopBits
+            /*ComStopBits.ItemsSource = from bits in ModbusCommunicationParameters.AvailableComStopBits
                 where bits == StopBits.One || bits == StopBits.Two
-                select bits;
-            ComStopBits.SelectedItem = currentCommunicationParameters.DefaultComStopBits;
+                select bits;*/
+            ComStopBits.SelectedIndex = (int)(currentCommunicationParameters.DefaultComStopBits)-1;
 
             ModbusTimeout.Text = currentCommunicationParameters.DefaultModbusTimeOut.ToString();
             ModbusSilentInterval.Text = currentCommunicationParameters.DefaultModbusSilentInterval.ToString();

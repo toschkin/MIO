@@ -229,7 +229,10 @@ namespace MIOConfig.PresentationLayer
             String portAndQueryInfo = "";
             if(portIndex>=0 && queryIndex>=0)
                 portAndQueryInfo = String.Format("[порт {0}, запрос {1}] ", portIndex + 1, queryIndex+1);
-            
+
+            if (_device.Configuration.UartPorts[portIndex].PortProtocolType != Definitions.MODBUS_MASTER_PROTOCOL)
+                return true;
+
             if (modbusQuery.QueryConfigured == false)
                 return true;
 

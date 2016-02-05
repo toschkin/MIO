@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -459,6 +460,12 @@ namespace MIOConfigurator
             DrawTree();
         }
 
+        private void DrawEmptySpace()
+        {
+            NoItemsTextBlock.Visibility = Visibility.Visible;
+            ConfigurationTabs.Visibility = Visibility.Collapsed;
+        }
+
         private void DrawTree()
         {
             ModbusQueriesTreeView.Items.Clear();
@@ -495,13 +502,7 @@ namespace MIOConfigurator
                 }                
             }           
         }
-
-
-        private void DrawEmptySpace()
-        {
-            NoItemsTextBlock.Visibility = Visibility.Visible;
-            ConfigurationTabs.Visibility = Visibility.Collapsed;
-        }
+        
         //afterworker actions
         private void Disconnect()
         {            
@@ -1022,11 +1023,17 @@ namespace MIOConfigurator
         private void ModbusQueriesTreeView_OnSelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             if (e.NewValue is TreeViewItem)
-            {
+            {                
                 if (((TreeViewItem) e.NewValue).Tag is DeviceModbusMasterQuery)
                 {
+                    Debug.WriteLine("Before");
+                    PrintModbusQueriesTreeView();
+
                     SelectedModbusQuery = (DeviceModbusMasterQuery) ((TreeViewItem) e.NewValue).Tag;
                     PerformFullValidation();
+                    
+                    Debug.WriteLine("After");
+                    PrintModbusQueriesTreeView();
                 }
                 else
                 {
@@ -1110,7 +1117,7 @@ namespace MIOConfigurator
 
         private void PerformFullValidation()
         {
-            BindingExpression be = RoutingMapGrid.GetBindingExpression(DataGrid.ItemsSourceProperty);
+            /*BindingExpression be = RoutingMapGrid.GetBindingExpression(DataGrid.ItemsSourceProperty);
             if (be != null)
                 be.UpdateSource();
             be = StartAddressOfModbusQueryTextBox.GetBindingExpression(TextBox.TextProperty);
@@ -1121,7 +1128,7 @@ namespace MIOConfigurator
                 be.UpdateSource();
             be = RegistersCountInModbusQueryTextBox.GetBindingExpression(TextBox.TextProperty);
             if (be != null)
-                be.UpdateSource();
+                be.UpdateSource();*/
         }
 
         private void ConfigurationTabs_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -1147,6 +1154,18 @@ namespace MIOConfigurator
         private void RegistersCountInModbusQueryTextBox_LostFocus(object sender, RoutedEventArgs e)
         {
             PerformFullValidation();
-        }             
+        }
+
+        private void PrintModbusQueriesTreeView()
+        {
+            foreach (TreeViewItem portView in ModbusQueriesTreeView.Items)
+            {
+                foreach (TreeViewItem queryView in ((TreeViewItem)(portView)).Items)
+                {
+                    Debug.WriteLine(portView.Header + " " + queryView.Header + "\t" + ((DeviceModbusMasterQuery)(queryView.Tag)));                    
+                }
+            }
+            
+        }
     }
 }
