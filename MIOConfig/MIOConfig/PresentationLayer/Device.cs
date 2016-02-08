@@ -133,6 +133,10 @@ namespace MIOConfig
             get { return Configuration.HeaderFields.ModuleRouter; }            
         }
 
+        public UInt16 UserRegistersCount { get { return Configuration.HeaderFields.DeviceUserRegistersCount; }}
+        
+        
+
         public DateTime ConfigurationTime
         {
             get { return Configuration.LastConfigurationTime.ConfigurationTime; }
@@ -185,6 +189,11 @@ namespace MIOConfig
                 if (Configuration.RoutingHeader != null)
                     return Configuration.RoutingHeader.RoutingTableSize;
                 return 0;
+            }
+            set
+            {
+                if (Configuration.RoutingHeader != null)
+                    Configuration.RoutingHeader.RoutingTableSize = value;
             }
         }
         public ObservableCollection<DeviceRoutingTableElement> RoutingMap

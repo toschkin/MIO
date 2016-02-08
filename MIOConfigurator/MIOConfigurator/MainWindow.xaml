@@ -545,9 +545,20 @@
                                         <DropShadowEffect Direction="310" Color="#FFA09C9C"/>
                                     </TextBlock.Effect>
                                 </TextBlock>
+                                <TextBox                                                     
+                                        x:Name="TextBoxRouteCount"
+                                        wpf:TextBoxMaskBehavior.Mask="Integer"
+        		                        wpf:TextBoxMaskBehavior.MinimumValue="0"
+        		                        wpf:TextBoxMaskBehavior.MaximumValue="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path= SelectedDevice.UserRegistersCount}"
+                                        Text="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window},Path=SelectedDevice.ConfiguredRoutingMapSize,Mode=TwoWay}"
+                                        Width="100" Margin="10,0">                                    
+                                </TextBox>
+                                
+                                <!--
                                 <TextBlock Margin="10,0,0,0" FontSize="16" FontWeight="Bold" TextAlignment="Center" Foreground="Green" 
                                            Text="{Binding UpdateSourceTrigger=PropertyChanged, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedDevice.ConfiguredRoutingMapSize}">
                                 </TextBlock>
+                                -->
                                 <!--
                                 <Button x:Name="AddRoute" Style="{DynamicResource EmptyButtonStyle}" Command="{x:Static local:MainWindow.AddRouteCommand}">
                                     <Image Height="32" Width="32" Source="Images/add-icon.png" Style="{DynamicResource ButtonImageHoverStyle}">
@@ -583,6 +594,7 @@
                                 </Border>
 
                                 <data:Proxy In="{Binding SelectedDeviceValidator, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Out="{Binding ElementName=ElementValidationRule, Path=Validator}"/>
+                                
                                 <local:EditableDataGrid x:Name="RoutingMapGrid" Margin="10,3,10,10" AutoGenerateColumns="False" SelectionMode="Single" CanUserSortColumns="False" CanUserAddRows="False" CanUserResizeRows="False"
                                             ItemsSource="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedDevice.RoutingMap}"
                                             Background="AliceBlue" ColumnWidth="*" EnableRowVirtualization="False" CellEditEnding="RoutingMapGrid_CellEditEnding">
@@ -708,7 +720,9 @@
                                     </local:EditableDataGrid.Columns>
 
                                     <local:EditableDataGrid.RowValidationRules>
+                                        <!--
                                         <data:RoutingElementValidationRule x:Name="ElementValidationRule" ValidationStep="CommittedValue" ValidatesOnTargetUpdated="True"/>
+                                        -->
                                     </local:EditableDataGrid.RowValidationRules>
 
                                     <local:EditableDataGrid.RowValidationErrorTemplate>
@@ -803,7 +817,9 @@
                                         <TextBox.Text>
                                             <Binding RelativeSource="{RelativeSource FindAncestor,AncestorType=Window}" Path="SelectedModbusQuery.RegistersCount" Mode="TwoWay" NotifyOnValidationError="True">
                                                 <Binding.ValidationRules>
+                                                    <!--
                                                     <data:ModbusQueryValidationRule x:Name="RegistersCountValidationRule" FieldNameToValidate="RegistersCount"></data:ModbusQueryValidationRule>
+                                                    -->
                                                 </Binding.ValidationRules>
                                             </Binding>
                                         </TextBox.Text>
@@ -817,7 +833,9 @@
                                         <TextBox.Text>
                                             <Binding RelativeSource="{RelativeSource FindAncestor,AncestorType=Window}" Path="SelectedModbusQuery.RouteStartAddress" Mode="TwoWay" NotifyOnValidationError="True">
                                                 <Binding.ValidationRules>
+                                                    <!--
                                                     <data:ModbusQueryValidationRule x:Name="RouteStartAddressValidationRule" FieldNameToValidate="RouteStartAddress"></data:ModbusQueryValidationRule>
+                                                    -->
                                                 </Binding.ValidationRules>    
                                             </Binding>                                            
                                         </TextBox.Text>                                        
@@ -831,7 +849,9 @@
                                         <TextBox.Text>
                                             <Binding RelativeSource="{RelativeSource FindAncestor,AncestorType=Window}" Path="SelectedModbusQuery.QueryStatusAddress" Mode="TwoWay" NotifyOnValidationError="True">
                                                 <Binding.ValidationRules>
+                                                    <!--
                                                     <data:ModbusQueryValidationRule x:Name="QueryStatusAddressValidationRule" FieldNameToValidate="QueryStatusAddress"></data:ModbusQueryValidationRule>
+                                                    -->
                                                 </Binding.ValidationRules>
                                             </Binding>
                                         </TextBox.Text>

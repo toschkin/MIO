@@ -1117,10 +1117,16 @@ namespace MIOConfigurator
 
         private void PerformFullValidation()
         {
-            /*BindingExpression be = RoutingMapGrid.GetBindingExpression(DataGrid.ItemsSourceProperty);
-            if (be != null)
-                be.UpdateSource();
-            be = StartAddressOfModbusQueryTextBox.GetBindingExpression(TextBox.TextProperty);
+            /*foreach (var rule in RoutingMapGrid.RowValidationRules)
+            {
+               rule.Validate() 
+            }
+            
+            BindingExpression be = RoutingMapGrid.GetBindingExpression(DataGrid.it);
+            //if (be != null)
+                //be.ValidateWithoutUpdate();
+            //be.UpdateTarget();
+            /*be = StartAddressOfModbusQueryTextBox.GetBindingExpression(TextBox.TextProperty);
             if (be != null)
                 be.UpdateSource();
             be = StatusAddressOfModbusQueryTextBox.GetBindingExpression(TextBox.TextProperty);
