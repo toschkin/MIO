@@ -232,8 +232,8 @@ namespace MIOConfig
                                 _deviceConfiguration.UartPorts.IndexOf(this)][query].QueryConfigured == false)
                             return query;
                     }
-                }
-                //return  (Byte)_deviceConfiguration.ModbusMasterQueriesOnUartPorts[_deviceConfiguration.UartPorts.IndexOf(this)].Aggregate(0, (current, query) => query.QueryConfigured ? current + 1 : current);
+                    return (Byte)_deviceConfiguration.ModbusMasterQueriesOnUartPorts[_deviceConfiguration.UartPorts.IndexOf(this)].Count;
+                }                
                 return _portMasterRequestCount;
             }
             set

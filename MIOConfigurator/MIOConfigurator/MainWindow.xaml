@@ -797,8 +797,8 @@
                                               SelectedIndex="{qc:Binding '$P>0?$P-1:0', ConvertBack='$value+1', P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window},Mode=TwoWay, Path=SelectedModbusQuery.ModbusFuctionCode}}"
                                               IsEnabled="{qc:Binding '$P==null?false:true', P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedModbusQuery}}"
                                               x:Name="ModbusFunctionCombobox">
-                                        <ComboBoxItem>(1)Coil Status</ComboBoxItem>
-                                        <ComboBoxItem>(2)Input Status</ComboBoxItem>
+                                        <ComboBoxItem Visibility="Collapsed">(1)Coil Status</ComboBoxItem>
+                                        <ComboBoxItem Visibility="Collapsed">(2)Input Status</ComboBoxItem>
                                         <ComboBoxItem>(3)Holding Register</ComboBoxItem>
                                         <ComboBoxItem>(4)Input Register</ComboBoxItem>
                                     </ComboBox>
