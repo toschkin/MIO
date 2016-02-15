@@ -1173,5 +1173,10 @@ namespace MIOConfigurator
             }
             
         }
+
+        private void StatusesMonitor_OnClick(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Not implemented yet.");
+        }
     }
 }
