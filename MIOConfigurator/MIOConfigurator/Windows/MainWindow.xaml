@@ -417,7 +417,7 @@
                     </TabItem>
                     <TabItem Header="Модуль ТУ" Visibility="{qc:Binding '!$P ? Visibility.Collapsed : Visibility.Visible',                                                     
                                                 P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedDevice.ModuleDOPresent}}">
-                        <StackPanel Margin="5">
+                        <StackPanel UseLayoutRounding="True" Margin="5">
                             <CheckBox Content="Модуль в работе" Margin="10,10,10,0" 
                                               IsChecked="{qc:Binding '$P == 1', ConvertBack='$value?1:0',  P={Binding Path=SelectedDevice.DiscreetOutputModuleConfiguration.ModuleOperation, Mode=TwoWay, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}}">
                             </CheckBox>
@@ -536,7 +536,7 @@
                     </TabItem>
                     <TabItem Header="Ретранслятор" Visibility="{qc:Binding '!$P ? Visibility.Collapsed : Visibility.Visible',                                                     
                                                 P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedDevice.ModuleRouterPresent}}">
-                        <DockPanel Margin="5">
+                        <DockPanel Margin="5" UseLayoutRounding="True">
                             <CheckBox DockPanel.Dock="Top" Content="Модуль в работе" Margin="10,10,10,0" 
                                               IsChecked="{Binding  Path=SelectedDevice.RoutingEnabled, Mode=TwoWay, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}">
                             </CheckBox>
