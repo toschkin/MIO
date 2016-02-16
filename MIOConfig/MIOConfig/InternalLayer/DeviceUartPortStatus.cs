@@ -46,7 +46,7 @@ namespace MIOConfig
                 case 12:
                     return "MODBUS_MASTER ошибка контрольной суммы в ответе";
             }
-            return "Неизвестный код ошибки";
+            return String.Format("Неизвестный код ошибки: {0}", StatusRegister);
         }
     }
 }

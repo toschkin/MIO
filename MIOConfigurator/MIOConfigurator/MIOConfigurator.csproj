@@ -35,7 +35,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>.\Images\device_and_hardware.ico</ApplicationIcon>
+    <ApplicationIcon>device_and_hardware.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Expression.Interactions, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -82,37 +82,41 @@
     <Compile Include="Data\ModbusCommunicationParameters.cs" />
     <Compile Include="Data\ModbusQueryValidationRule.cs" />
     <Compile Include="Data\Proxy.cs" />
-    <Compile Include="DevicesFinderConfigWindow.xaml.cs">
-      <DependentUpon>DevicesFinderConfigWindow.xaml</DependentUpon>
+    <Compile Include="Data\RoutingElementValidationRule.cs" />
+    <Compile Include="Utilites\EditableDataGrid.cs" />
+    <Compile Include="Windows\DevicesFinderConfigWindow.xaml.cs" />
+    <Compile Include="Windows\DeviceStatusesWindow.xaml.cs">
+      <DependentUpon>DeviceStatusesWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="EditableDataGrid.cs" />
-    <Compile Include="ProtocolConfigWindow.xaml.cs">
+    <Compile Include="Windows\MainWindow.xaml.cs">
+      <DependentUpon>MainWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\ProtocolConfigWindow.xaml.cs">
       <DependentUpon>ProtocolConfigWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Data\RoutingElementValidationRule.cs" />
-    <Page Include="DevicesFinderConfigWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="LavenderTheme.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="MainWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
     </Page>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MainWindow.xaml.cs">
-      <DependentUpon>MainWindow.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Page Include="ProtocolConfigWindow.xaml">
+    <Page Include="Windows\DevicesFinderConfigWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\DeviceStatusesWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\MainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\ProtocolConfigWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
   <ItemGroup>
@@ -144,24 +148,25 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\connected.png" />
+    <Resource Include="Windows\Images\add-icon.png" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Utilites\" />
-    <Folder Include="Windows\" />
+    <Resource Include="Windows\Images\connected.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\rtu.png" />
+    <Resource Include="Windows\Images\del-icon.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\port-icon.png" />
+    <Resource Include="Windows\Images\device_and_hardware.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\add-icon.png" />
-    <Resource Include="Images\del-icon.png" />
+    <Resource Include="Windows\Images\port-icon.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\device_and_hardware.ico" />
+    <Resource Include="Windows\Images\rtu.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="device_and_hardware.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

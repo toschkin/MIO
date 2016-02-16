@@ -1,35 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 using EnumExtension;
 using Microsoft.Win32;
 using MIOConfig;
 using MIOConfig.PresentationLayer;
 using Modbus.Core;
-using MIOConfigurator;
 
-namespace MIOConfigurator
+namespace MIOConfigurator.Windows
 {    
     /// <summary>
     /// Логика взаимодействия для MainWindow.xaml
@@ -199,7 +186,7 @@ namespace MIOConfigurator
                 if (device.ModbusAddress == _deviceReaderSaver.SlaveAddress)
                 {
                     worker.ReportProgress(1);
-                    Dispatcher.Invoke(new Action(() =>
+                    Dispatcher.BeginInvoke(new Action(() =>
                     {
                         retCode = device.ReadConfiguration(_deviceReaderSaver);    
                     }));                                    
@@ -788,7 +775,7 @@ namespace MIOConfigurator
         {
             foreach (var device in Devices)
             {
-                if (device.ModbusAddress == Convert.ToByte(SlaveConcreteAddress.Text))
+                if (device.ModbusAddress == Convert.ToByte((string) SlaveConcreteAddress.Text))
                 {
                     DevicesList.ScrollIntoView(device);
                     return;
@@ -801,8 +788,8 @@ namespace MIOConfigurator
             CmdAddDeviceToList.IsEnabled = false;
             CmdCancelSearchDevices.IsEnabled = true;
             СurrentlyProcessed.Text = "Поиск устройства...";
-            _deviceFinder.StartSlaveAddress = Convert.ToByte(SlaveConcreteAddress.Text);
-            _deviceFinder.EndSlaveAddress = Convert.ToByte(SlaveConcreteAddress.Text);
+            _deviceFinder.StartSlaveAddress = Convert.ToByte((string) SlaveConcreteAddress.Text);
+            _deviceFinder.EndSlaveAddress = Convert.ToByte((string) SlaveConcreteAddress.Text);
             _deviceFinder.TargetVersion = 0;
             ProcessingProgress.Minimum = 0;
             ProcessingProgress.Maximum = 1;
@@ -866,7 +853,7 @@ namespace MIOConfigurator
                 return;
             foreach (var port in SelectedDevice.UartPortsConfigurations)
             {
-                port.PortModbusAddress = Convert.ToByte(PortModbusAddress.Text);
+                port.PortModbusAddress = Convert.ToByte((string) PortModbusAddress.Text);
             }
         }
         
@@ -1176,7 +1163,16 @@ namespace MIOConfigurator
 
         private void StatusesMonitor_OnClick(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Not implemented yet.");
+            DeviceStatusesWindow statusesWindowMonitor = new DeviceStatusesWindow();
+            statusesWindowMonitor.Owner = this;
+            statusesWindowMonitor.CurrentStatuses.UartPortStatuses.Clear();
+            _deviceReaderSaver.SlaveAddress = ((Device)DevicesList.SelectedItem).ModbusAddress;
+            foreach (var port in SelectedDevice.UartPortsConfigurations)
+            {
+                statusesWindowMonitor.CurrentStatuses.UartPortStatuses.Add(new DeviceUartPortStatus());
+            }
+            statusesWindowMonitor.ModbusReader = _deviceReaderSaver;
+            statusesWindowMonitor.ShowDialog();
         }
     }
 }

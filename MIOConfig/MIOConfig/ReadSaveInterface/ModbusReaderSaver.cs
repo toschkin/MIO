@@ -114,7 +114,7 @@ namespace MIOConfig
             return PerformReading(ref tempList);
         }
 
-        internal ReaderSaverErrors ReadModuleRegisters(IDeviceModule module)
+        public ReaderSaverErrors ReadModuleRegisters(IDeviceModule module)
         {
             List<object> listOfConfigurationItems = module.ToList();
 

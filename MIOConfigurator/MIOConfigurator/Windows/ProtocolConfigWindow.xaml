@@ -1,4 +1,4 @@
-﻿<Window x:Name="ConnectionConfig" x:Class="MIOConfigurator.ProtocolConfigWindow"
+﻿<Window x:Name="ConnectionConfig" x:Class="MIOConfigurator.Windows.ProtocolConfigWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:commonWPF="clr-namespace:Rubenhak.Common.WPF;assembly=Rubenhak.Common.WPF"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"

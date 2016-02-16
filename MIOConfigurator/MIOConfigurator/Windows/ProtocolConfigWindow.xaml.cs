@@ -1,22 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO.Ports;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using Microsoft.Win32;
 using Modbus.Core;
 
-namespace MIOConfigurator
+namespace MIOConfigurator.Windows
 {    
     /// <summary>
     /// Логика взаимодействия для ProtocolConfigWindow.xaml
@@ -39,24 +27,24 @@ namespace MIOConfigurator
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             
-            if (_protocol.Connect((string)ComPorts.SelectedItem, (int)ComSpeed.SelectedItem, (Byte)ComByteSize.SelectedItem, (StopBits)(ComStopBits.SelectedIndex+1), (Parity)ComParity.SelectedItem, Convert.ToInt32(ModbusTimeout.Text)) == false)
+            if (_protocol.Connect((string)ComPorts.SelectedItem, (int)ComSpeed.SelectedItem, (Byte)ComByteSize.SelectedItem, (StopBits)(ComStopBits.SelectedIndex+1), (Parity)ComParity.SelectedItem, Convert.ToInt32((string) ModbusTimeout.Text)) == false)
             {
                 MessageBox.Show("Не удалось подключиться на выбранный СОМ-порт: "+ComPorts.Text);
                 return;
             }
-            _protocol.SilentInterval = Convert.ToInt32(ModbusSilentInterval.Text);
-            _protocol.WriteRegistersPerQueryCapacity = Convert.ToByte(ModbusWriteCapacity.Text);
-            _protocol.ReadRegistersPerQueryCapacity = Convert.ToByte(ModbusReadCapacity.Text);
+            _protocol.SilentInterval = Convert.ToInt32((string) ModbusSilentInterval.Text);
+            _protocol.WriteRegistersPerQueryCapacity = Convert.ToByte((string) ModbusWriteCapacity.Text);
+            _protocol.ReadRegistersPerQueryCapacity = Convert.ToByte((string) ModbusReadCapacity.Text);
 
             currentCommunicationParameters.DefaultComPort = (string)ComPorts.SelectedItem;
             currentCommunicationParameters.DefaultComSpeed = (int)ComSpeed.SelectedItem;
             currentCommunicationParameters.DefaultComByteSize = (Byte)ComByteSize.SelectedItem;
             currentCommunicationParameters.DefaultComParity = (Parity) ComParity.SelectedItem;
             currentCommunicationParameters.DefaultComStopBits = (StopBits) ComStopBits.SelectedIndex+1;
-            currentCommunicationParameters.DefaultModbusTimeOut = Convert.ToInt32(ModbusTimeout.Text);
-            currentCommunicationParameters.DefaultModbusSilentInterval = Convert.ToInt32(ModbusSilentInterval.Text);
-            currentCommunicationParameters.DefaultModbusWriteCapacity = Convert.ToInt32(ModbusWriteCapacity.Text);
-            currentCommunicationParameters.DefaultModbusReadCapacity = Convert.ToInt32(ModbusReadCapacity.Text);
+            currentCommunicationParameters.DefaultModbusTimeOut = Convert.ToInt32((string) ModbusTimeout.Text);
+            currentCommunicationParameters.DefaultModbusSilentInterval = Convert.ToInt32((string) ModbusSilentInterval.Text);
+            currentCommunicationParameters.DefaultModbusWriteCapacity = Convert.ToInt32((string) ModbusWriteCapacity.Text);
+            currentCommunicationParameters.DefaultModbusReadCapacity = Convert.ToInt32((string) ModbusReadCapacity.Text);
             DialogResult = true;            
         }
 

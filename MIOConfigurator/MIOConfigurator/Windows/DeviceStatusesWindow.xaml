@@ -1,0 +1,78 @@
+﻿<Window x:Class="MIOConfigurator.Windows.DeviceStatusesWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MIOConfigurator.Windows"
+        xmlns:qc="http://QuickConverter.CodePlex.com/"
+        mc:Ignorable="d"
+        Title="Статусы устройства" Height="350" Width="450"
+        Background="{DynamicResource GradientThemeBrush}"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize" Loaded="Window_Loaded" Closing="Window_Closing" >
+    
+    <DockPanel Margin="10">
+        <TextBlock DockPanel.Dock="Top" Text="Статусы коммуникационных портов устройства" Padding="10"></TextBlock>
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal">
+            <TextBlock  Text="Статус обмена с устройством:" Padding="10"></TextBlock>
+            <TextBlock  x:Name="ExchangeStatus" Padding="10" Width="Auto" FontWeight="Bold"></TextBlock>
+        </StackPanel>
+        <DataGrid x:Name="PortsStatusesDataGrid" DockPanel.Dock="Bottom"
+                  ItemsSource="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=UartPortStatuses, UpdateSourceTrigger=PropertyChanged}"
+                  EnableRowVirtualization="False"
+                  Background="Lavender"
+                  AutoGenerateColumns="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="№ порта" Width="Auto" IsReadOnly="True" 
+                                                            Binding="{qc:Binding '$P.GetIndex()+1', P={Binding RelativeSource={RelativeSource AncestorType=DataGridRow}}}"
+                                                            >
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="HorizontalContentAlignment" Value="Center" />
+                            <Setter Property="Padding" Value="5"></Setter>
+                            <Setter Property="BorderBrush" Value="DarkGray"></Setter>
+                            <Setter Property="BorderThickness" Value="1"></Setter>
+                            <Setter Property="Background">
+                                <Setter.Value>
+                                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                        <GradientStop Color="DarkSalmon" Offset="0"></GradientStop>
+                                        <GradientStop Color="White" Offset="1"></GradientStop>
+                                    </LinearGradientBrush>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="Background">
+                                <Setter.Value>
+                                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                        <GradientStop Color="LightGray" Offset="0"></GradientStop>
+                                        <GradientStop Color="White" Offset="1"></GradientStop>
+                                    </LinearGradientBrush>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Статуc" Width="*" Binding="{Binding}" IsReadOnly="True" >
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="HorizontalContentAlignment" Value="Center" />
+                            <Setter Property="Padding" Value="5"></Setter>
+                            <Setter Property="BorderBrush" Value="DarkGray"></Setter>
+                            <Setter Property="BorderThickness" Value="1"></Setter>
+                            <Setter Property="Background">
+                                <Setter.Value>
+                                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                        <GradientStop Color="DarkSeaGreen" Offset="0"></GradientStop>
+                                        <GradientStop Color="White" Offset="1"></GradientStop>
+                                    </LinearGradientBrush>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+    </DockPanel>
+</Window>

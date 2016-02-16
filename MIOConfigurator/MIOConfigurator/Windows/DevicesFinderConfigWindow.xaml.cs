@@ -1,19 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using MIOConfig.PresentationLayer;
 
-namespace MIOConfigurator
+namespace MIOConfigurator.Windows
 {
     /// <summary>
     /// Логика взаимодействия для DevicesFinderConfigWindow.xaml
@@ -41,17 +30,17 @@ namespace MIOConfigurator
             }
             else if (SearchConcreteAdress.IsChecked == true)
             {
-                _finder.StartSlaveAddress = Convert.ToByte(SlaveAddress.Text);
-                _finder.EndSlaveAddress = Convert.ToByte(SlaveAddress.Text);                                
+                _finder.StartSlaveAddress = Convert.ToByte((string) SlaveAddress.Text);
+                _finder.EndSlaveAddress = Convert.ToByte((string) SlaveAddress.Text);                                
             }
             else if (SearchByAdresses.IsChecked == true)            
             {
-                _finder.StartSlaveAddress = Convert.ToByte(StartSlaveAddress.Text);
-                _finder.EndSlaveAddress = Convert.ToByte(EndSlaveAddress.Text);    
+                _finder.StartSlaveAddress = Convert.ToByte((string) StartSlaveAddress.Text);
+                _finder.EndSlaveAddress = Convert.ToByte((string) EndSlaveAddress.Text);    
             }
             if (SerchOnlyConcreteVersion.IsChecked == true)
             {
-                _finder.TargetVersion = Convert.ToUInt16(ConcreteVersion.Text);
+                _finder.TargetVersion = Convert.ToUInt16((string) ConcreteVersion.Text);
             }
             DialogResult = true;       
         }
