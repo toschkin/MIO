@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -19,9 +18,9 @@ using MIOConfig;
 namespace MIOConfigurator.Windows
 {
     /// <summary>
-    /// Логика взаимодействия для DeviceStatuses.xaml
+    /// Логика взаимодействия для ModuleDIMonitor.xaml
     /// </summary>
-    public partial class DeviceStatusesWindow : Window, INotifyPropertyChanged
+    public partial class ModuleDIMonitor : Window, INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
         private void NotifyPropertyChanged(string info)
@@ -32,37 +31,30 @@ namespace MIOConfigurator.Windows
             }
         }
         public ModbusReaderSaver ModbusReader { get; set; }
-      
-        private DeviceStatuses _currentStatuses;
-        public DeviceStatuses CurrentStatuses
+
+        private DeviceDIModule _currentStatus;
+        public DeviceDIModule CurrentModuleStatus
         {
-            get { return _currentStatuses; }
+            get { return _currentStatus; }
             set
             {
-                _currentStatuses = value;
-                //NotifyPropertyChanged("CurrentStatuses");
-                PortsStatusesDataGrid.Items.Refresh();
+                _currentStatus = value;
+                NotifyPropertyChanged("CurrentModuleStatus");
             }
         }
-
-        public ReadOnlyCollection<DeviceUartPortStatus> UartPortStatuses
+        public ModuleDIMonitor()
         {
-            get { return new ReadOnlyCollection<DeviceUartPortStatus>(CurrentStatuses.UartPortStatuses); }
-        }
-
-        public DeviceStatusesWindow()
-        {            
             InitializeComponent();
-            _currentStatuses = new DeviceStatuses();
+            _currentStatus = new DeviceDIModule();            
         }
 
         private BackgroundWorker windowBackgroundWorker = new BackgroundWorker();
 
         private void ReadStatusesProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            if (e.UserState is DeviceStatuses)
+            if (e.UserState is DeviceDIModule)
             {
-                CurrentStatuses = (DeviceStatuses) e.UserState;                
+                CurrentModuleStatus = (DeviceDIModule)e.UserState;
             }
             ExchangeStatus.Text = ((ReaderSaverErrors)e.ProgressPercentage).GetDescription();
         }
@@ -70,7 +62,7 @@ namespace MIOConfigurator.Windows
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             windowBackgroundWorker.WorkerReportsProgress = true;
-            windowBackgroundWorker.DoWork += ReadStatuses;            
+            windowBackgroundWorker.DoWork += ReadStatuses;
             windowBackgroundWorker.ProgressChanged += ReadStatusesProgressChanged;
             windowBackgroundWorker.WorkerSupportsCancellation = true;
             windowBackgroundWorker.RunWorkerAsync();
@@ -83,12 +75,12 @@ namespace MIOConfigurator.Windows
             ReaderSaverErrors retCode = ReaderSaverErrors.CodeOk;
             while (!worker.CancellationPending)
             {
-                DeviceStatuses temporaryDeviceStatuses = CurrentStatuses;
-                ModbusReader.RegisterReadAddressOffset = Definitions.DEVICE_STATE_OFFSET;
-                retCode = ModbusReader.ReadModuleRegisters(temporaryDeviceStatuses);               
-                worker.ReportProgress((int)retCode, temporaryDeviceStatuses);
+                DeviceDIModule temporaryModuleStatus = CurrentModuleStatus;
+                ModbusReader.RegisterReadAddressOffset = Definitions.DEVICE_STATE_OFFSET+Definitions.DEVICE_STATE_MAP_SIZE;
+                retCode = ModbusReader.ReadModuleRegisters(temporaryModuleStatus);
+                worker.ReportProgress((int)retCode, temporaryModuleStatus);
                 Thread.Sleep(1000);
-            }             
+            }
         }
 
         private void Window_Closing(object sender, CancelEventArgs e)

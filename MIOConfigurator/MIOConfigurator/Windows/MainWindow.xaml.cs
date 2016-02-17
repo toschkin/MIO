@@ -1174,5 +1174,14 @@ namespace MIOConfigurator.Windows
             statusesWindowMonitor.ModbusReader = _deviceReaderSaver;
             statusesWindowMonitor.ShowDialog();
         }
+
+        private void ModuleDIMonitor_Click(object sender, RoutedEventArgs e)
+        {
+            ModuleDIMonitor statusesWindowMonitor = new ModuleDIMonitor();
+            statusesWindowMonitor.Owner = this;            
+            _deviceReaderSaver.SlaveAddress = ((Device)DevicesList.SelectedItem).ModbusAddress;           
+            statusesWindowMonitor.ModbusReader = _deviceReaderSaver;
+            statusesWindowMonitor.ShowDialog();
+        }
     }
 }

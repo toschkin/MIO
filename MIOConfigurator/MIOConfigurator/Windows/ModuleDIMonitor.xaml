@@ -1,0 +1,126 @@
+﻿<Window x:Class="MIOConfigurator.Windows.ModuleDIMonitor"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:qc="http://QuickConverter.CodePlex.com/"
+        xmlns:local="clr-namespace:MIOConfigurator.Windows"
+        mc:Ignorable="d"
+        Title="Монитор модуля ТС" Height="470" Width="700"
+        Background="{DynamicResource GradientThemeBrush}"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
+        Closing="Window_Closing" Loaded="Window_Loaded">
+    <StackPanel>
+        <Grid Margin="5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="5*"></ColumnDefinition>
+                <ColumnDefinition Width="4*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <GroupBox Grid.Row="0" Grid.Column="0" Header="Общий статус модуля" FontSize="14">
+                <Grid Margin="5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*"></ColumnDefinition>
+                        <ColumnDefinition Width="8*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+               
+                    
+                    <Image Grid.Row="0" Grid.Column="0" Height="32" Width="32" 
+                           Source="{qc:Binding '$P==true ? \'Images/led_red.png\' : \'Images/led_green.png\'',
+                           P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.ModuleStatus.ErrorCurrent, UpdateSourceTrigger=PropertyChanged}}" />
+                
+                    <TextBlock Grid.Row="0" Grid.Column="1" Text="Перегрев сериалайзера" Padding="5"></TextBlock>
+                
+                    <Image Grid.Row="1" Grid.Column="0" Height="32" Width="32" 
+                               Source="{qc:Binding '$P==true ? \'Images/led_red.png\' : \'Images/led_green.png\'',
+                               P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.ModuleStatus.ErrorVoltage}}" />
+                
+                    <TextBlock Grid.Row="1" Grid.Column="1" Text="Отутствует 24В на выходе &quot;ТС общ.&quot;" Padding="5"></TextBlock>
+                
+                    <Image Grid.Row="2" Grid.Column="0" Height="32" Width="32" 
+                               Source="{qc:Binding '$P==true ? \'Images/led_red.png\' : \'Images/led_green.png\'',
+                               P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.ModuleStatus.ErrorCheck}}" />
+               
+                    <TextBlock Grid.Row="2" Grid.Column="1" Text="Ошибка обмена данными с сериалайзером" TextWrapping="Wrap" Padding="5"></TextBlock>
+                </Grid>
+            </GroupBox>
+            <GroupBox Grid.Row="0" Grid.Column="1" Header="Состояние входов модуля" FontSize="14">
+                <Grid Margin="5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*"></ColumnDefinition>
+                        <ColumnDefinition Width="9*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+
+                    <Image Grid.Row="0" Grid.Column="0" Height="32" Width="52" 
+                           Source="{qc:Binding '$P==true ? \'Images/contact_closed.png\' : \'Images/contact_opened.png\'',
+                           P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.InputsStates[0]}}"
+                           Margin="0,0,0,10"/>
+                    <TextBlock Grid.Row="0" Grid.Column="1" Text="Состояние входа ТС №1" TextWrapping="Wrap" Padding="5"></TextBlock>
+
+                    <Image Grid.Row="1" Grid.Column="0" Height="32" Width="52" 
+                           Source="{qc:Binding '$P==true ? \'Images/contact_closed.png\' : \'Images/contact_opened.png\'',
+                           P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.InputsStates[1]}}" 
+                           Margin="0,0,0,10"/>
+                    <TextBlock Grid.Row="1" Grid.Column="1" Text="Состояние входа ТС №2" TextWrapping="Wrap" Padding="5"></TextBlock>
+
+                    <Image Grid.Row="2" Grid.Column="0" Height="32" Width="52" 
+                           Source="{qc:Binding '$P==true ? \'Images/contact_closed.png\' : \'Images/contact_opened.png\'',
+                           P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.InputsStates[2]}}" 
+                           Margin="0,0,0,10"/>
+                    <TextBlock Grid.Row="2" Grid.Column="1" Text="Состояние входа ТС №3" TextWrapping="Wrap" Padding="5"></TextBlock>
+
+                    <Image Grid.Row="3" Grid.Column="0" Height="32" Width="52" 
+                           Source="{qc:Binding '$P==true ? \'Images/contact_closed.png\' : \'Images/contact_opened.png\'',
+                           P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.InputsStates[3]}}" 
+                           Margin="0,0,0,10"/>
+                    <TextBlock Grid.Row="3" Grid.Column="1" Text="Состояние входа ТС №4" TextWrapping="Wrap" Padding="5"></TextBlock>
+
+                    <Image Grid.Row="4" Grid.Column="0" Height="32" Width="52" 
+                           Source="{qc:Binding '$P==true ? \'Images/contact_closed.png\' : \'Images/contact_opened.png\'',
+                           P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.InputsStates[4]}}"
+                           Margin="0,0,0,10"/>
+                    <TextBlock Grid.Row="4" Grid.Column="1" Text="Состояние входа ТС №5" TextWrapping="Wrap" Padding="5"></TextBlock>
+
+                    <Image Grid.Row="5" Grid.Column="0" Height="32" Width="52" 
+                           Source="{qc:Binding '$P==true ? \'Images/contact_closed.png\' : \'Images/contact_opened.png\'',
+                           P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.InputsStates[5]}}" 
+                           Margin="0,0,0,10"/>
+                    <TextBlock Grid.Row="5" Grid.Column="1" Text="Состояние входа ТС №6" TextWrapping="Wrap" Padding="5"></TextBlock>
+
+                    <Image Grid.Row="6" Grid.Column="0" Height="32" Width="52" 
+                           Source="{qc:Binding '$P==true ? \'Images/contact_closed.png\' : \'Images/contact_opened.png\'',
+                           P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.InputsStates[6]}}" 
+                           Margin="0,0,0,10"/>
+                    <TextBlock Grid.Row="6" Grid.Column="1" Text="Состояние входа ТС №7" TextWrapping="Wrap" Padding="5"></TextBlock>
+
+                    <Image Grid.Row="7" Grid.Column="0" Height="32" Width="52"
+                           Source="{qc:Binding '$P==true ? \'Images/contact_closed.png\' : \'Images/contact_opened.png\'',
+                           P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.InputsStates[7]}}" 
+                           Margin="0,0,0,10"/>
+                    <TextBlock Grid.Row="7" Grid.Column="1" Text="Состояние входа ТС №8" TextWrapping="Wrap" Padding="5"></TextBlock>
+                </Grid>
+            </GroupBox>
+        </Grid>
+        <StackPanel Orientation="Horizontal">
+            <TextBlock  Text="Статус обмена с устройством:" Padding="10"></TextBlock>
+            <TextBlock  x:Name="ExchangeStatus" Padding="10" Width="Auto" FontWeight="Bold"></TextBlock>
+        </StackPanel>
+    </StackPanel>
+</Window>

@@ -91,6 +91,9 @@
     <Compile Include="Windows\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Windows\ModuleDIMonitor.xaml.cs">
+      <DependentUpon>ModuleDIMonitor.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\ProtocolConfigWindow.xaml.cs">
       <DependentUpon>ProtocolConfigWindow.xaml</DependentUpon>
     </Compile>
@@ -113,6 +116,10 @@
     <Page Include="Windows\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\ModuleDIMonitor.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Windows\ProtocolConfigWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -167,6 +174,14 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="device_and_hardware.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Windows\Images\led_green.png" />
+    <Resource Include="Windows\Images\led_red.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Windows\Images\contact_closed.png" />
+    <Resource Include="Windows\Images\contact_opened.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

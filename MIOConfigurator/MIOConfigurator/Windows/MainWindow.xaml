@@ -874,11 +874,10 @@
                                     IsEnabled="{Binding WorkerStopped,RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, UpdateSourceTrigger=PropertyChanged}"
                                     Style="{DynamicResource ButtonGradientStyle}">
                             </Button>
-                            <Button Content="Модуль ТС" Padding="5" Margin="5"  Visibility="{qc:Binding '!$P ? Visibility.Collapsed : Visibility.Visible',                                                     
+                            <Button x:Name="ModuleDIMonitor" Content="Модуль ТС" Padding="5" Margin="5"  Visibility="{qc:Binding '!$P ? Visibility.Collapsed : Visibility.Visible',                                                     
                                     P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedDevice.ModuleDIPresent}}"
                                     IsEnabled="{Binding WorkerStopped,RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, UpdateSourceTrigger=PropertyChanged}"
-                                    Style="{DynamicResource ButtonGradientStyle}">
-                            </Button>
+                                    Style="{DynamicResource ButtonGradientStyle}" Click="ModuleDIMonitor_Click"/>
                             <Button Content="Модуль ТУ" Padding="5" Margin="5" Visibility="{qc:Binding '!$P ? Visibility.Collapsed : Visibility.Visible',                                                     
                                     P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedDevice.ModuleDOPresent}}"
                                     IsEnabled="{Binding WorkerStopped,RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, UpdateSourceTrigger=PropertyChanged}"
