@@ -46,7 +46,7 @@ namespace MIOConfig
                                     continue;
 
                                 if (((DeviceModbusMasterQuery)source) == _deviceConfiguration.ModbusMasterQueriesOnUartPorts[port][query])
-                                    stringBuilder.AppendLine(String.Format("Источник: Запрос Modbus master\nПорт №:\t{0}\nЗапрос №:\t{1}", port + 1, query + 1));
+                                    stringBuilder.AppendLine(String.Format("Источник: Запрос Modbus master\tПорт №:\t{0}\nЗапрос №:\t{1}", port + 1, query + 1));
                             }
                         }
                     }
@@ -62,7 +62,8 @@ namespace MIOConfig
                         }
                     }
                 }
-                return stringBuilder.ToString();
+                String returnedString = stringBuilder.ToString().TrimEnd(new char[]{'\r','\n'});
+                return returnedString;
             }
         }        
     }

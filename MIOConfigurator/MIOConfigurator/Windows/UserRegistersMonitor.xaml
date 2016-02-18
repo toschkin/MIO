@@ -6,7 +6,7 @@
         xmlns:qc="http://QuickConverter.CodePlex.com/"
         xmlns:local="clr-namespace:MIOConfigurator.Windows"
         mc:Ignorable="d"
-        Title="Монитор пользовательских регистров" Height="470" Width="700"
+        Title="Монитор пользовательских регистров" Height="500" Width="700" MinWidth="700" MinHeight="500"
         Background="{DynamicResource GradientThemeBrush}"
         WindowStartupLocation="CenterOwner"
         Closing="Window_Closing" Loaded="Window_Loaded" ShowInTaskbar="False">
@@ -17,7 +17,7 @@
         </StackPanel>
         <DataGrid x:Name="UserRegsDataGrid" DockPanel.Dock="Bottom"
                   ItemsSource="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentValues, UpdateSourceTrigger=PropertyChanged}"
-                  EnableRowVirtualization="False"
+                  EnableRowVirtualization="True"
                   Background="Lavender"
                   AutoGenerateColumns="False">
             <DataGrid.Columns>
