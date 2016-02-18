@@ -28,6 +28,9 @@ namespace MIOConfig
         {
             get
             {
+                if (_deviceConfiguration == null)
+                    return "нет данных";
+
                 StringBuilder stringBuilder = new StringBuilder();
                 foreach (var source in Source)
                 {
@@ -35,8 +38,13 @@ namespace MIOConfig
                     {
                         for (var port = 0; port < _deviceConfiguration.ModbusMasterQueriesOnUartPorts.Count; port++)
                         {
+                            if (_deviceConfiguration.UartPorts[port].PortProtocolType != Definitions.MODBUS_MASTER_PROTOCOL)
+                                continue;
                             for (var query = 0; query < _deviceConfiguration.ModbusMasterQueriesOnUartPorts[port].Count; query++)
                             {
+                                if(!_deviceConfiguration.ModbusMasterQueriesOnUartPorts[port][query].QueryConfigured)
+                                    continue;
+
                                 if (((DeviceModbusMasterQuery)source) == _deviceConfiguration.ModbusMasterQueriesOnUartPorts[port][query])
                                     stringBuilder.AppendLine(String.Format("Источник: Запрос Modbus master\nПорт №:\t{0}\nЗапрос №:\t{1}", port + 1, query + 1));
                             }
@@ -46,8 +54,11 @@ namespace MIOConfig
                     {
                         for (var route = 0; route < _deviceConfiguration.RoutingTable.Count; route++)
                         {
-                            if (((DeviceRoutingTableElement)source) == _deviceConfiguration.RoutingTable[route])
+                            if (((DeviceRoutingTableElement) source) == _deviceConfiguration.RoutingTable[route] && _deviceConfiguration.RoutingTable[route].RouteConfigured)
+                            {
                                 stringBuilder.AppendLine(String.Format("Источник: Маршрут таблицы маршрутизаци №\t{0}", route + 1));
+                            }
+                                
                         }
                     }
                 }

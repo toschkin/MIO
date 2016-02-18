@@ -108,7 +108,7 @@ namespace MIOConfig
             return retCode;
         }
 
-        internal ReaderSaverErrors ReadUserRegisters(ref List<DeviceUserRegister> userRegisters)
+        public ReaderSaverErrors ReadUserRegisters(ref List<DeviceUserRegister> userRegisters)
         {
             List<object> tempList = Array.ConvertAll(userRegisters.ToArray(), o => (object) o).ToList();
             return PerformReading(ref tempList);

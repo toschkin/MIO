@@ -8,7 +8,7 @@
         mc:Ignorable="d"
         Title="Монитор модуля ТС" Height="470" Width="700"
         Background="{DynamicResource GradientThemeBrush}"
-        WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize" ShowInTaskbar="False"
         Closing="Window_Closing" Loaded="Window_Loaded">
     <StackPanel>
         <Grid Margin="5">

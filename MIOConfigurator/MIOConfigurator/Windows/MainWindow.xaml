@@ -872,7 +872,7 @@
                             <Button Content="Область пользовательских регистров" Padding="5" Margin="5" Visibility="{qc:Binding '$P&gt;0 ? Visibility.Visible: Visibility.Collapsed',                                                     
                                     P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedDevice.UserRegistersCount}}"
                                     IsEnabled="{Binding WorkerStopped,RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, UpdateSourceTrigger=PropertyChanged}"
-                                    Style="{DynamicResource ButtonGradientStyle}">
+                                    Style="{DynamicResource ButtonGradientStyle}" Click="UserRegsMonitorButton_Click">
                             </Button>
                             <Button x:Name="ModuleDIMonitor" Content="Модуль ТС" Padding="5" Margin="5"  Visibility="{qc:Binding '!$P ? Visibility.Collapsed : Visibility.Visible',                                                     
                                     P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedDevice.ModuleDIPresent}}"
