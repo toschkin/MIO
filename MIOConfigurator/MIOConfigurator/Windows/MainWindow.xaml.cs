@@ -1167,21 +1167,27 @@ namespace MIOConfigurator.Windows
             statusesWindowMonitor.Owner = this;
             statusesWindowMonitor.CurrentStatuses.UartPortStatuses.Clear();
             _deviceReaderSaver.SlaveAddress = ((Device)DevicesList.SelectedItem).ModbusAddress;
+            UInt16 oldOffset = _deviceReaderSaver.RegisterReadAddressOffset;
+            _deviceReaderSaver.RegisterReadAddressOffset = Definitions.DEVICE_STATE_OFFSET;
             foreach (var port in SelectedDevice.UartPortsConfigurations)
             {
                 statusesWindowMonitor.CurrentStatuses.UartPortStatuses.Add(new DeviceUartPortStatus());
             }
             statusesWindowMonitor.ModbusReader = _deviceReaderSaver;
             statusesWindowMonitor.ShowDialog();
+            _deviceReaderSaver.RegisterReadAddressOffset = oldOffset;
         }
 
         private void ModuleDIMonitor_Click(object sender, RoutedEventArgs e)
         {
             ModuleDIMonitor statusesWindowMonitor = new ModuleDIMonitor();
             statusesWindowMonitor.Owner = this;            
-            _deviceReaderSaver.SlaveAddress = ((Device)DevicesList.SelectedItem).ModbusAddress;           
+            _deviceReaderSaver.SlaveAddress = ((Device)DevicesList.SelectedItem).ModbusAddress;
+            UInt16 oldOffset = _deviceReaderSaver.RegisterReadAddressOffset;
+            _deviceReaderSaver.RegisterReadAddressOffset = Definitions.DEVICE_STATE_OFFSET + Definitions.DEVICE_STATE_MAP_SIZE;
             statusesWindowMonitor.ModbusReader = _deviceReaderSaver;
             statusesWindowMonitor.ShowDialog();
+            _deviceReaderSaver.RegisterReadAddressOffset = oldOffset;
         }
 
         private void UserRegsMonitorButton_Click(object sender, RoutedEventArgs e)
@@ -1192,9 +1198,12 @@ namespace MIOConfigurator.Windows
             foreach (var reg in SelectedDevice.UserRegisters)
             {
                 statusesWindowMonitor.CurrentValues.Add(reg);
-            }            
+            }
+            UInt16 oldOffset = _deviceReaderSaver.RegisterReadAddressOffset;
+            _deviceReaderSaver.RegisterReadAddressOffset = Definitions.USER_REGISTERS_OFFSET;
             statusesWindowMonitor.ModbusReader = _deviceReaderSaver;
-            statusesWindowMonitor.ShowDialog();            
+            statusesWindowMonitor.ShowDialog();
+            _deviceReaderSaver.RegisterReadAddressOffset = oldOffset;
         }
     }
 }

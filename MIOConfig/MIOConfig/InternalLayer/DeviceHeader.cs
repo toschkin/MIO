@@ -207,7 +207,7 @@ namespace MIOConfig
                 if (value >= _deviceConfiguration.ModbusMasterQueriesOnUartPorts[0].Count) return;
                 foreach (var port in _deviceConfiguration.ModbusMasterQueriesOnUartPorts)
                 {
-                    port.ToList().RemoveRange(value, _deviceConfiguration.UartPorts.Count - value);
+                    port.ToList().RemoveRange(value, _deviceConfiguration.ModbusMasterQueriesOnUartPorts[0].Count - value);
                 }
             }
         }

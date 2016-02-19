@@ -75,8 +75,7 @@ namespace MIOConfigurator.Windows
             ReaderSaverErrors retCode = ReaderSaverErrors.CodeOk;
             while (!worker.CancellationPending)
             {
-                DeviceDIModule temporaryModuleStatus = CurrentModuleStatus;
-                ModbusReader.RegisterReadAddressOffset = Definitions.DEVICE_STATE_OFFSET+Definitions.DEVICE_STATE_MAP_SIZE;
+                DeviceDIModule temporaryModuleStatus = CurrentModuleStatus;                
                 retCode = ModbusReader.ReadModuleRegisters(temporaryModuleStatus);
                 worker.ReportProgress((int)retCode, temporaryModuleStatus);
                 Thread.Sleep(1000);

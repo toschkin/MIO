@@ -46,7 +46,7 @@ namespace MIOConfig
                                     continue;
 
                                 if (((DeviceModbusMasterQuery)source) == _deviceConfiguration.ModbusMasterQueriesOnUartPorts[port][query])
-                                    stringBuilder.AppendLine(String.Format("Источник: Запрос Modbus master\tПорт №:\t{0}\nЗапрос №:\t{1}", port + 1, query + 1));
+                                    stringBuilder.AppendLine(String.Format("Источник: Запрос Modbus master.\tПорт №:\t{0}\nЗапрос №:\t{1}", port + 1, query + 1));
                             }
                         }
                     }
@@ -54,9 +54,10 @@ namespace MIOConfig
                     {
                         for (var route = 0; route < _deviceConfiguration.RoutingTable.Count; route++)
                         {
-                            if (((DeviceRoutingTableElement) source) == _deviceConfiguration.RoutingTable[route] && _deviceConfiguration.RoutingTable[route].RouteConfigured)
+                            if (((DeviceRoutingTableElement) source) == _deviceConfiguration.RoutingTable[route])
                             {
-                                stringBuilder.AppendLine(String.Format("Источник: Маршрут таблицы маршрутизаци №\t{0}", route + 1));
+                                if(_deviceConfiguration.RoutingTable[route].RouteConfigured)
+                                    stringBuilder.AppendLine(String.Format("Источник: Регистр таблицы маршрутизаци. Адрес:\t{0} Маршрут №:\t{1}", _deviceConfiguration.RoutingTable[route].RouteFrom,route+1));
                             }
                                 
                         }
