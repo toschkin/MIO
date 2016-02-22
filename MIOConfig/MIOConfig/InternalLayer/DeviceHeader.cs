@@ -75,7 +75,7 @@ namespace MIOConfig
                     if (ModuleDO)
                     {
                         if (_deviceConfiguration.DOModuleConfiguration == null) 
-                            _deviceConfiguration.DOModuleConfiguration = new DeviceModuleDOConfiguration();
+                            _deviceConfiguration.DOModuleConfiguration = new DeviceModuleDOConfiguration(_deviceConfiguration);
                     }
                     else
                         _deviceConfiguration.DOModuleConfiguration = null;

@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -186,6 +187,10 @@ namespace MIOConfigurator.Windows
                 if (device.ModbusAddress == _deviceReaderSaver.SlaveAddress)
                 {
                     worker.ReportProgress(1);
+                    /*Task.Factory.StartNew(() =>
+                    {
+                        retCode = device.ReadConfiguration(_deviceReaderSaver);
+                    });*/
                     Dispatcher.BeginInvoke(new Action(() =>
                     {
                         retCode = device.ReadConfiguration(_deviceReaderSaver);    
@@ -1184,7 +1189,7 @@ namespace MIOConfigurator.Windows
             statusesWindowMonitor.Owner = this;            
             _deviceReaderSaver.SlaveAddress = ((Device)DevicesList.SelectedItem).ModbusAddress;
             UInt16 oldOffset = _deviceReaderSaver.RegisterReadAddressOffset;
-            _deviceReaderSaver.RegisterReadAddressOffset = Definitions.DEVICE_STATE_OFFSET + Definitions.DEVICE_STATE_MAP_SIZE;
+            _deviceReaderSaver.RegisterReadAddressOffset = (UInt16)(Definitions.DEVICE_STATE_OFFSET + Definitions.DEVICE_STATE_HEADER_SIZE+SelectedDevice.UartPortsConfigurations.Count);
             statusesWindowMonitor.ModbusReader = _deviceReaderSaver;
             statusesWindowMonitor.ShowDialog();
             _deviceReaderSaver.RegisterReadAddressOffset = oldOffset;

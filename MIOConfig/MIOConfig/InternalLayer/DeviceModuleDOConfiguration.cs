@@ -10,12 +10,21 @@ namespace MIOConfig
 {
     [Serializable]
     public class DeviceModuleDOConfiguration : INotifyPropertyChanged
-    {       
+    {
+        private DeviceConfiguration _deviceConfiguration;
+
         public DeviceModuleDOConfiguration()
         {
             ModuleOperation = 1;
-            PulseDurationTime = 10;            
+            PulseDurationTime = 10;
+            _deviceConfiguration = null;
         }
+
+        public DeviceModuleDOConfiguration(DeviceConfiguration deviceConfiguration)
+        {
+            _deviceConfiguration = deviceConfiguration;
+        }
+
         private Byte _moduleOperation;
         /// <summary>
         /// Holding regs|addr.: 1007+7*UartPorts.Count+5*ModuleDIPresent LoByte|count: 1| R/W
@@ -101,7 +110,18 @@ namespace MIOConfig
             {
                 if (ParallelChannelPresentForOutput1==0)
                     return 0;
-                return (UInt16)(AddressOfParallelChannelForOutput1 - (Definitions.DEVICE_STATE_OFFSET + Definitions.DEVICE_STATE_MAP_SIZE + Definitions.DEVICE_DI_MODULE_MAP_SIZE+5) + 1);
+
+                UInt16 diModuleSize = 0;
+                if (_deviceConfiguration != null)
+                    diModuleSize = (UInt16)(_deviceConfiguration.HeaderFields.ModuleDI
+                        ? Definitions.DEVICE_DI_MODULE_MAP_SIZE
+                        : 0);
+
+                return (UInt16)(AddressOfParallelChannelForOutput1 - 
+                    (Definitions.DEVICE_STATE_OFFSET + 
+                     Definitions.DEVICE_STATE_HEADER_SIZE +
+                     (_deviceConfiguration?.UartPorts.Count ?? 0) + 
+                     diModuleSize + 5) + 1);
             }
             set
             {
@@ -110,7 +130,17 @@ namespace MIOConfig
                 else
                 {
                     ParallelChannelPresentForOutput1 = 1;
-                    AddressOfParallelChannelForOutput1 = (UInt16)((value-1) + (Definitions.DEVICE_STATE_OFFSET + Definitions.DEVICE_STATE_MAP_SIZE + Definitions.DEVICE_DI_MODULE_MAP_SIZE + 5));                    
+
+                    UInt16 diModuleSize = 0;
+                    if (_deviceConfiguration != null)
+                        diModuleSize = (UInt16)(_deviceConfiguration.HeaderFields.ModuleDI
+                            ? Definitions.DEVICE_DI_MODULE_MAP_SIZE
+                            : 0);
+
+                    AddressOfParallelChannelForOutput1 = (UInt16)((value-1) + (Definitions.DEVICE_STATE_OFFSET + 
+                        Definitions.DEVICE_STATE_HEADER_SIZE +
+                        (_deviceConfiguration?.UartPorts.Count ?? 0) +
+                        diModuleSize + 5));                    
                 }
                 NotifyPropertyChanged("ParallelChannelForOutput1");
             }
@@ -163,7 +193,18 @@ namespace MIOConfig
             {
                 if (ParallelChannelPresentForOutput2 == 0)
                     return 0;
-                return (UInt16)(AddressOfParallelChannelForOutput2 - (Definitions.DEVICE_STATE_OFFSET + Definitions.DEVICE_STATE_MAP_SIZE + Definitions.DEVICE_DI_MODULE_MAP_SIZE + 5) + 1);
+
+                UInt16 diModuleSize = 0;
+                if (_deviceConfiguration != null)
+                    diModuleSize = (UInt16)(_deviceConfiguration.HeaderFields.ModuleDI
+                        ? Definitions.DEVICE_DI_MODULE_MAP_SIZE
+                        : 0);
+
+                return (UInt16)(AddressOfParallelChannelForOutput2 - 
+                    (Definitions.DEVICE_STATE_OFFSET + 
+                    Definitions.DEVICE_STATE_HEADER_SIZE +
+                    (_deviceConfiguration?.UartPorts.Count ?? 0) +
+                    diModuleSize + 5) + 1);
             }
             set
             {
@@ -196,7 +237,18 @@ namespace MIOConfig
                 else
                 {
                     ParallelChannelPresentForOutput2 = 1;
-                    AddressOfParallelChannelForOutput2 = (UInt16)((value - 1) + (Definitions.DEVICE_STATE_OFFSET + Definitions.DEVICE_STATE_MAP_SIZE + Definitions.DEVICE_DI_MODULE_MAP_SIZE + 5));
+
+                    UInt16 diModuleSize = 0;
+                    if (_deviceConfiguration != null)
+                        diModuleSize = (UInt16)(_deviceConfiguration.HeaderFields.ModuleDI
+                            ? Definitions.DEVICE_DI_MODULE_MAP_SIZE
+                            : 0);
+
+                    AddressOfParallelChannelForOutput2 = (UInt16)((value - 1) + 
+                        (Definitions.DEVICE_STATE_OFFSET + 
+                        Definitions.DEVICE_STATE_HEADER_SIZE +
+                        (_deviceConfiguration?.UartPorts.Count ?? 0) +
+                        diModuleSize + 5));
                     if (OutputType2 != (Byte)OutputTypes.ParallelChannel)
                     {
                         if (value == 3) //3rd channel
@@ -272,7 +324,18 @@ namespace MIOConfig
             {
                 if (ParallelChannelPresentForOutput3 == 0)
                     return 0;
-                return (UInt16)(AddressOfParallelChannelForOutput3 - (Definitions.DEVICE_STATE_OFFSET + Definitions.DEVICE_STATE_MAP_SIZE + Definitions.DEVICE_DI_MODULE_MAP_SIZE + 5) + 1);
+
+                UInt16 diModuleSize = 0;
+                if (_deviceConfiguration != null)
+                    diModuleSize = (UInt16)(_deviceConfiguration.HeaderFields.ModuleDI
+                        ? Definitions.DEVICE_DI_MODULE_MAP_SIZE
+                        : 0);
+
+                return (UInt16)(AddressOfParallelChannelForOutput3 - 
+                    (Definitions.DEVICE_STATE_OFFSET+ 
+                    Definitions.DEVICE_STATE_HEADER_SIZE +
+                    (_deviceConfiguration?.UartPorts.Count ?? 0) +
+                    diModuleSize + 5) + 1);
             }
             set
             {
@@ -281,7 +344,18 @@ namespace MIOConfig
                 else
                 {
                     ParallelChannelPresentForOutput3 = 1;
-                    AddressOfParallelChannelForOutput3 = (UInt16)((value - 1) + (Definitions.DEVICE_STATE_OFFSET + Definitions.DEVICE_STATE_MAP_SIZE + Definitions.DEVICE_DI_MODULE_MAP_SIZE + 5));
+
+                    UInt16 diModuleSize = 0;
+                    if (_deviceConfiguration != null)
+                        diModuleSize = (UInt16)(_deviceConfiguration.HeaderFields.ModuleDI
+                            ? Definitions.DEVICE_DI_MODULE_MAP_SIZE
+                            : 0);
+
+                    AddressOfParallelChannelForOutput3 = (UInt16)((value - 1) + 
+                        (Definitions.DEVICE_STATE_OFFSET + 
+                        Definitions.DEVICE_STATE_HEADER_SIZE +
+                        (_deviceConfiguration?.UartPorts.Count ?? 0) +
+                        diModuleSize + 5));
                 }
                 NotifyPropertyChanged("ParallelChannelForOutput3");
             }
@@ -334,7 +408,17 @@ namespace MIOConfig
             {
                 if (ParallelChannelPresentForOutput4 == 0)
                     return 0;
-                return (UInt16)(AddressOfParallelChannelForOutput4 - (Definitions.DEVICE_STATE_OFFSET + Definitions.DEVICE_STATE_MAP_SIZE + Definitions.DEVICE_DI_MODULE_MAP_SIZE + 5) + 1);
+
+                UInt16 diModuleSize = 0;
+                if (_deviceConfiguration != null)
+                    diModuleSize = (UInt16)(_deviceConfiguration.HeaderFields.ModuleDI
+                        ? Definitions.DEVICE_DI_MODULE_MAP_SIZE
+                        : 0);
+
+                return (UInt16)(AddressOfParallelChannelForOutput4 - (Definitions.DEVICE_STATE_OFFSET + 
+                    Definitions.DEVICE_STATE_HEADER_SIZE +
+                    (_deviceConfiguration?.UartPorts.Count ?? 0) +
+                    diModuleSize + 5) + 1);
             }
             set
             {
@@ -367,7 +451,18 @@ namespace MIOConfig
                 else
                 {
                     ParallelChannelPresentForOutput4 = 1;
-                    AddressOfParallelChannelForOutput4 = (UInt16)((value - 1) + (Definitions.DEVICE_STATE_OFFSET + Definitions.DEVICE_STATE_MAP_SIZE + Definitions.DEVICE_DI_MODULE_MAP_SIZE + 5));
+
+                    UInt16 diModuleSize = 0;
+                    if (_deviceConfiguration != null)
+                        diModuleSize = (UInt16)(_deviceConfiguration.HeaderFields.ModuleDI
+                            ? Definitions.DEVICE_DI_MODULE_MAP_SIZE
+                            : 0);
+
+                    AddressOfParallelChannelForOutput4 = (UInt16)((value - 1) + 
+                        (Definitions.DEVICE_STATE_OFFSET + 
+                        Definitions.DEVICE_STATE_HEADER_SIZE +
+                        (_deviceConfiguration?.UartPorts.Count ?? 0) +
+                        diModuleSize + 5));
                     if (OutputType4 != (Byte)OutputTypes.ParallelChannel)//parallel
                     {
                         if (value == 1) //3rd channel
