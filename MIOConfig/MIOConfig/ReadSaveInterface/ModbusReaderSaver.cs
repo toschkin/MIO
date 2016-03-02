@@ -111,7 +111,7 @@ namespace MIOConfig
         public ReaderSaverErrors ReadUserRegisters(ref List<DeviceUserRegister> userRegisters)
         {
             List<object> tempList = Array.ConvertAll(userRegisters.ToArray(), o => (object) o).ToList();
-            return PerformReading(ref tempList);
+            return PerformReading(ref tempList,4);
         }
 
         public ReaderSaverErrors ReadModuleRegisters(IDeviceModule module)
@@ -128,7 +128,7 @@ namespace MIOConfig
             return retCode;
         }        
 
-        private ReaderSaverErrors PerformReading(ref List<object> configurationItems)
+        private ReaderSaverErrors PerformReading(ref List<object> configurationItems, byte functionNumber=3)
         {
             if (_protocol.IsConnected)
             {
@@ -138,8 +138,17 @@ namespace MIOConfig
                     (registerNumberNeeded <= (UInt16.MaxValue - RegisterReadAddressOffset) + 1))
                 {
                     if (registerNumberNeeded <= _protocol.ReadRegistersPerQueryCapacity)
-                    {
-                        if (_protocol.ReadHoldingRegisters(SlaveAddress, RegisterReadAddressOffset, ref configurationItems, BigEndianOrder) != ModbusErrorCode.CodeOk)
+                    {                        
+                        ModbusErrorCode code = ModbusErrorCode.CodeOk;
+                        if(functionNumber == 3)
+                            code = _protocol.ReadHoldingRegisters(SlaveAddress, RegisterReadAddressOffset,
+                            ref configurationItems, BigEndianOrder);
+
+                        if (functionNumber == 4)
+                            code = _protocol.ReadInputRegisters(SlaveAddress, RegisterReadAddressOffset,
+                            ref configurationItems, BigEndianOrder);
+
+                        if (code != ModbusErrorCode.CodeOk)
                             return ReaderSaverErrors.CodeModbusCommunicationError;
                         return ReaderSaverErrors.CodeOk;
                     }
@@ -152,12 +161,30 @@ namespace MIOConfig
                     for (UInt16 query = 0; query < (UInt16)((registerNumberNeeded + _protocol.ReadRegistersPerQueryCapacity - 1) / _protocol.ReadRegistersPerQueryCapacity); query++)
                     {
                         UInt32 currentArrayOffset = (UInt16)(query * _protocol.ReadRegistersPerQueryCapacity);
-                        if (_protocol.ReadHoldingRegisters(SlaveAddress,
-                                                            currentDeviceOffset,
-                                                            ref rawBytesMap,
-                                                            (UInt32)(query * _protocol.ReadRegistersPerQueryCapacity * 2),
-                                                            rawBytesMap.Count - (currentArrayOffset * 2) > _protocol.ReadRegistersPerQueryCapacity * 2 ? (UInt32)(_protocol.ReadRegistersPerQueryCapacity * 2) : (UInt32)(rawBytesMap.Count - (currentArrayOffset * 2)),
-                                                            BigEndianOrder) != ModbusErrorCode.CodeOk)
+
+                        ModbusErrorCode code = ModbusErrorCode.CodeOk;
+
+                        if (functionNumber == 3)
+                            code = _protocol.ReadHoldingRegisters(SlaveAddress,
+                                currentDeviceOffset,
+                                ref rawBytesMap,
+                                (UInt32) (query*_protocol.ReadRegistersPerQueryCapacity*2),
+                                rawBytesMap.Count - (currentArrayOffset*2) > _protocol.ReadRegistersPerQueryCapacity*2
+                                    ? (UInt32) (_protocol.ReadRegistersPerQueryCapacity*2)
+                                    : (UInt32) (rawBytesMap.Count - (currentArrayOffset*2)),
+                                BigEndianOrder);
+
+                        if (functionNumber == 4)
+                            code = _protocol.ReadInputRegisters(SlaveAddress,
+                                currentDeviceOffset,
+                                ref rawBytesMap,
+                                (UInt32)(query * _protocol.ReadRegistersPerQueryCapacity * 2),
+                                rawBytesMap.Count - (currentArrayOffset * 2) > _protocol.ReadRegistersPerQueryCapacity * 2
+                                    ? (UInt32)(_protocol.ReadRegistersPerQueryCapacity * 2)
+                                    : (UInt32)(rawBytesMap.Count - (currentArrayOffset * 2)),
+                                BigEndianOrder);
+
+                        if (code != ModbusErrorCode.CodeOk)
                             return ReaderSaverErrors.CodeModbusCommunicationError;
 
                         currentDeviceOffset += _protocol.ReadRegistersPerQueryCapacity;
