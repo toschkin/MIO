@@ -72,49 +72,49 @@
                            Source="{qc:Binding '$P==true ? \'Images/contact_closed.png\' : \'Images/contact_opened.png\'',
                            P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.InputsStates[0]}}"
                            Margin="0,0,0,10"/>
-                    <TextBlock Grid.Row="0" Grid.Column="1" Text="Состояние входа ТС №1" TextWrapping="Wrap" Padding="5"></TextBlock>
+                    <TextBlock Grid.Row="0" Grid.Column="1" Text="Состояние входа ТС №8" TextWrapping="Wrap" Padding="5"></TextBlock>
 
                     <Image Grid.Row="1" Grid.Column="0" Height="32" Width="52" 
                            Source="{qc:Binding '$P==true ? \'Images/contact_closed.png\' : \'Images/contact_opened.png\'',
                            P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.InputsStates[1]}}" 
                            Margin="0,0,0,10"/>
-                    <TextBlock Grid.Row="1" Grid.Column="1" Text="Состояние входа ТС №2" TextWrapping="Wrap" Padding="5"></TextBlock>
+                    <TextBlock Grid.Row="1" Grid.Column="1" Text="Состояние входа ТС №7" TextWrapping="Wrap" Padding="5"></TextBlock>
 
                     <Image Grid.Row="2" Grid.Column="0" Height="32" Width="52" 
                            Source="{qc:Binding '$P==true ? \'Images/contact_closed.png\' : \'Images/contact_opened.png\'',
                            P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.InputsStates[2]}}" 
                            Margin="0,0,0,10"/>
-                    <TextBlock Grid.Row="2" Grid.Column="1" Text="Состояние входа ТС №3" TextWrapping="Wrap" Padding="5"></TextBlock>
+                    <TextBlock Grid.Row="2" Grid.Column="1" Text="Состояние входа ТС №6" TextWrapping="Wrap" Padding="5"></TextBlock>
 
                     <Image Grid.Row="3" Grid.Column="0" Height="32" Width="52" 
                            Source="{qc:Binding '$P==true ? \'Images/contact_closed.png\' : \'Images/contact_opened.png\'',
                            P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.InputsStates[3]}}" 
                            Margin="0,0,0,10"/>
-                    <TextBlock Grid.Row="3" Grid.Column="1" Text="Состояние входа ТС №4" TextWrapping="Wrap" Padding="5"></TextBlock>
+                    <TextBlock Grid.Row="3" Grid.Column="1" Text="Состояние входа ТС №5" TextWrapping="Wrap" Padding="5"></TextBlock>
 
                     <Image Grid.Row="4" Grid.Column="0" Height="32" Width="52" 
                            Source="{qc:Binding '$P==true ? \'Images/contact_closed.png\' : \'Images/contact_opened.png\'',
                            P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.InputsStates[4]}}"
                            Margin="0,0,0,10"/>
-                    <TextBlock Grid.Row="4" Grid.Column="1" Text="Состояние входа ТС №5" TextWrapping="Wrap" Padding="5"></TextBlock>
+                    <TextBlock Grid.Row="4" Grid.Column="1" Text="Состояние входа ТС №4" TextWrapping="Wrap" Padding="5"></TextBlock>
 
                     <Image Grid.Row="5" Grid.Column="0" Height="32" Width="52" 
                            Source="{qc:Binding '$P==true ? \'Images/contact_closed.png\' : \'Images/contact_opened.png\'',
                            P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.InputsStates[5]}}" 
                            Margin="0,0,0,10"/>
-                    <TextBlock Grid.Row="5" Grid.Column="1" Text="Состояние входа ТС №6" TextWrapping="Wrap" Padding="5"></TextBlock>
+                    <TextBlock Grid.Row="5" Grid.Column="1" Text="Состояние входа ТС №3" TextWrapping="Wrap" Padding="5"></TextBlock>
 
                     <Image Grid.Row="6" Grid.Column="0" Height="32" Width="52" 
                            Source="{qc:Binding '$P==true ? \'Images/contact_closed.png\' : \'Images/contact_opened.png\'',
                            P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.InputsStates[6]}}" 
                            Margin="0,0,0,10"/>
-                    <TextBlock Grid.Row="6" Grid.Column="1" Text="Состояние входа ТС №7" TextWrapping="Wrap" Padding="5"></TextBlock>
+                    <TextBlock Grid.Row="6" Grid.Column="1" Text="Состояние входа ТС №2" TextWrapping="Wrap" Padding="5"></TextBlock>
 
                     <Image Grid.Row="7" Grid.Column="0" Height="32" Width="52"
                            Source="{qc:Binding '$P==true ? \'Images/contact_closed.png\' : \'Images/contact_opened.png\'',
                            P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.InputsStates[7]}}" 
                            Margin="0,0,0,10"/>
-                    <TextBlock Grid.Row="7" Grid.Column="1" Text="Состояние входа ТС №8" TextWrapping="Wrap" Padding="5"></TextBlock>
+                    <TextBlock Grid.Row="7" Grid.Column="1" Text="Состояние входа ТС №1" TextWrapping="Wrap" Padding="5"></TextBlock>
                 </Grid>
             </GroupBox>
         </Grid>

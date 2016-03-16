@@ -95,7 +95,7 @@ namespace MIOConfig.PresentationLayer
             }
             for (int route = 0; route < _device.RoutingMap.Count; route++)
             {
-                if (element.RouteTo == _device.RoutingMap[route].RouteTo && element != _device.RoutingMap[route])
+                if (element.RouteTo == _device.RoutingMap[route].RouteTo && element != _device.RoutingMap[route] && _device.RoutingMap[route].RouteConfigured)
                 {
                     ValidationErrorList.Add(String.Format("Наложение целевого регистра маршрута с маршрутом №{0}", route + 1));
                     retCode = false;
@@ -266,7 +266,9 @@ namespace MIOConfig.PresentationLayer
 
             for (int route = 0; route < _device.RoutingMap.Count; route++)
             {
-                if ((_device.RoutingMap[route].RouteTo >= modbusQuery.RouteStartAddress)
+                if ( _device.RoutingMap[route].RouteConfigured 
+                    &&
+                    (_device.RoutingMap[route].RouteTo >= modbusQuery.RouteStartAddress)
                     &&
                     (_device.RoutingMap[route].RouteTo < modbusQuery.RouteStartAddress + modbusQuery.RegistersCount))
                 {

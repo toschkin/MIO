@@ -217,8 +217,8 @@ namespace MIOConfigurator
             get
             {
                 if (Registry.CurrentUser.OpenSubKey(_registryNode) != null)
-                    return Convert.ToInt32(Registry.CurrentUser.OpenSubKey(_registryNode).GetValue("WriteCapacity", "123"));
-                return 123;
+                    return Convert.ToInt32(Registry.CurrentUser.OpenSubKey(_registryNode).GetValue("WriteCapacity", "40"));
+                return 40;
             }
             set
             {
