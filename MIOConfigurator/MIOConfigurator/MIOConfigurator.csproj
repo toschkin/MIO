@@ -91,6 +91,9 @@
     <Compile Include="Windows\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Windows\ModuleDOMonitor.xaml.cs">
+      <DependentUpon>ModuleDOMonitor.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\ModuleDIMonitor.xaml.cs">
       <DependentUpon>ModuleDIMonitor.xaml</DependentUpon>
     </Compile>
@@ -117,6 +120,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Windows\MainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\ModuleDOMonitor.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

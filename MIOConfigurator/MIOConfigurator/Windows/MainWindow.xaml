@@ -881,7 +881,7 @@
                             <Button Content="Модуль ТУ" Padding="5" Margin="5" Visibility="{qc:Binding '!$P ? Visibility.Collapsed : Visibility.Visible',                                                     
                                     P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedDevice.ModuleDOPresent}}"
                                     IsEnabled="{Binding WorkerStopped,RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, UpdateSourceTrigger=PropertyChanged}"
-                                    Style="{DynamicResource ButtonGradientStyle}">
+                                    Style="{DynamicResource ButtonGradientStyle}" Click="ModuleDOMonitor_Click">
                             </Button>
                         </WrapPanel>
                     </TabItem>

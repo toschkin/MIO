@@ -1210,5 +1210,10 @@ namespace MIOConfigurator.Windows
             statusesWindowMonitor.ShowDialog();
             _deviceReaderSaver.RegisterReadAddressOffset = oldOffset;
         }
+
+        private void ModuleDOMonitor_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

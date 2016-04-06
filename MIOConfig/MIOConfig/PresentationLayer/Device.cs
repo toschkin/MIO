@@ -306,6 +306,7 @@ namespace MIOConfig
             get { return ModuleDIPresent?DIModule:null; }
         }
 
+        //not used
         public ReaderSaverErrors ReadDIModuleRegistersFromDevice(ModbusReaderSaver reader)
         {
             if (DIModule == null)
@@ -329,6 +330,8 @@ namespace MIOConfig
             get { return ModuleDOPresent ? DOModule : null; }
         }
 
+
+        //not used
         public ReaderSaverErrors ReadDOModuleRegistersFromDevice(ModbusReaderSaver reader)
         {
             if (DOModule == null)
