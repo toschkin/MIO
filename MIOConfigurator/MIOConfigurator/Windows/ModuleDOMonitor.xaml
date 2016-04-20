@@ -6,7 +6,7 @@
         xmlns:qc="http://QuickConverter.CodePlex.com/"
         xmlns:local="clr-namespace:MIOConfigurator.Windows"
         mc:Ignorable="d"
-        Title="Монитор модуля ТУ" Height="470" Width="700"
+        Title="Монитор модуля ТУ" Height="500" Width="800"
         Background="{DynamicResource GradientThemeBrush}"
         WindowStartupLocation="CenterOwner" ResizeMode="NoResize" ShowInTaskbar="False"
         Closing="Window_Closing" Loaded="Window_Loaded">
@@ -22,132 +22,145 @@
             <GroupBox Grid.Row="0" Grid.Column="0" Header="Общий статус модуля" FontSize="14">
                 <Grid Margin="5">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="40"></RowDefinition>
+                        <RowDefinition Height="40"></RowDefinition>
+                        <RowDefinition Height="40"></RowDefinition>
+                        <RowDefinition Height="40"></RowDefinition>
+                        <RowDefinition Height="40"></RowDefinition>
+                        <RowDefinition Height="40"></RowDefinition>
+                        <RowDefinition Height="40"></RowDefinition>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1*"></ColumnDefinition>
                         <ColumnDefinition Width="8*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
-                                     
+
                     <Image Grid.Row="0" Grid.Column="0" Height="32" Width="32" 
                            Source="{qc:Binding '$P==true ? \'Images/led_red.png\' : \'Images/led_green.png\'',
                            P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.ModuleStatus.ErrorContactsSticking, UpdateSourceTrigger=PropertyChanged}}" />
-        
-                    <TextBlock Grid.Row="0" Grid.Column="1" Text="Залипание контактов" Padding="5"></TextBlock>
-                    <!--
+                    <TextBlock Grid.Row="0" Grid.Column="1" Text="Залипание контактов" VerticalAlignment="Center"></TextBlock>
+
+
                     <Image Grid.Row="1" Grid.Column="0" Height="32" Width="32" 
                                Source="{qc:Binding '$P==true ? \'Images/led_red.png\' : \'Images/led_green.png\'',
                                P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.ModuleStatus.ErrorNoVoltage}}" />
-                    /-->
-                    <TextBlock Grid.Row="1" Grid.Column="1" Text="Отсутствует напряжение оперативного тока " Padding="5"></TextBlock>
+                    <TextBlock Grid.Row="1" Grid.Column="1" Text="Отсутствует напряжение оперативного тока " VerticalAlignment="Center"></TextBlock>
 
-                    <!--
+
                     <Image Grid.Row="2" Grid.Column="0" Height="32" Width="32" 
                                Source="{qc:Binding '$P==true ? \'Images/led_red.png\' : \'Images/led_green.png\'',
                                P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.ModuleStatus.ErrorRelayContactsNotClosed}}" />
-                    /-->
-                    <TextBlock Grid.Row="2" Grid.Column="1" Text="В процессе выполнения команды DP контакты реле не замкнулись или отсутствует нагрузка" TextWrapping="Wrap" Padding="5"></TextBlock>
+                    <TextBlock Grid.Row="2" Grid.Column="1" Text="В процессе выполнения команды DP контакты реле не замкнулись или отсутствует нагрузка" TextWrapping="Wrap"  VerticalAlignment="Center"></TextBlock>
 
-                    <!--
-                    <Image Grid.Row="2" Grid.Column="0" Height="32" Width="32" 
+                    <Image Grid.Row="3" Grid.Column="0" Height="32" Width="32" 
                                Source="{qc:Binding '$P==true ? \'Images/led_red.png\' : \'Images/led_green.png\'',
                                P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.ModuleStatus.ErrorPowerSwitchNotClosed}}" />
-                    /-->
-                    <TextBlock Grid.Row="3" Grid.Column="1" Text="В процессе выполнения команды DP силовой ключ не замкнулся" TextWrapping="Wrap" Padding="5"></TextBlock>
+                    <TextBlock Grid.Row="3" Grid.Column="1" Text="В процессе выполнения команды DP силовой ключ не замкнулся" TextWrapping="Wrap"  VerticalAlignment="Center"></TextBlock>
 
-                    <!--
-                    <Image Grid.Row="2" Grid.Column="0" Height="32" Width="32" 
+                    <Image Grid.Row="4" Grid.Column="0" Height="32" Width="32" 
                                Source="{qc:Binding '$P==true ? \'Images/led_red.png\' : \'Images/led_green.png\'',
                                P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.ModuleStatus.ErrorPowerSwitchNotOpened}}" />
-                    /-->
-                    <TextBlock Grid.Row="4" Grid.Column="1" Text="В процессе выполнения команды DP силовой ключ не разомкнулся" TextWrapping="Wrap" Padding="5"></TextBlock>
+                    <TextBlock Grid.Row="4" Grid.Column="1" Text="В процессе выполнения команды DP силовой ключ не разомкнулся" TextWrapping="Wrap"  VerticalAlignment="Center"></TextBlock>
 
-                    <!--
-                    <Image Grid.Row="2" Grid.Column="0" Height="32" Width="32" 
+                    <Image Grid.Row="5" Grid.Column="0" Height="32" Width="32" 
                                Source="{qc:Binding '$P==true ? \'Images/led_red.png\' : \'Images/led_green.png\'',
                                P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.ModuleStatus.ErrorRelayContactsNotOpened}}" />
-                    /-->
-                    <TextBlock Grid.Row="5" Grid.Column="1" Text="В процессе выполнения команды DP контакты реле не разомкнулись" TextWrapping="Wrap" Padding="5"></TextBlock>
+                    <TextBlock Grid.Row="5" Grid.Column="1" Text="В процессе выполнения команды DP контакты реле не разомкнулись" TextWrapping="Wrap"  VerticalAlignment="Center"></TextBlock>
 
-                    <!--
-                    <Image Grid.Row="2" Grid.Column="0" Height="32" Width="32" 
+                    <Image Grid.Row="6" Grid.Column="0" Height="32" Width="32" 
                                Source="{qc:Binding '$P==true ? \'Images/led_red.png\' : \'Images/led_green.png\'',
                                P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.ModuleStatus.ErrorRelayCoils}}" />
-                    /-->
-                    <TextBlock Grid.Row="6" Grid.Column="1" Text="Ошибка обмоток реле" TextWrapping="Wrap" Padding="5"></TextBlock>
+                    <TextBlock Grid.Row="6" Grid.Column="1" Text="Ошибка обмоток реле" TextWrapping="Wrap"  VerticalAlignment="Center"></TextBlock>
+                    
                 </Grid>
             </GroupBox>
-            <GroupBox Grid.Row="0" Grid.Column="1" Header="Состояние входов модуля" FontSize="14">
-                <Grid Margin="5">
+            <GroupBox Grid.Row="0" Grid.Column="1" Header="Состояние выходов модуля" FontSize="14">
+                <Grid Margin="5" PreviewMouseLeftButtonUp="GridCoilStates_OnPreviewMouseLeftButtonUp">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"></RowDefinition>
                         <RowDefinition Height="Auto"></RowDefinition>
                         <RowDefinition Height="Auto"></RowDefinition>
                         <RowDefinition Height="Auto"></RowDefinition>
                         <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="3*"></ColumnDefinition>
-                        <ColumnDefinition Width="9*"></ColumnDefinition>
+                        <ColumnDefinition Width="15*"></ColumnDefinition>
+                        <ColumnDefinition Width="10*"></ColumnDefinition>
+                        <ColumnDefinition Width="15*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
-                    <!--
-                    <Image Grid.Row="0" Grid.Column="0" Height="32" Width="52" 
-                           Source="{qc:Binding '$P==true ? \'Images/contact_closed.png\' : \'Images/contact_opened.png\'',
-                           P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.InputsStates[0]}}"
-                           Margin="0,0,0,10"/>
-                    <TextBlock Grid.Row="0" Grid.Column="1" Text="Состояние входа ТС №8" TextWrapping="Wrap" Padding="5"></TextBlock>
 
-                    <Image Grid.Row="1" Grid.Column="0" Height="32" Width="52" 
-                           Source="{qc:Binding '$P==true ? \'Images/contact_closed.png\' : \'Images/contact_opened.png\'',
-                           P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.InputsStates[1]}}" 
-                           Margin="0,0,0,10"/>
-                    <TextBlock Grid.Row="1" Grid.Column="1" Text="Состояние входа ТС №7" TextWrapping="Wrap" Padding="5"></TextBlock>
+                    <Border Grid.Row="0" Grid.Column="0" BorderBrush="Black" BorderThickness="1">
+                        <TextBlock  Text="Выход №1" Padding="10" TextAlignment="Center"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="LightGray"></TextBlock>
+                    </Border>
+                    <Border Grid.Row="1" Grid.Column="0" BorderBrush="Black" BorderThickness="1">
+                        <TextBlock  Text="Выход №2" Padding="10" TextAlignment="Center"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="LightGray"></TextBlock>
+                    </Border>
+                    <Border Grid.Row="2" Grid.Column="0" BorderBrush="Black" BorderThickness="1">
+                        <TextBlock  Text="Выход №3" Padding="10" TextAlignment="Center"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="LightGray"></TextBlock>
+                    </Border>
+                    <Border Grid.Row="3" Grid.Column="0" BorderBrush="Black" BorderThickness="1">
+                        <TextBlock  Text="Выход №3" Padding="10" TextAlignment="Center"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="LightGray"></TextBlock>
+                    </Border>
+                    <Border Grid.Row="0" Grid.Column="1" BorderBrush="Black" BorderThickness="1">
+                        <TextBlock x:Name="RealCoilState1" Padding="10" TextAlignment="Center"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="DarkSeaGreen"></TextBlock>
+                    </Border>
+                    <Border Grid.Row="1" Grid.Column="1" BorderBrush="Black" BorderThickness="1">
+                        <TextBlock x:Name="RealCoilState2" Padding="10" TextAlignment="Center"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="DarkSeaGreen"></TextBlock>
+                    </Border>
+                    <Border Grid.Row="2" Grid.Column="1" BorderBrush="Black" BorderThickness="1">
+                        <TextBlock x:Name="RealCoilState3" Padding="10" TextAlignment="Center"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="DarkSeaGreen"></TextBlock>
+                    </Border>
+                    <Border Grid.Row="3" Grid.Column="1" BorderBrush="Black" BorderThickness="1">
+                        <TextBlock x:Name="RealCoilState4" Padding="10" TextAlignment="Center"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="DarkSeaGreen"></TextBlock>
+                    </Border>
+                    
+                    <Border Grid.Row="0" Grid.Column="2" BorderBrush="Black" BorderThickness="1">
+                        <StackPanel>
+                            <RadioButton x:Name ="IndefStateCoil1" GroupName="Coil1States" Margin="5,3,0,0" Content="НЕОПРЕД." 
+                                         IsChecked="{qc:Binding '$P==65535?true:false',P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.DesiredCoilStateNumeric1,Mode=OneTime}}"></RadioButton>
+                            <RadioButton x:Name ="OffStateCoil1" GroupName="Coil1States" Margin="5,3,0,0" Content="ОТКЛ."
+                                         IsChecked="{qc:Binding '$P==0?true:false',P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.DesiredCoilStateNumeric1, Mode=OneTime}}"></RadioButton>
+                            <RadioButton x:Name ="OnStateCoil1" GroupName="Coil1States" Margin="5,3,0,0" Content="ВКЛ."
+                                         IsChecked="{qc:Binding '$P==65280?true:false',P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.DesiredCoilStateNumeric1, Mode=OneTime}}"></RadioButton>
+                            <Button x:Name ="SetCoil1" Margin="5,3,5,3" Content="Установить"></Button>
+                        </StackPanel>
+                    </Border>
 
-                    <Image Grid.Row="2" Grid.Column="0" Height="32" Width="52" 
-                           Source="{qc:Binding '$P==true ? \'Images/contact_closed.png\' : \'Images/contact_opened.png\'',
-                           P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.InputsStates[2]}}" 
-                           Margin="0,0,0,10"/>
-                    <TextBlock Grid.Row="2" Grid.Column="1" Text="Состояние входа ТС №6" TextWrapping="Wrap" Padding="5"></TextBlock>
+                    <Border Grid.Row="1" Grid.Column="2" BorderThickness="1" BorderBrush="Black">
+                        <StackPanel>
+                            <RadioButton x:Name ="IndefStateCoil2" GroupName="Coil2States" Margin="5,3,0,0" Content="НЕОПРЕД." 
+                                         IsChecked="{qc:Binding '$P==65535?true:false',P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.DesiredCoilStateNumeric2,Mode=OneTime}}"></RadioButton>
+                            <RadioButton x:Name ="OffStateCoil2" GroupName="Coil2States" Margin="5,3,0,0" Content="ОТКЛ."
+                                         IsChecked="{qc:Binding '$P==0?true:false',P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.DesiredCoilStateNumeric2, Mode=OneTime}}"></RadioButton>
+                            <RadioButton x:Name ="OnStateCoil2" GroupName="Coil2States" Margin="5,3,0,0" Content="ВКЛ."
+                                         IsChecked="{qc:Binding '$P==65280?true:false',P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.DesiredCoilStateNumeric2, Mode=OneTime}}"></RadioButton>
+                            <Button x:Name ="SetCoil2" Margin="5,3,5,3" Content="Установить"></Button>
+                        </StackPanel>
+                    </Border>
 
-                    <Image Grid.Row="3" Grid.Column="0" Height="32" Width="52" 
-                           Source="{qc:Binding '$P==true ? \'Images/contact_closed.png\' : \'Images/contact_opened.png\'',
-                           P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.InputsStates[3]}}" 
-                           Margin="0,0,0,10"/>
-                    <TextBlock Grid.Row="3" Grid.Column="1" Text="Состояние входа ТС №5" TextWrapping="Wrap" Padding="5"></TextBlock>
+                    <Border Grid.Row="2" Grid.Column="2" BorderThickness="1" BorderBrush="Black" >
+                        <StackPanel>
+                            <RadioButton x:Name ="IndefStateCoil3" GroupName="Coil3States" Margin="5,3,0,0" Content="НЕОПРЕД." 
+                                         IsChecked="{qc:Binding '$P==65535?true:false',P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.DesiredCoilStateNumeric3,Mode=OneTime}}"></RadioButton>
+                            <RadioButton x:Name ="OffStateCoil3" GroupName="Coil3States" Margin="5,3,0,0" Content="ОТКЛ."
+                                         IsChecked="{qc:Binding '$P==0?true:false',P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.DesiredCoilStateNumeric3, Mode=OneTime}}"></RadioButton>
+                            <RadioButton x:Name ="OnStateCoil3" GroupName="Coil3States" Margin="5,3,0,0" Content="ВКЛ."
+                                         IsChecked="{qc:Binding '$P==65280?true:false',P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.DesiredCoilStateNumeric3, Mode=OneTime}}"></RadioButton>
+                            <Button x:Name ="SetCoil3" Margin="5,3,5,3" Content="Установить"></Button>
+                        </StackPanel>
+                    </Border>
 
-                    <Image Grid.Row="4" Grid.Column="0" Height="32" Width="52" 
-                           Source="{qc:Binding '$P==true ? \'Images/contact_closed.png\' : \'Images/contact_opened.png\'',
-                           P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.InputsStates[4]}}"
-                           Margin="0,0,0,10"/>
-                    <TextBlock Grid.Row="4" Grid.Column="1" Text="Состояние входа ТС №4" TextWrapping="Wrap" Padding="5"></TextBlock>
-
-                    <Image Grid.Row="5" Grid.Column="0" Height="32" Width="52" 
-                           Source="{qc:Binding '$P==true ? \'Images/contact_closed.png\' : \'Images/contact_opened.png\'',
-                           P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.InputsStates[5]}}" 
-                           Margin="0,0,0,10"/>
-                    <TextBlock Grid.Row="5" Grid.Column="1" Text="Состояние входа ТС №3" TextWrapping="Wrap" Padding="5"></TextBlock>
-
-                    <Image Grid.Row="6" Grid.Column="0" Height="32" Width="52" 
-                           Source="{qc:Binding '$P==true ? \'Images/contact_closed.png\' : \'Images/contact_opened.png\'',
-                           P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.InputsStates[6]}}" 
-                           Margin="0,0,0,10"/>
-                    <TextBlock Grid.Row="6" Grid.Column="1" Text="Состояние входа ТС №2" TextWrapping="Wrap" Padding="5"></TextBlock>
-
-                    <Image Grid.Row="7" Grid.Column="0" Height="32" Width="52"
-                           Source="{qc:Binding '$P==true ? \'Images/contact_closed.png\' : \'Images/contact_opened.png\'',
-                           P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.InputsStates[7]}}" 
-                           Margin="0,0,0,10"/>
-                    <TextBlock Grid.Row="7" Grid.Column="1" Text="Состояние входа ТС №1" TextWrapping="Wrap" Padding="5"></TextBlock>
-                    /-->
+                    <Border Grid.Row="3" Grid.Column="2" BorderThickness="1" BorderBrush="Black">
+                        <StackPanel>
+                            <RadioButton x:Name ="IndefStateCoil4" GroupName="Coil4States" Margin="5,3,0,0" Content="НЕОПРЕД." 
+                                         IsChecked="{qc:Binding '$P==65535?true:false',P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.DesiredCoilStateNumeric4,Mode=OneTime}}"></RadioButton>
+                            <RadioButton x:Name ="OffStateCoil4" GroupName="Coil4States" Margin="5,3,0,0" Content="ОТКЛ."
+                                         IsChecked="{qc:Binding '$P==0?true:false',P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.DesiredCoilStateNumeric4, Mode=OneTime}}"></RadioButton>
+                            <RadioButton x:Name ="OnStateCoil4" GroupName="Coil4States" Margin="5,3,0,0" Content="ВКЛ."
+                                         IsChecked="{qc:Binding '$P==65280?true:false',P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.DesiredCoilStateNumeric4, Mode=OneTime}}"></RadioButton>
+                            <Button x:Name ="SetCoil4" Margin="5,3,5,3" Content="Установить"></Button>
+                        </StackPanel>
+                    </Border>
                 </Grid>
             </GroupBox>
         </Grid>

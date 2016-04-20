@@ -57,8 +57,12 @@ namespace MIOConfigurator.Windows
                 CurrentModuleStatus = (DeviceDOModule)e.UserState;
             }
             ExchangeStatus.Text = ((ReaderSaverErrors)e.ProgressPercentage).GetDescription();
+            RealCoilState1.Text = CurrentModuleStatus.RealCoilState1;
+            RealCoilState2.Text = CurrentModuleStatus.RealCoilState2;
+            RealCoilState3.Text = CurrentModuleStatus.RealCoilState3;
+            RealCoilState4.Text = CurrentModuleStatus.RealCoilState4;           
         }
-
+        
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             windowBackgroundWorker.WorkerReportsProgress = true;
@@ -85,6 +89,24 @@ namespace MIOConfigurator.Windows
         private void Window_Closing(object sender, CancelEventArgs e)
         {
             windowBackgroundWorker.CancelAsync();
+        }
+
+        private void GridCoilStates_OnPreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (e.Source.Equals(SetCoil1))
+            {
+                if (IndefStateCoil1.IsChecked == true)
+                {
+                    MessageBox.Show("IndefStateCoil1.IsChecked");                    
+                }else if (OffStateCoil1.IsChecked == true)
+                {
+                    MessageBox.Show("OffStateCoil1.IsChecked");                          
+                }
+                else if (OnStateCoil1.IsChecked == true)
+                {
+                    MessageBox.Show("OnStateCoil1.IsChecked");
+                }
+            }
         }
     }
 }

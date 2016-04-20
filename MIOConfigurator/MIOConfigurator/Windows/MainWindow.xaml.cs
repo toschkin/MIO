@@ -1213,7 +1213,14 @@ namespace MIOConfigurator.Windows
 
         private void ModuleDOMonitor_Click(object sender, RoutedEventArgs e)
         {
-
+            ModuleDOMonitor statusesWindowMonitor = new ModuleDOMonitor();
+            statusesWindowMonitor.Owner = this;
+            _deviceReaderSaver.SlaveAddress = ((Device)DevicesList.SelectedItem).ModbusAddress;
+            UInt16 oldOffset = _deviceReaderSaver.RegisterReadAddressOffset;
+            _deviceReaderSaver.RegisterReadAddressOffset = (UInt16)(Definitions.DEVICE_STATE_OFFSET + Definitions.DEVICE_STATE_HEADER_SIZE + SelectedDevice.UartPortsConfigurations.Count + (SelectedDevice.ModuleDIPresent?Definitions.DEVICE_DI_MODULE_MAP_SIZE:0));
+            statusesWindowMonitor.ModbusReader = _deviceReaderSaver;
+            statusesWindowMonitor.ShowDialog();
+            _deviceReaderSaver.RegisterReadAddressOffset = oldOffset;
         }
     }
 }

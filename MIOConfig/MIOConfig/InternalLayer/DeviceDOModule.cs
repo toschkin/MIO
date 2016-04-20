@@ -26,7 +26,23 @@ namespace MIOConfig
         [field: NonSerialized]
         public ModbusDataPoint<UInt16>[] DesiredCoilStates = new ModbusDataPoint<UInt16>[4];
         public DeviceDOModuleStatus[] ChannelStatuses = new DeviceDOModuleStatus[4];
+
         
+        public string RealCoilState1 { get { return GetCoilStateDescription(RealCoilStates[0]); } }        
+        public string RealCoilState2 { get { return GetCoilStateDescription(RealCoilStates[1]); } }        
+        public string RealCoilState3 { get { return GetCoilStateDescription(RealCoilStates[2]); } }        
+        public string RealCoilState4 { get { return GetCoilStateDescription(RealCoilStates[3]); } }
+       
+        public string DesiredCoilState1 { get { return GetCoilStateDescription(DesiredCoilStates[0]); } }       
+        public string DesiredCoilState2 { get { return GetCoilStateDescription(DesiredCoilStates[1]); } }        
+        public string DesiredCoilState3 { get { return GetCoilStateDescription(DesiredCoilStates[2]); } }        
+        public string DesiredCoilState4 { get { return GetCoilStateDescription(DesiredCoilStates[3]); } }
+
+        public UInt16 DesiredCoilStateNumeric1 { get { return DesiredCoilStates[0]; } }
+        public UInt16 DesiredCoilStateNumeric2 { get { return DesiredCoilStates[1]; } }
+        public UInt16 DesiredCoilStateNumeric3 { get { return DesiredCoilStates[2]; } }
+        public UInt16 DesiredCoilStateNumeric4 { get { return DesiredCoilStates[3]; } }
+
         public List<object> ToList()
         {
             List<object> listOfConfigurationItems = new List<object>();
@@ -37,6 +53,20 @@ namespace MIOConfig
             return listOfConfigurationItems;
         }
 
+        private string GetCoilStateDescription(ModbusDataPoint<UInt16> coilDataPoint)
+        {
+            switch (coilDataPoint.Value)
+            {
+                case Definitions.DO_COIL_STATE_OFF:
+                    return "ОТКЛ.";
+                case Definitions.DO_COIL_STATE_ON:
+                    return "ВКЛ.";
+                case Definitions.DO_COIL_STATE_INDEF:
+                    return "НЕОПРЕД.";
+                default:
+                    return "НЕОПРЕД.";
+            }            
+        }
         public bool FromList(List<object> listOfConfigurationItems)
         {
             if (listOfConfigurationItems.Count < Size)
