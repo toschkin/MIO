@@ -6,7 +6,7 @@
         xmlns:qc="http://QuickConverter.CodePlex.com/"
         xmlns:local="clr-namespace:MIOConfigurator.Windows"
         mc:Ignorable="d"
-        Title="Монитор модуля ТУ" Height="500" Width="800"
+        Title="Монитор модуля ТУ" Height="410" Width="800"
         Background="{DynamicResource GradientThemeBrush}"
         WindowStartupLocation="CenterOwner" ResizeMode="NoResize" ShowInTaskbar="False"
         Closing="Window_Closing" Loaded="Window_Loaded">
@@ -84,80 +84,73 @@
                         <RowDefinition Height="Auto"></RowDefinition>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="15*"></ColumnDefinition>
+                        <ColumnDefinition Width="10*"></ColumnDefinition>
                         <ColumnDefinition Width="10*"></ColumnDefinition>
                         <ColumnDefinition Width="15*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
 
                     <Border Grid.Row="0" Grid.Column="0" BorderBrush="Black" BorderThickness="1">
-                        <TextBlock  Text="Выход №1" Padding="10" TextAlignment="Center"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="LightGray"></TextBlock>
+                        <TextBlock  Text="Выход №1" Padding="10" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="LightGray"                                    
+                                    ToolTip="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.ChannelStatus1}"></TextBlock>
                     </Border>
                     <Border Grid.Row="1" Grid.Column="0" BorderBrush="Black" BorderThickness="1">
-                        <TextBlock  Text="Выход №2" Padding="10" TextAlignment="Center"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="LightGray"></TextBlock>
+                        <TextBlock  Text="Выход №2" Padding="10" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="LightGray"
+                                    ToolTip="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.ChannelStatus2}"></TextBlock>
                     </Border>
                     <Border Grid.Row="2" Grid.Column="0" BorderBrush="Black" BorderThickness="1">
-                        <TextBlock  Text="Выход №3" Padding="10" TextAlignment="Center"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="LightGray"></TextBlock>
+                        <TextBlock  Text="Выход №3" Padding="10" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="LightGray"
+                                    ToolTip="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.ChannelStatus3}"></TextBlock>
                     </Border>
                     <Border Grid.Row="3" Grid.Column="0" BorderBrush="Black" BorderThickness="1">
-                        <TextBlock  Text="Выход №3" Padding="10" TextAlignment="Center"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="LightGray"></TextBlock>
+                        <TextBlock  Text="Выход №3" Padding="10" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="LightGray"
+                                    ToolTip="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.ChannelStatus4}"
+                                    ></TextBlock>
                     </Border>
                     <Border Grid.Row="0" Grid.Column="1" BorderBrush="Black" BorderThickness="1">
-                        <TextBlock x:Name="RealCoilState1" Padding="10" TextAlignment="Center"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="DarkSeaGreen"></TextBlock>
+                        <TextBlock x:Name="RealCoilState1" Padding="10" TextAlignment="Center"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="DarkSeaGreen"
+                                   Text="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.RealCoilState1}"></TextBlock>
                     </Border>
                     <Border Grid.Row="1" Grid.Column="1" BorderBrush="Black" BorderThickness="1">
-                        <TextBlock x:Name="RealCoilState2" Padding="10" TextAlignment="Center"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="DarkSeaGreen"></TextBlock>
+                        <TextBlock x:Name="RealCoilState2" Padding="10" TextAlignment="Center"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="DarkSeaGreen"
+                                   Text="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.RealCoilState2}"></TextBlock>
                     </Border>
                     <Border Grid.Row="2" Grid.Column="1" BorderBrush="Black" BorderThickness="1">
-                        <TextBlock x:Name="RealCoilState3" Padding="10" TextAlignment="Center"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="DarkSeaGreen"></TextBlock>
+                        <TextBlock x:Name="RealCoilState3" Padding="10" TextAlignment="Center"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="DarkSeaGreen"
+                                   Text="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.RealCoilState3}"></TextBlock>
                     </Border>
                     <Border Grid.Row="3" Grid.Column="1" BorderBrush="Black" BorderThickness="1">
-                        <TextBlock x:Name="RealCoilState4" Padding="10" TextAlignment="Center"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="DarkSeaGreen"></TextBlock>
+                        <TextBlock x:Name="RealCoilState4" Padding="10" TextAlignment="Center"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="DarkSeaGreen"
+                                   Text="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.RealCoilState4}"></TextBlock>
                     </Border>
                     
                     <Border Grid.Row="0" Grid.Column="2" BorderBrush="Black" BorderThickness="1">
                         <StackPanel>
-                            <RadioButton x:Name ="IndefStateCoil1" GroupName="Coil1States" Margin="5,3,0,0" Content="НЕОПРЕД." 
-                                         IsChecked="{qc:Binding '$P==65535?true:false',P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.DesiredCoilStateNumeric1,Mode=OneTime}}"></RadioButton>
-                            <RadioButton x:Name ="OffStateCoil1" GroupName="Coil1States" Margin="5,3,0,0" Content="ОТКЛ."
-                                         IsChecked="{qc:Binding '$P==0?true:false',P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.DesiredCoilStateNumeric1, Mode=OneTime}}"></RadioButton>
-                            <RadioButton x:Name ="OnStateCoil1" GroupName="Coil1States" Margin="5,3,0,0" Content="ВКЛ."
-                                         IsChecked="{qc:Binding '$P==65280?true:false',P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.DesiredCoilStateNumeric1, Mode=OneTime}}"></RadioButton>
+                            <RadioButton x:Name ="OffStateCoil1" GroupName="Coil1States" Margin="5,3,0,0" Content="ОТКЛ."></RadioButton>
+                            <RadioButton x:Name ="OnStateCoil1" GroupName="Coil1States" Margin="5,3,0,0" Content="ВКЛ."></RadioButton>
                             <Button x:Name ="SetCoil1" Margin="5,3,5,3" Content="Установить"></Button>
                         </StackPanel>
                     </Border>
 
                     <Border Grid.Row="1" Grid.Column="2" BorderThickness="1" BorderBrush="Black">
                         <StackPanel>
-                            <RadioButton x:Name ="IndefStateCoil2" GroupName="Coil2States" Margin="5,3,0,0" Content="НЕОПРЕД." 
-                                         IsChecked="{qc:Binding '$P==65535?true:false',P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.DesiredCoilStateNumeric2,Mode=OneTime}}"></RadioButton>
-                            <RadioButton x:Name ="OffStateCoil2" GroupName="Coil2States" Margin="5,3,0,0" Content="ОТКЛ."
-                                         IsChecked="{qc:Binding '$P==0?true:false',P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.DesiredCoilStateNumeric2, Mode=OneTime}}"></RadioButton>
-                            <RadioButton x:Name ="OnStateCoil2" GroupName="Coil2States" Margin="5,3,0,0" Content="ВКЛ."
-                                         IsChecked="{qc:Binding '$P==65280?true:false',P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.DesiredCoilStateNumeric2, Mode=OneTime}}"></RadioButton>
+                            <RadioButton x:Name ="OffStateCoil2" GroupName="Coil2States" Margin="5,3,0,0" Content="ОТКЛ."></RadioButton>
+                            <RadioButton x:Name ="OnStateCoil2" GroupName="Coil2States" Margin="5,3,0,0" Content="ВКЛ."></RadioButton>
                             <Button x:Name ="SetCoil2" Margin="5,3,5,3" Content="Установить"></Button>
                         </StackPanel>
                     </Border>
 
                     <Border Grid.Row="2" Grid.Column="2" BorderThickness="1" BorderBrush="Black" >
                         <StackPanel>
-                            <RadioButton x:Name ="IndefStateCoil3" GroupName="Coil3States" Margin="5,3,0,0" Content="НЕОПРЕД." 
-                                         IsChecked="{qc:Binding '$P==65535?true:false',P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.DesiredCoilStateNumeric3,Mode=OneTime}}"></RadioButton>
-                            <RadioButton x:Name ="OffStateCoil3" GroupName="Coil3States" Margin="5,3,0,0" Content="ОТКЛ."
-                                         IsChecked="{qc:Binding '$P==0?true:false',P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.DesiredCoilStateNumeric3, Mode=OneTime}}"></RadioButton>
-                            <RadioButton x:Name ="OnStateCoil3" GroupName="Coil3States" Margin="5,3,0,0" Content="ВКЛ."
-                                         IsChecked="{qc:Binding '$P==65280?true:false',P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.DesiredCoilStateNumeric3, Mode=OneTime}}"></RadioButton>
+                            <RadioButton x:Name ="OffStateCoil3" GroupName="Coil3States" Margin="5,3,0,0" Content="ОТКЛ."></RadioButton>
+                            <RadioButton x:Name ="OnStateCoil3" GroupName="Coil3States" Margin="5,3,0,0" Content="ВКЛ."></RadioButton>
                             <Button x:Name ="SetCoil3" Margin="5,3,5,3" Content="Установить"></Button>
                         </StackPanel>
                     </Border>
 
                     <Border Grid.Row="3" Grid.Column="2" BorderThickness="1" BorderBrush="Black">
                         <StackPanel>
-                            <RadioButton x:Name ="IndefStateCoil4" GroupName="Coil4States" Margin="5,3,0,0" Content="НЕОПРЕД." 
-                                         IsChecked="{qc:Binding '$P==65535?true:false',P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.DesiredCoilStateNumeric4,Mode=OneTime}}"></RadioButton>
-                            <RadioButton x:Name ="OffStateCoil4" GroupName="Coil4States" Margin="5,3,0,0" Content="ОТКЛ."
-                                         IsChecked="{qc:Binding '$P==0?true:false',P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.DesiredCoilStateNumeric4, Mode=OneTime}}"></RadioButton>
-                            <RadioButton x:Name ="OnStateCoil4" GroupName="Coil4States" Margin="5,3,0,0" Content="ВКЛ."
-                                         IsChecked="{qc:Binding '$P==65280?true:false',P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.DesiredCoilStateNumeric4, Mode=OneTime}}"></RadioButton>
+                            <RadioButton x:Name ="OffStateCoil4" GroupName="Coil4States" Margin="5,3,0,0" Content="ОТКЛ."></RadioButton>
+                            <RadioButton x:Name ="OnStateCoil4" GroupName="Coil4States" Margin="5,3,0,0" Content="ВКЛ."></RadioButton>
                             <Button x:Name ="SetCoil4" Margin="5,3,5,3" Content="Установить"></Button>
                         </StackPanel>
                     </Border>

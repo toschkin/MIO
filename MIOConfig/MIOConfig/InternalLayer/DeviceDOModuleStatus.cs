@@ -25,9 +25,23 @@ namespace MIOConfig
         public bool Reserve13{ get; set; }
         public bool Reserve14{ get; set; }
         public bool Reserve15{ get; set; }
+
+        public override string ToString()
+        {
+            StringBuilder returnedValue = new StringBuilder();
+            returnedValue.AppendFormat("Залипание контактов: {0}\r\n", ErrorContactsSticking ? "да" : "нет");
+            returnedValue.AppendFormat("Отсутствует напряжение оперативного тока: {0}\r\n", ErrorNoVoltage ? "да" : "нет");
+            returnedValue.AppendFormat("В процессе выполнения команды DP контакты реле не замкнулись или отсутствует нагрузка: {0}\r\n", ErrorRelayContactsNotClosed == true ? "да" : "нет");
+            returnedValue.AppendFormat("В процессе выполнения команды DP силовой ключ не замкнулся: {0}\r\n", ErrorPowerSwitchNotClosed ? "да" : "нет");
+            returnedValue.AppendFormat("В процессе выполнения команды DP силовой ключ не разомкнулся: {0}\r\n", ErrorPowerSwitchNotOpened ? "да" : "нет");
+            returnedValue.AppendFormat("В процессе выполнения команды DP контакты реле не разомкнулись: {0}\r\n", ErrorRelayContactsNotOpened ? "да" : "нет");
+            returnedValue.AppendFormat("Ошибка обмоток реле: {0}\r\n", ErrorRelayCoils ? "да" : "нет");
+            return returnedValue.ToString();
+        }
+
         /// <summary>
         /// Holding regs|addr.: 514,523-526|count: 1
-        /// </summary>     
+        /// </summary>          
         [ModbusProperty(Access = ModbusRegisterAccessType.AccessRead)]
         public UInt16 StatusRegister
         {

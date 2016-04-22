@@ -38,10 +38,10 @@ namespace MIOConfig
         public string DesiredCoilState3 { get { return GetCoilStateDescription(DesiredCoilStates[2]); } }        
         public string DesiredCoilState4 { get { return GetCoilStateDescription(DesiredCoilStates[3]); } }
 
-        public UInt16 DesiredCoilStateNumeric1 { get { return DesiredCoilStates[0]; } }
-        public UInt16 DesiredCoilStateNumeric2 { get { return DesiredCoilStates[1]; } }
-        public UInt16 DesiredCoilStateNumeric3 { get { return DesiredCoilStates[2]; } }
-        public UInt16 DesiredCoilStateNumeric4 { get { return DesiredCoilStates[3]; } }
+        public string ChannelStatus1 { get { return ChannelStatuses[0].ToString(); } }
+        public string ChannelStatus2 { get { return ChannelStatuses[1].ToString(); } }
+        public string ChannelStatus3 { get { return ChannelStatuses[2].ToString(); } }
+        public string ChannelStatus4 { get { return ChannelStatuses[3].ToString(); } }
 
         public List<object> ToList()
         {

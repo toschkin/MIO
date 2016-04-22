@@ -45,9 +45,15 @@ namespace MIOConfigurator.Windows
         public ModuleDOMonitor()
         {
             InitializeComponent();
-            _currentStatus = new DeviceDOModule();            
+            _currentStatus = new DeviceDOModule();
+            _needToForceCoil = false;
+            _coilState = false;
+            _coilAddress = 0;
         }
 
+        private bool _needToForceCoil;
+        private UInt16 _coilAddress;
+        private bool _coilState;
         private BackgroundWorker windowBackgroundWorker = new BackgroundWorker();
 
         private void ReadStatusesProgressChanged(object sender, ProgressChangedEventArgs e)
@@ -56,11 +62,7 @@ namespace MIOConfigurator.Windows
             {
                 CurrentModuleStatus = (DeviceDOModule)e.UserState;
             }
-            ExchangeStatus.Text = ((ReaderSaverErrors)e.ProgressPercentage).GetDescription();
-            RealCoilState1.Text = CurrentModuleStatus.RealCoilState1;
-            RealCoilState2.Text = CurrentModuleStatus.RealCoilState2;
-            RealCoilState3.Text = CurrentModuleStatus.RealCoilState3;
-            RealCoilState4.Text = CurrentModuleStatus.RealCoilState4;           
+            ExchangeStatus.Text = ((ReaderSaverErrors)e.ProgressPercentage).GetDescription();                
         }
         
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -69,8 +71,24 @@ namespace MIOConfigurator.Windows
             windowBackgroundWorker.DoWork += ReadStatuses;
             windowBackgroundWorker.ProgressChanged += ReadStatusesProgressChanged;
             windowBackgroundWorker.WorkerSupportsCancellation = true;
+            windowBackgroundWorker.RunWorkerCompleted += ReadDOModuleStatusesCompleted;
             windowBackgroundWorker.RunWorkerAsync();
         }
+
+        private void ReadDOModuleStatusesCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if (_needToForceCoil == true)
+            {
+                ReaderSaverErrors retCode = ModbusReader.ForceCoil(_coilAddress, _coilState);
+                ExchangeStatus.Text = retCode.GetDescription();
+                if (retCode != ReaderSaverErrors.CodeOk)
+                {
+                    MessageBox.Show("Ошибка: " + retCode.GetDescription());
+                }
+                windowBackgroundWorker.RunWorkerAsync();
+            }
+        }
+
         private void ReadStatuses(object sender, DoWorkEventArgs e)
         {
             BackgroundWorker worker = sender as BackgroundWorker;
@@ -91,22 +109,31 @@ namespace MIOConfigurator.Windows
             windowBackgroundWorker.CancelAsync();
         }
 
+
         private void GridCoilStates_OnPreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            if (e.Source.Equals(SetCoil1))
+            Byte coilOffset = 5;
+            if (e.Source.Equals(SetCoil1))            
+                _coilState = OnStateCoil1.IsChecked == true;
+
+            if (e.Source.Equals(SetCoil2))
             {
-                if (IndefStateCoil1.IsChecked == true)
-                {
-                    MessageBox.Show("IndefStateCoil1.IsChecked");                    
-                }else if (OffStateCoil1.IsChecked == true)
-                {
-                    MessageBox.Show("OffStateCoil1.IsChecked");                          
-                }
-                else if (OnStateCoil1.IsChecked == true)
-                {
-                    MessageBox.Show("OnStateCoil1.IsChecked");
-                }
+                _coilState = OnStateCoil2.IsChecked == true;
+                coilOffset = 6;
             }
+            if (e.Source.Equals(SetCoil3))
+            {
+                _coilState = OnStateCoil3.IsChecked == true;
+                coilOffset = 7;
+            }
+            if (e.Source.Equals(SetCoil4))
+            {
+                _coilState = OnStateCoil4.IsChecked == true;
+                coilOffset = 8;
+            }
+            _needToForceCoil = true;            
+            _coilAddress = (UInt16)(ModbusReader.RegisterReadAddressOffset + coilOffset);
+            windowBackgroundWorker.CancelAsync();
         }
     }
 }

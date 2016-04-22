@@ -114,6 +114,18 @@ namespace MIOConfig
             return PerformReading(ref tempList,4);
         }
 
+        public ReaderSaverErrors ForceCoil(UInt16 coilAddress, bool coilState)
+        {
+            if (_protocol.IsConnected)
+            {
+                ModbusErrorCode code = ModbusErrorCode.CodeOk;                
+                code = _protocol.ForceSingleCoil(SlaveAddress, coilAddress,coilState);
+                if (code != ModbusErrorCode.CodeOk)
+                    return ReaderSaverErrors.CodeModbusCommunicationError;
+                return ReaderSaverErrors.CodeOk;
+            }
+            return ReaderSaverErrors.CodeComPortNotConnected;
+        }
         public ReaderSaverErrors ReadModuleRegisters(IDeviceModule module)
         {
             List<object> listOfConfigurationItems = module.ToList();
