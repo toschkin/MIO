@@ -77,7 +77,7 @@ namespace MIOConfigurator.Windows
 
         private void ReadDOModuleStatusesCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            if (_needToForceCoil == true)
+            if (_needToForceCoil)
             {
                 ReaderSaverErrors retCode = ModbusReader.ForceCoil(_coilAddress, _coilState);
                 ExchangeStatus.Text = retCode.GetDescription();
@@ -85,6 +85,7 @@ namespace MIOConfigurator.Windows
                 {
                     MessageBox.Show("Ошибка: " + retCode.GetDescription());
                 }
+                _needToForceCoil = false;
                 windowBackgroundWorker.RunWorkerAsync();
             }
         }
@@ -131,9 +132,13 @@ namespace MIOConfigurator.Windows
                 _coilState = OnStateCoil4.IsChecked == true;
                 coilOffset = 8;
             }
-            _needToForceCoil = true;            
-            _coilAddress = (UInt16)(ModbusReader.RegisterReadAddressOffset + coilOffset);
-            windowBackgroundWorker.CancelAsync();
+            if (e.Source.Equals(SetCoil1) || e.Source.Equals(SetCoil2) || e.Source.Equals(SetCoil3) ||
+                e.Source.Equals(SetCoil4))
+            {
+                _needToForceCoil = true;
+                _coilAddress = (UInt16)(ModbusReader.RegisterReadAddressOffset + coilOffset);
+                windowBackgroundWorker.CancelAsync();
+            }
         }
     }
 }

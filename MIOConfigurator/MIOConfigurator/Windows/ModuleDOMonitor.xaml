@@ -102,7 +102,7 @@
                                     ToolTip="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.ChannelStatus3}"></TextBlock>
                     </Border>
                     <Border Grid.Row="3" Grid.Column="0" BorderBrush="Black" BorderThickness="1">
-                        <TextBlock  Text="Выход №3" Padding="10" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="LightGray"
+                        <TextBlock  Text="Выход №4" Padding="10" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="LightGray"
                                     ToolTip="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.ChannelStatus4}"
                                     ></TextBlock>
                     </Border>
