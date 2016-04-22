@@ -11,7 +11,7 @@
         xmlns:utilites="clr-namespace:MIOConfigurator.Utilites"
         xmlns:windows="clr-namespace:MIOConfigurator.Windows"
         mc:Ignorable="d"
-        Title="Настройка МВВ" Height="600" Width="800" MinHeight="600" MinWidth="800" WindowStartupLocation="CenterScreen" 
+        Title="Настройка МВВ" Height="600" Width="800" MinHeight="480" MinWidth="640" WindowStartupLocation="CenterScreen" 
         Closing="MainWindow_Closing" Loaded="MainWindow_Loaded">
     <Window.CommandBindings>
         <CommandBinding Command="{x:Static windows:MainWindow.AddRouteCommand}"
@@ -148,7 +148,7 @@
                 <RowDefinition Height="*"></RowDefinition>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2*" MinWidth="250"></ColumnDefinition>
+                <ColumnDefinition Width="2*" MinWidth="100"></ColumnDefinition>
                 <ColumnDefinition Width="Auto"></ColumnDefinition>
                 <ColumnDefinition Width="5*" MinWidth="300"></ColumnDefinition>
             </Grid.ColumnDefinitions>
