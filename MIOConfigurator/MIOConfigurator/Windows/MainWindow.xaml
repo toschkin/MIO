@@ -494,7 +494,7 @@
                                               IsEnabled="{qc:Binding '$P!=3',P={Binding ElementName=ParallelChannel2, Path=SelectedIndex}}">
                                         <ComboBoxItem>Не задействован</ComboBoxItem>
                                         <ComboBoxItem>Одинарное переключение</ComboBoxItem>
-                                        <ComboBoxItem>Двойное переключение</ComboBoxItem>
+                                        <ComboBoxItem Visibility="{qc:Binding '$P==4?Visibility.Collapsed:Visibility.Visible', P={Binding  ElementName=ParallelChannel2, Path=SelectedIndex}}">Двойное переключение</ComboBoxItem>
                                         <ComboBoxItem Visibility="Collapsed" IsEnabled="False">Параллельный канал</ComboBoxItem>
                                     </ComboBox>
 

@@ -117,11 +117,11 @@ namespace MIOConfigurator.Windows
             if (e.Source.Equals(SetCoil1))            
                 _coilState = OnStateCoil1.IsChecked == true;
 
-            if (e.Source.Equals(SetCoil2))
+            /*if (e.Source.Equals(SetCoil2))
             {
                 _coilState = OnStateCoil2.IsChecked == true;
                 coilOffset = 6;
-            }
+            }*/
             if (e.Source.Equals(SetCoil3))
             {
                 _coilState = OnStateCoil3.IsChecked == true;
@@ -132,7 +132,7 @@ namespace MIOConfigurator.Windows
                 _coilState = OnStateCoil4.IsChecked == true;
                 coilOffset = 8;
             }
-            if (e.Source.Equals(SetCoil1) || e.Source.Equals(SetCoil2) || e.Source.Equals(SetCoil3) ||
+            if (e.Source.Equals(SetCoil1) || /*e.Source.Equals(SetCoil2) ||*/ e.Source.Equals(SetCoil3) ||
                 e.Source.Equals(SetCoil4))
             {
                 _needToForceCoil = true;
