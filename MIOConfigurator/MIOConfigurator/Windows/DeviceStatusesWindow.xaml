@@ -6,73 +6,128 @@
         xmlns:local="clr-namespace:MIOConfigurator.Windows"
         xmlns:qc="http://QuickConverter.CodePlex.com/"
         mc:Ignorable="d"
-        Title="Статусы устройства" Height="350" Width="450"
+        Title="Статусы устройства" Height="Auto" Width="450"
+        SizeToContent="Height"
         Background="{DynamicResource GradientThemeBrush}"
         WindowStartupLocation="CenterOwner" ResizeMode="NoResize" Loaded="Window_Loaded" Closing="Window_Closing" ShowInTaskbar="False" >
-    
-    <DockPanel Margin="10">
-        <TextBlock DockPanel.Dock="Top" Text="Статусы коммуникационных портов устройства" Padding="10"></TextBlock>
-        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal">
-            <TextBlock  Text="Статус обмена с устройством:" Padding="10"></TextBlock>
-            <TextBlock  x:Name="ExchangeStatus" Padding="10" Width="Auto" FontWeight="Bold"></TextBlock>
-        </StackPanel>
-        <DataGrid x:Name="PortsStatusesDataGrid" DockPanel.Dock="Bottom"
-                  ItemsSource="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=UartPortStatuses, UpdateSourceTrigger=PropertyChanged}"
-                  EnableRowVirtualization="False"
-                  Background="Lavender"
-                  AutoGenerateColumns="False">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="№ порта" Width="Auto" IsReadOnly="True" 
-                                                            Binding="{qc:Binding '$P.GetIndex()+1', P={Binding RelativeSource={RelativeSource AncestorType=DataGridRow}}}"
-                                                            >
-                    <DataGridTextColumn.HeaderStyle>
-                        <Style TargetType="DataGridColumnHeader">
-                            <Setter Property="HorizontalContentAlignment" Value="Center" />
-                            <Setter Property="Padding" Value="5"></Setter>
-                            <Setter Property="BorderBrush" Value="DarkGray"></Setter>
-                            <Setter Property="BorderThickness" Value="1"></Setter>
-                            <Setter Property="Background">
-                                <Setter.Value>
-                                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                        <GradientStop Color="DarkSalmon" Offset="0"></GradientStop>
-                                        <GradientStop Color="White" Offset="1"></GradientStop>
-                                    </LinearGradientBrush>
-                                </Setter.Value>
-                            </Setter>
-                        </Style>
-                    </DataGridTextColumn.HeaderStyle>
-                    <DataGridTextColumn.CellStyle>
-                        <Style TargetType="DataGridCell">
-                            <Setter Property="Background">
-                                <Setter.Value>
-                                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                        <GradientStop Color="LightGray" Offset="0"></GradientStop>
-                                        <GradientStop Color="White" Offset="1"></GradientStop>
-                                    </LinearGradientBrush>
-                                </Setter.Value>
-                            </Setter>
-                        </Style>
-                    </DataGridTextColumn.CellStyle>
-                </DataGridTextColumn>
-                <DataGridTextColumn Header="Статуc" Width="*" Binding="{Binding}" IsReadOnly="True" >
-                    <DataGridTextColumn.HeaderStyle>
-                        <Style TargetType="DataGridColumnHeader">
-                            <Setter Property="HorizontalContentAlignment" Value="Center" />
-                            <Setter Property="Padding" Value="5"></Setter>
-                            <Setter Property="BorderBrush" Value="DarkGray"></Setter>
-                            <Setter Property="BorderThickness" Value="1"></Setter>
-                            <Setter Property="Background">
-                                <Setter.Value>
-                                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                        <GradientStop Color="DarkSeaGreen" Offset="0"></GradientStop>
-                                        <GradientStop Color="White" Offset="1"></GradientStop>
-                                    </LinearGradientBrush>
-                                </Setter.Value>
-                            </Setter>
-                        </Style>
-                    </DataGridTextColumn.HeaderStyle>
-                </DataGridTextColumn>
-            </DataGrid.Columns>
-        </DataGrid>
-    </DockPanel>
+    <StackPanel>
+        <GroupBox Header="Cостояние устройства" FontSize="14" Margin="5">
+            <Grid Margin="5">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"></ColumnDefinition>
+                    <ColumnDefinition Width="8*"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                
+                <Image Grid.Row="0" Grid.Column="0" Height="32" Width="32" 
+                           Source="{qc:Binding '$P==true ? \'Images/led_red.png\' : \'Images/led_green.png\'',
+                           P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentStatuses.Header.ModbusChannel1Status}}" />
+
+                <TextBlock Grid.Row="0" Grid.Column="1" Text="Модуль MODBUS(master) канал №1" Padding="5"></TextBlock>
+                
+                <Image Grid.Row="1" Grid.Column="0" Height="32" Width="32" 
+                           Source="{qc:Binding '$P==true ? \'Images/led_red.png\' : \'Images/led_green.png\'',
+                           P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentStatuses.Header.ModbusChannel2Status}}" />
+
+                <TextBlock Grid.Row="1" Grid.Column="1" Text="Модуль MODBUS(master) канал №2" Padding="5"></TextBlock>
+                
+                <Image Grid.Row="2" Grid.Column="0" Height="32" Width="32" 
+                               Source="{qc:Binding '$P==true ? \'Images/led_red.png\' : \'Images/led_green.png\'',
+                               P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentStatuses.Header.ModbusChannel3Status}}" />
+
+                <TextBlock Grid.Row="2" Grid.Column="1" Text="Модуль MODBUS(master) канал №3" TextWrapping="Wrap" Padding="5"></TextBlock>
+
+                <Image Grid.Row="3" Grid.Column="0" Height="32" Width="32" 
+                               Source="{qc:Binding '$P==true ? \'Images/led_red.png\' : \'Images/led_green.png\'',
+                               P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentStatuses.Header.DIModuleStatus}}" />
+                
+                <TextBlock Grid.Row="3" Grid.Column="1" Text="Модуль ТС" TextWrapping="Wrap" Padding="5"></TextBlock>
+
+                <Image Grid.Row="4" Grid.Column="0" Height="32" Width="32" 
+                               Source="{qc:Binding '$P==true ? \'Images/led_red.png\' : \'Images/led_green.png\'',
+                               P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentStatuses.Header.DOModuleStatus}}" />
+                
+                <TextBlock Grid.Row="4" Grid.Column="1" Text="Модуль ТУ" TextWrapping="Wrap" Padding="5"></TextBlock>
+
+                <Image Grid.Row="5" Grid.Column="0" Height="32" Width="32" 
+                               Source="{qc:Binding '$P==true ? \'Images/led_red.png\' : \'Images/led_green.png\'',
+                               P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentStatuses.Header.RouterModuleStatus}}" />
+
+                <TextBlock Grid.Row="5" Grid.Column="1" Text="Модуль Ретранслятор" TextWrapping="Wrap" Padding="5"></TextBlock>
+            </Grid>
+        </GroupBox>
+        <GroupBox Header="Статусы коммуникационных портов устройства">
+            <StackPanel Margin="5">
+                <DataGrid x:Name="PortsStatusesDataGrid" 
+                      ItemsSource="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=UartPortStatuses, UpdateSourceTrigger=PropertyChanged}"
+                      EnableRowVirtualization="False"
+                      Background="Lavender"
+                      AutoGenerateColumns="False">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="№ порта" Width="Auto" IsReadOnly="True" 
+                                                                Binding="{qc:Binding '$P.GetIndex()+1', P={Binding RelativeSource={RelativeSource AncestorType=DataGridRow}}}"
+                                                                >
+                            <DataGridTextColumn.HeaderStyle>
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                    <Setter Property="Padding" Value="5"></Setter>
+                                    <Setter Property="BorderBrush" Value="DarkGray"></Setter>
+                                    <Setter Property="BorderThickness" Value="1"></Setter>
+                                    <Setter Property="Background">
+                                        <Setter.Value>
+                                            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                                <GradientStop Color="DarkSalmon" Offset="0"></GradientStop>
+                                                <GradientStop Color="White" Offset="1"></GradientStop>
+                                            </LinearGradientBrush>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </DataGridTextColumn.HeaderStyle>
+                            <DataGridTextColumn.CellStyle>
+                                <Style TargetType="DataGridCell">
+                                    <Setter Property="Background">
+                                        <Setter.Value>
+                                            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                                <GradientStop Color="LightGray" Offset="0"></GradientStop>
+                                                <GradientStop Color="White" Offset="1"></GradientStop>
+                                            </LinearGradientBrush>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </DataGridTextColumn.CellStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="Статуc" Width="*" Binding="{Binding}" IsReadOnly="True" >
+                            <DataGridTextColumn.HeaderStyle>
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                    <Setter Property="Padding" Value="5"></Setter>
+                                    <Setter Property="BorderBrush" Value="DarkGray"></Setter>
+                                    <Setter Property="BorderThickness" Value="1"></Setter>
+                                    <Setter Property="Background">
+                                        <Setter.Value>
+                                            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                                <GradientStop Color="DarkSeaGreen" Offset="0"></GradientStop>
+                                                <GradientStop Color="White" Offset="1"></GradientStop>
+                                            </LinearGradientBrush>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </DataGridTextColumn.HeaderStyle>
+                        </DataGridTextColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock  Text="Статус обмена с устройством:" Padding="10"></TextBlock>
+                    <TextBlock  x:Name="ExchangeStatus" Padding="10" Width="Auto" FontWeight="Bold"></TextBlock>
+                </StackPanel>
+            </StackPanel>
+        </GroupBox>
+    </StackPanel>
 </Window>

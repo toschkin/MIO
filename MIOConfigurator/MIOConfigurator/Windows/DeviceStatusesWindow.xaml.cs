@@ -40,7 +40,7 @@ namespace MIOConfigurator.Windows
             set
             {
                 _currentStatuses = value;
-                //NotifyPropertyChanged("CurrentStatuses");
+                NotifyPropertyChanged("CurrentStatuses");
                 PortsStatusesDataGrid.Items.Refresh();
             }
         }

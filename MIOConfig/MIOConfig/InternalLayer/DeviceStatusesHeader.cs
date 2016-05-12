@@ -8,7 +8,13 @@ using Modbus.Core;
 namespace MIOConfig
 {
     public class DeviceStatusesHeader
-    {        
+    {
+        public bool ModbusChannel1Status { get; set; }
+        public bool ModbusChannel2Status { get; set; }
+        public bool ModbusChannel3Status { get; set; }
+        public bool DIModuleStatus { get; set; }
+        public bool DOModuleStatus { get; set; }
+        public bool RouterModuleStatus { get; set; }
         /// <summary>
         /// Holding regs|addr.: 500 |count: 1| R/W
         /// </summary>
@@ -24,8 +30,46 @@ namespace MIOConfig
         /// <summary>
         /// Holding regs|addr.: 501 |count: 1| RO
         /// </summary>
-        /// <value>Not implemented yet</value>        
+        /// <value>
+        /// Программный модуль	№ бита
+        /// MODBUS канал №1	    0
+        /// MODBUS канал №2	    1
+        /// MODBUS канал №3	    2
+        /// ТС	                3
+        /// ТУ	                4
+        /// Маршрутизация	    5
+        /// 
+        /// 0 – модуль функционирует нормально;
+        /// 1 –  (конфигурация модуля выполнена с коллизиями)/(ошибка модуля). 
+        /// </value>        
         [ModbusProperty(Access = ModbusRegisterAccessType.AccessRead)]
-        public UInt16 GlobalStatusRegisterValue { get; set; }
+        public UInt16 GlobalStatusRegisterValue
+        {
+            get
+            {
+                int numeral = 0;
+                Byte i = 0;
+                foreach (var field in OrderedGetter.GetObjectPropertiesInDeclarationOrder(this))
+                {
+                    if (field.GetCustomAttributes(typeof(ModbusPropertyAttribute), false).Length > 0)//except itself
+                        continue;
+
+                    if ((bool)field.GetValue(this, null))
+                        numeral |= 1 << i;
+                    i++;
+                }
+                return (UInt16)numeral;
+            }
+            set
+            {
+                Byte i = 0;
+                foreach (var field in OrderedGetter.GetObjectPropertiesInDeclarationOrder(this))
+                {
+                    if (field.GetCustomAttributes(typeof(ModbusPropertyAttribute), false).Length > 0)//except itself
+                        continue;
+                    field.SetValue(this, (value & (1 << i++)) != 0, null);
+                }
+            }
+        }        
     }
 }
