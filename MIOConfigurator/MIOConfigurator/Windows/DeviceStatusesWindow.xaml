@@ -30,19 +30,19 @@
                            Source="{qc:Binding '$P==true ? \'Images/led_red.png\' : \'Images/led_green.png\'',
                            P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentStatuses.Header.ModbusChannel1Status}}" />
 
-                <TextBlock Grid.Row="0" Grid.Column="1" Text="Модуль MODBUS(master) канал №1" Padding="5"></TextBlock>
+                <TextBlock Grid.Row="0" Grid.Column="1" Text="Модуль MODBUS канал №1" Padding="5"></TextBlock>
                 
                 <Image Grid.Row="1" Grid.Column="0" Height="32" Width="32" 
                            Source="{qc:Binding '$P==true ? \'Images/led_red.png\' : \'Images/led_green.png\'',
                            P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentStatuses.Header.ModbusChannel2Status}}" />
 
-                <TextBlock Grid.Row="1" Grid.Column="1" Text="Модуль MODBUS(master) канал №2" Padding="5"></TextBlock>
+                <TextBlock Grid.Row="1" Grid.Column="1" Text="Модуль MODBUS канал №2" Padding="5"></TextBlock>
                 
                 <Image Grid.Row="2" Grid.Column="0" Height="32" Width="32" 
                                Source="{qc:Binding '$P==true ? \'Images/led_red.png\' : \'Images/led_green.png\'',
                                P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentStatuses.Header.ModbusChannel3Status}}" />
 
-                <TextBlock Grid.Row="2" Grid.Column="1" Text="Модуль MODBUS(master) канал №3" TextWrapping="Wrap" Padding="5"></TextBlock>
+                <TextBlock Grid.Row="2" Grid.Column="1" Text="Модуль MODBUS канал №3" TextWrapping="Wrap" Padding="5"></TextBlock>
 
                 <Image Grid.Row="3" Grid.Column="0" Height="32" Width="32" 
                                Source="{qc:Binding '$P==true ? \'Images/led_red.png\' : \'Images/led_green.png\'',

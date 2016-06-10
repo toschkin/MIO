@@ -62,9 +62,9 @@ namespace MIOConfig
                 case Definitions.DO_COIL_STATE_ON:
                     return "ВКЛ.";
                 case Definitions.DO_COIL_STATE_INDEF:
-                    return "НЕОПРЕД.";
+                    return "НЕ ВЫПОЛН.";
                 default:
-                    return "НЕОПРЕД.";
+                    return "НЕ ВЫПОЛН.";
             }            
         }
         public bool FromList(List<object> listOfConfigurationItems)

@@ -295,7 +295,7 @@
                                     <StackPanel>
                                         <CheckBox Content="Порт активен" Margin="10,10,10,0" 
                                                   IsChecked="{qc:Binding '$P == 1', ConvertBack='$value?1:0',  P={Binding Path=SelectedPortConfiguration.PortOperation, Mode=TwoWay, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}}"
-                                                  Visibility="{qc:Binding '$P==0 ? Visibility.Collapsed : Visibility.Visible', P={Binding ElementName=UartPots, Path=SelectedIndex}}"></CheckBox>
+                                                  Visibility="{qc:Binding '$P==1 ? Visibility.Collapsed : Visibility.Visible', P={Binding ElementName=UartPots, Path=SelectedIndex}}"></CheckBox>
                                         <Grid Margin="10,10,10,0">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition SharedSizeGroup="Labels" Width="Auto"></ColumnDefinition>
@@ -340,7 +340,7 @@
                                             <ComboBox x:Name="PortProtocolType" Grid.Row ="0" Grid.Column="1" Margin="5,5,5,5" 
                                                       SelectedIndex="{Binding Path=SelectedPortConfiguration.PortProtocolType, Mode=TwoWay, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}" SelectionChanged="PortProtocolType_OnSelectionChanged">
                                                 <ComboBoxItem Visibility="{qc:MultiBinding 
-                                                    '($P0==0)||(!$P1) ? Visibility.Collapsed : Visibility.Visible', 
+                                                    '($P0==1)||(!$P1) ? Visibility.Collapsed : Visibility.Visible', 
                                                     P0={Binding ElementName=UartPots, Path=SelectedIndex},
                                                     P1={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedDevice.ModuleModbusMasterPresent}}">
                                                     Modbus (master)</ComboBoxItem>
