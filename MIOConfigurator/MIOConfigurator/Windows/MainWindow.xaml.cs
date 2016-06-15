@@ -252,7 +252,7 @@ namespace MIOConfigurator.Windows
                 mainWindowBackgroundWorker.RunWorkerAsync();                   
             }
         }
-        private bool AskUserToSaveDeviceConfiguration(bool forceSaving = false)
+        private bool AskUserToSaveDeviceConfiguration()
         {
             if (DeviceConfigurationChanged)
             {

@@ -210,7 +210,10 @@
                 ShowsPreview="False" Background="Lavender"></GridSplitter>
             <Grid UseLayoutRounding="True" Grid.Row="1" Grid.Column="2" Margin="0,0,0,0">
                 <TextBlock x:Name ="NoItemsTextBlock" Margin="0,10,10,10" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Нет элементов для отображения"/>
-                <TabControl x:Name ="ConfigurationTabs"  Margin="0,10,10,10" Background="Lavender" IsEnabled="{Binding WorkerStopped,RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, UpdateSourceTrigger=PropertyChanged}" SelectionChanged="ConfigurationTabs_OnSelectionChanged">
+                <TabControl x:Name ="ConfigurationTabs"  Margin="0,10,10,10" 
+                            Background="Lavender" 
+                            IsEnabled="{Binding WorkerStopped,RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, UpdateSourceTrigger=PropertyChanged}" 
+                            SelectionChanged="ConfigurationTabs_OnSelectionChanged">
                     <TabControl.Resources>
                         <Style TargetType="{x:Type TabItem}">
                             <Setter Property="Template">
