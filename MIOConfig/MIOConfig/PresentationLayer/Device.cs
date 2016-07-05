@@ -272,8 +272,7 @@ namespace MIOConfig
         public ReadOnlyCollection<DeviceUartPortStatus> UartPortStatuses
         {
             get { return new ReadOnlyCollection<DeviceUartPortStatus>(Statuses.UartPortStatuses); }
-        }
-        //TODO add global status when it will be ready
+        }        
 
         #region Methods
         public ReaderSaverErrors ReadSatusRegistersFromDevice(ModbusReaderSaver reader)

@@ -12,9 +12,9 @@ namespace MIOConfig
         public bool ModbusChannel1Status { get; set; }
         public bool ModbusChannel2Status { get; set; }
         public bool ModbusChannel3Status { get; set; }
-        public bool DIModuleStatus { get; set; }
-        public bool DOModuleStatus { get; set; }
         public bool RouterModuleStatus { get; set; }
+        public bool DIModuleStatus { get; set; }
+        public bool DOModuleStatus { get; set; }        
         /// <summary>
         /// Holding regs|addr.: 500 |count: 1| R/W
         /// </summary>
