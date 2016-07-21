@@ -358,5 +358,5 @@ namespace Rubenhak.Common.WPF
         Any,
         Integer,
         Decimal
-    }  
+    }
 }
