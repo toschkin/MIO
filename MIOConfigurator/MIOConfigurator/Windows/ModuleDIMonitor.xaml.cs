@@ -14,6 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using EnumExtension;
 using MIOConfig;
+using TextFileLogger;
 
 namespace MIOConfigurator.Windows
 {
@@ -33,6 +34,7 @@ namespace MIOConfigurator.Windows
         public ModbusReaderSaver ModbusReader { get; set; }
 
         private DeviceDIModule _currentStatus;
+        private TextLogger _logger;
         public DeviceDIModule CurrentModuleStatus
         {
             get { return _currentStatus; }
@@ -45,8 +47,12 @@ namespace MIOConfigurator.Windows
         public ModuleDIMonitor()
         {
             InitializeComponent();
-            _currentStatus = new DeviceDIModule();            
+            _currentStatus = new DeviceDIModule();
+            _logger = new TextLogger();
+            _logger.LogFilePath = AppDomain.CurrentDomain.BaseDirectory + "TS_ModuleMonitor_LOG.txt";
         }
+
+        public bool SaveToLog { get; set; }
 
         private BackgroundWorker windowBackgroundWorker = new BackgroundWorker();
 
@@ -57,6 +63,10 @@ namespace MIOConfigurator.Windows
                 CurrentModuleStatus = (DeviceDIModule)e.UserState;
             }
             ExchangeStatus.Text = ((ReaderSaverErrors)e.ProgressPercentage).GetDescription();
+            if (SaveToLog)
+            {
+                _logger.LogTextMessage("Request statuses:\t" + ExchangeStatus.Text);
+            }
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)

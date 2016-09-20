@@ -14,6 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using EnumExtension;
 using MIOConfig;
+using TextFileLogger;
 
 namespace MIOConfigurator.Windows
 {
@@ -42,6 +43,8 @@ namespace MIOConfigurator.Windows
                 NotifyPropertyChanged("CurrentModuleStatus");
             }
         }
+
+        private TextLogger _logger;
         public ModuleDOMonitor()
         {
             InitializeComponent();
@@ -49,6 +52,8 @@ namespace MIOConfigurator.Windows
             _needToForceCoil = false;
             _coilState = false;
             _coilAddress = 0;
+            _logger = new TextLogger();
+            _logger.LogFilePath = AppDomain.CurrentDomain.BaseDirectory + "TU_ModuleMonitor_LOG.txt";
         }
 
         private bool _needToForceCoil;
@@ -56,13 +61,19 @@ namespace MIOConfigurator.Windows
         private bool _coilState;
         private BackgroundWorker windowBackgroundWorker = new BackgroundWorker();
 
+        public bool SaveToLog { get; set; }
+
         private void ReadStatusesProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             if (e.UserState is DeviceDOModule)
             {
                 CurrentModuleStatus = (DeviceDOModule)e.UserState;
             }
-            ExchangeStatus.Text = ((ReaderSaverErrors)e.ProgressPercentage).GetDescription();                
+            ExchangeStatus.Text = ((ReaderSaverErrors)e.ProgressPercentage).GetDescription();
+            if (SaveToLog)
+            {
+                _logger.LogTextMessage("Request statuses:\t" + ExchangeStatus.Text);
+            }
         }
         
         private void Window_Loaded(object sender, RoutedEventArgs e)

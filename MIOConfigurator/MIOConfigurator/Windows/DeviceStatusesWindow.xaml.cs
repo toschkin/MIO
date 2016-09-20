@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics.Eventing.Reader;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -15,6 +17,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using EnumExtension;
 using MIOConfig;
+using Modbus.Core;
+using TextFileLogger;
 
 namespace MIOConfigurator.Windows
 {
@@ -31,9 +35,13 @@ namespace MIOConfigurator.Windows
                 PropertyChanged(this, new PropertyChangedEventArgs(info));
             }
         }
+       
         public ModbusReaderSaver ModbusReader { get; set; }
+
+        public bool SaveToLog { get; set; }
       
         private DeviceStatuses _currentStatuses;
+        private TextLogger _logger;
         public DeviceStatuses CurrentStatuses
         {
             get { return _currentStatuses; }
@@ -54,6 +62,8 @@ namespace MIOConfigurator.Windows
         {            
             InitializeComponent();
             _currentStatuses = new DeviceStatuses();
+            _logger = new TextLogger();
+            _logger.LogFilePath = AppDomain.CurrentDomain.BaseDirectory + "DeviceStatuses_Log.txt";
         }
 
         private BackgroundWorker windowBackgroundWorker = new BackgroundWorker();
@@ -65,6 +75,10 @@ namespace MIOConfigurator.Windows
                 CurrentStatuses = (DeviceStatuses) e.UserState;                
             }
             ExchangeStatus.Text = ((ReaderSaverErrors)e.ProgressPercentage).GetDescription();
+            if (SaveToLog)
+            {
+                _logger.LogTextMessage("Request statuses:\t"+ExchangeStatus.Text);
+            }
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)

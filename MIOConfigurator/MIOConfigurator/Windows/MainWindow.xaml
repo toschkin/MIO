@@ -867,26 +867,28 @@
                         </Grid>
                     </TabItem>
                     <TabItem Header="Монитор">
-                        <WrapPanel Margin="0,10">
-                            <Button Content="Статусы устройства" Padding="5" Margin="5" Click="StatusesMonitor_OnClick" 
+                        <StackPanel>
+                            <WrapPanel Margin="0,10">
+                                <Button Content="Статусы устройства" Padding="5" Margin="5" Click="StatusesMonitor_OnClick" 
                                     IsEnabled="{Binding WorkerStopped,RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, UpdateSourceTrigger=PropertyChanged}"
                                     Style="{DynamicResource ButtonGradientStyle}">
-                            </Button>
-                            <Button Content="Область пользовательских регистров" Padding="5" Margin="5" Visibility="{qc:Binding '$P&gt;0 ? Visibility.Visible: Visibility.Collapsed',                                                     
+                                </Button>
+                                <Button Content="Область пользовательских регистров" Padding="5" Margin="5" Visibility="{qc:Binding '$P&gt;0 ? Visibility.Visible: Visibility.Collapsed',                                                     
                                     P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedDevice.UserRegistersCount}}"
                                     IsEnabled="{Binding WorkerStopped,RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, UpdateSourceTrigger=PropertyChanged}"
                                     Style="{DynamicResource ButtonGradientStyle}" Click="UserRegsMonitorButton_Click">
-                            </Button>
-                            <Button x:Name="ModuleDIMonitor" Content="Модуль ТС" Padding="5" Margin="5"  Visibility="{qc:Binding '!$P ? Visibility.Collapsed : Visibility.Visible',                                                     
+                                </Button>
+                                <Button x:Name="ModuleDIMonitor" Content="Модуль ТС" Padding="5" Margin="5"  Visibility="{qc:Binding '!$P ? Visibility.Collapsed : Visibility.Visible',                                                     
                                     P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedDevice.ModuleDIPresent}}"
                                     IsEnabled="{Binding WorkerStopped,RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, UpdateSourceTrigger=PropertyChanged}"
                                     Style="{DynamicResource ButtonGradientStyle}" Click="ModuleDIMonitor_Click"/>
-                            <Button Content="Модуль ТУ" Padding="5" Margin="5" Visibility="{qc:Binding '!$P ? Visibility.Collapsed : Visibility.Visible',                                                     
+                                <Button Content="Модуль ТУ" Padding="5" Margin="5" Visibility="{qc:Binding '!$P ? Visibility.Collapsed : Visibility.Visible',                                                     
                                     P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedDevice.ModuleDOPresent}}"
                                     IsEnabled="{Binding WorkerStopped,RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, UpdateSourceTrigger=PropertyChanged}"
                                     Style="{DynamicResource ButtonGradientStyle}" Click="ModuleDOMonitor_Click">
-                            </Button>
-                        </WrapPanel>
+                                </Button>
+                            </WrapPanel>
+                        </StackPanel>
                     </TabItem>
                 </TabControl>
             </Grid>

@@ -6,7 +6,7 @@
         xmlns:qc="http://QuickConverter.CodePlex.com/"
         xmlns:local="clr-namespace:MIOConfigurator.Windows"
         mc:Ignorable="d"
-        Title="Монитор модуля ТУ" Height="410" Width="800"
+        Title="Монитор модуля ТУ" Height="430" Width="800"
         Background="{DynamicResource GradientThemeBrush}"
         WindowStartupLocation="CenterOwner" ResizeMode="NoResize" ShowInTaskbar="False"
         Closing="Window_Closing" Loaded="Window_Loaded">
@@ -165,5 +165,6 @@
             <TextBlock  Text="Статус обмена с устройством:" Padding="10"></TextBlock>
             <TextBlock  x:Name="ExchangeStatus" Padding="10" Width="Auto" FontWeight="Bold"></TextBlock>
         </StackPanel>
+        <CheckBox Margin="10" Content="Вести Log-файл соединения" IsChecked="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SaveToLog}"></CheckBox>
     </StackPanel>
 </Window>

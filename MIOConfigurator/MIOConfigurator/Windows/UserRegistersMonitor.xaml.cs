@@ -15,6 +15,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using EnumExtension;
 using MIOConfig;
+using TextFileLogger;
 
 namespace MIOConfigurator.Windows
 {
@@ -35,12 +36,17 @@ namespace MIOConfigurator.Windows
                 UserRegsDataGrid.Items.Refresh();
             }
         }
-        
+
+        private TextLogger _logger;
         public UserRegistersMonitor()
         {
             InitializeComponent();
             _currentValues = new ObservableCollection<DeviceUserRegister>();
+            _logger = new TextLogger();
+            _logger.LogFilePath = AppDomain.CurrentDomain.BaseDirectory + "UserRegs_Monitor_LOG.txt";
         }
+
+        public bool SaveToLog { get; set; }
 
         private BackgroundWorker windowBackgroundWorker = new BackgroundWorker();
 
@@ -51,6 +57,10 @@ namespace MIOConfigurator.Windows
                 CurrentValues = new ObservableCollection<DeviceUserRegister>((List<DeviceUserRegister>)e.UserState);
             }
             ExchangeStatus.Text = ((ReaderSaverErrors)e.ProgressPercentage).GetDescription();
+            if (SaveToLog)
+            {
+                _logger.LogTextMessage("Request statuses:\t" + ExchangeStatus.Text);
+            }
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)

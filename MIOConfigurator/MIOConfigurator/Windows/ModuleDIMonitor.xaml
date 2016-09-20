@@ -6,7 +6,7 @@
         xmlns:qc="http://QuickConverter.CodePlex.com/"
         xmlns:local="clr-namespace:MIOConfigurator.Windows"
         mc:Ignorable="d"
-        Title="Монитор модуля ТС" Height="470" Width="700"
+        Title="Монитор модуля ТС" Height="490" Width="700"
         Background="{DynamicResource GradientThemeBrush}"
         WindowStartupLocation="CenterOwner" ResizeMode="NoResize" ShowInTaskbar="False"
         Closing="Window_Closing" Loaded="Window_Loaded">
@@ -30,24 +30,24 @@
                         <ColumnDefinition Width="1*"></ColumnDefinition>
                         <ColumnDefinition Width="8*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
-               
-                    
+
+
                     <Image Grid.Row="0" Grid.Column="0" Height="32" Width="32" 
                            Source="{qc:Binding '$P==true ? \'Images/led_red.png\' : \'Images/led_green.png\'',
                            P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.ModuleStatus.ErrorCurrent, UpdateSourceTrigger=PropertyChanged}}" />
-                
+
                     <TextBlock Grid.Row="0" Grid.Column="1" Text="Перегрев сериалайзера" Padding="5"></TextBlock>
-                
+
                     <Image Grid.Row="1" Grid.Column="0" Height="32" Width="32" 
                                Source="{qc:Binding '$P==true ? \'Images/led_red.png\' : \'Images/led_green.png\'',
                                P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.ModuleStatus.ErrorVoltage}}" />
-                
+
                     <TextBlock Grid.Row="1" Grid.Column="1" Text="Отутствует 24В на выходе &quot;ТС общ.&quot;" Padding="5"></TextBlock>
-                
+
                     <Image Grid.Row="2" Grid.Column="0" Height="32" Width="32" 
                                Source="{qc:Binding '$P==true ? \'Images/led_red.png\' : \'Images/led_green.png\'',
                                P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentModuleStatus.ModuleStatus.ErrorCheck}}" />
-               
+
                     <TextBlock Grid.Row="2" Grid.Column="1" Text="Ошибка обмена данными с сериалайзером" TextWrapping="Wrap" Padding="5"></TextBlock>
                 </Grid>
             </GroupBox>
@@ -122,5 +122,6 @@
             <TextBlock  Text="Статус обмена с устройством:" Padding="10"></TextBlock>
             <TextBlock  x:Name="ExchangeStatus" Padding="10" Width="Auto" FontWeight="Bold"></TextBlock>
         </StackPanel>
+        <CheckBox Margin="10" Content="Вести Log-файл соединения" IsChecked="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SaveToLog}"></CheckBox>
     </StackPanel>
 </Window>

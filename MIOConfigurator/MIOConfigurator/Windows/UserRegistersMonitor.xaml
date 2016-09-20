@@ -11,9 +11,12 @@
         WindowStartupLocation="CenterOwner"
         Closing="Window_Closing" Loaded="Window_Loaded" ShowInTaskbar="False">
     <DockPanel Margin="10">
-        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal">
-            <TextBlock  Text="Статус обмена с устройством:" Padding="10"></TextBlock>
-            <TextBlock  x:Name="ExchangeStatus" Padding="10" Width="Auto" FontWeight="Bold"></TextBlock>
+        <StackPanel DockPanel.Dock="Bottom" >
+            <StackPanel Orientation="Horizontal">
+                <TextBlock  Text="Статус обмена с устройством:" Padding="10"></TextBlock>
+                <TextBlock  x:Name="ExchangeStatus" Padding="10" Width="Auto" FontWeight="Bold"></TextBlock>
+            </StackPanel>
+            <CheckBox Margin="10" Content="Вести Log-файл соединения" IsChecked="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SaveToLog}"></CheckBox>
         </StackPanel>
         <DataGrid x:Name="UserRegsDataGrid" DockPanel.Dock="Bottom"
                   ItemsSource="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=CurrentValues, UpdateSourceTrigger=PropertyChanged}"
