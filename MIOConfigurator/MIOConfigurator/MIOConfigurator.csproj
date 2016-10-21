@@ -60,8 +60,9 @@
       <HintPath>..\packages\Prism.4.1.0.0\lib\NET40\Microsoft.Expression.Interactions.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="MIOConfig">
-      <HintPath>..\..\MIOConfig\MIOConfig\bin\$(Configuration)\MIOConfig.dll</HintPath>
+    <Reference Include="MIOConfig, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\MIOConfig\MIOConfig\bin\x86\Debug\MIOConfig.dll</HintPath>
     </Reference>
     <Reference Include="Modbus.Core">
       <HintPath>..\..\Modbus.Core\bin\$(Configuration)\Modbus.Core.dll</HintPath>
@@ -112,6 +113,9 @@
     <Compile Include="Windows\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Windows\ModuleAIMonitor.xaml.cs">
+      <DependentUpon>ModuleAIMonitor.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\ModuleDOMonitor.xaml.cs">
       <DependentUpon>ModuleDOMonitor.xaml</DependentUpon>
     </Compile>
@@ -141,6 +145,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Windows\MainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\ModuleAIMonitor.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

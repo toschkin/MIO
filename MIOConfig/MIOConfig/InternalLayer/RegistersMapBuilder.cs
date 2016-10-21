@@ -67,6 +67,23 @@ namespace MIOConfig
                 doModule = new DeviceDOModule();
             if (_configuration.HeaderFields.ModuleDO == false && doModule != null)
                 doModule = null;
-        }        
+        }
+
+        public void BuildRouterModuleRegistersMap(ref DeviceRouterModule routerModule)
+        {
+            if (_configuration.HeaderFields.ModuleRouter && routerModule == null)
+                routerModule = new DeviceRouterModule();
+            if (_configuration.HeaderFields.ModuleRouter == false && routerModule != null)
+                routerModule = null;
+        }
+        
+
+        public void BuildAIModuleRegistersMap(ref DeviceAIModule aiModule)
+        {
+            if (_configuration.HeaderFields.ModuleAI && aiModule == null)
+                aiModule = new DeviceAIModule();
+            if (_configuration.HeaderFields.ModuleAI == false && aiModule != null)
+                aiModule = null;
+        }
     }
 }

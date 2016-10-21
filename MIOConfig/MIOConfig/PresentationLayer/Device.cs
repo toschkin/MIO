@@ -20,6 +20,8 @@ namespace MIOConfig
             Statuses = new DeviceStatuses();
             DIModule = null;
             DOModule = null;
+            AIModule = null;
+            RouterModule = null;
         }
         
         [field: NonSerialized]
@@ -58,6 +60,8 @@ namespace MIOConfig
                     resultString.Append("\nМодуль ТС");
                 if (Configuration.HeaderFields.ModuleDO)
                     resultString.Append("\nМодуль ТУ");
+                if (Configuration.HeaderFields.ModuleAI)
+                    resultString.Append("\nМодуль ТИ");
                 if (Configuration.HeaderFields.ModuleModbusMaster)
                     resultString.Append("\nModbus(master)");                                
                 if (Configuration.HeaderFields.ModuleRouter)
@@ -117,6 +121,10 @@ namespace MIOConfig
         {
             get { return Configuration.HeaderFields.ModuleDO; }            
         }
+        public bool ModuleAIPresent
+        {
+            get { return Configuration.HeaderFields.ModuleAI; }
+        }
 
         public bool ModuleModbusMasterPresent
         {
@@ -165,6 +173,11 @@ namespace MIOConfig
         public DeviceModuleDOConfiguration DiscreetOutputModuleConfiguration
         {
             get { return ModuleDOPresent?Configuration.DOModuleConfiguration:null; }            
+        }
+
+        public DeviceModuleAIConfiguration AnalogInputModuleConfiguration
+        {
+            get { return ModuleAIPresent ? Configuration.AIModuleConfiguration : null; }
         }
 
         public bool RoutingEnabled
@@ -236,7 +249,8 @@ namespace MIOConfig
                 mapBuilder.BuildStatusRegistersMap(ref Statuses);
                 mapBuilder.BuildDIModuleRegistersMap(ref DIModule);
                 mapBuilder.BuildDOModuleRegistersMap(ref DOModule);
-
+                mapBuilder.BuildRouterModuleRegistersMap(ref RouterModule);                
+                mapBuilder.BuildAIModuleRegistersMap(ref AIModule);
                 NotifyPropertyChanged("FullDescription");
                 NotifyPropertyChanged("ShortDescription");
             }
@@ -302,23 +316,11 @@ namespace MIOConfig
         
         public DeviceDIModule DiscreeteInputModule
         {
-            get { return ModuleDIPresent?DIModule:null; }
+            get { return ModuleDIPresent ? DIModule:null; }
         }
-
-        //not used
-        public ReaderSaverErrors ReadDIModuleRegistersFromDevice(ModbusReaderSaver reader)
-        {
-            if (DIModule == null)
-                return ReaderSaverErrors.CodeModuleIsAbsent;
-            UInt16 oldOffset = reader.RegisterReadAddressOffset;
-            reader.RegisterReadAddressOffset = (UInt16)(Definitions.DEVICE_STATE_OFFSET + Statuses.Size);
-            ReaderSaverErrors code = reader.ReadModuleRegisters(DIModule);
-            reader.RegisterReadAddressOffset = oldOffset;
-            return code;
-        }
-
+       
         #endregion
-
+        
         #region Device Discreete Output Module
 
         [NonSerialized]
@@ -329,20 +331,30 @@ namespace MIOConfig
             get { return ModuleDOPresent ? DOModule : null; }
         }
 
+        #endregion
 
-        //not used
-        public ReaderSaverErrors ReadDOModuleRegistersFromDevice(ModbusReaderSaver reader)
+        #region Device Router Module
+
+        [NonSerialized]
+        internal DeviceRouterModule RouterModule;
+
+        public DeviceRouterModule RegistersRouterModule
         {
-            if (DOModule == null)
-                return ReaderSaverErrors.CodeModuleIsAbsent;
-            UInt16 oldOffset = reader.RegisterReadAddressOffset;
-            reader.RegisterReadAddressOffset = (UInt16)(Definitions.DEVICE_STATE_OFFSET + Statuses.Size + DIModule.Size);
-            ReaderSaverErrors code = reader.ReadModuleRegisters(DOModule);
-            reader.RegisterReadAddressOffset = oldOffset;
-            return code;
-        }
+            get { return ModuleRouterPresent ? RouterModule : null; }
+        }        
 
         #endregion
-        
+
+        #region Device Analog Input Module
+
+        [NonSerialized]
+        internal DeviceAIModule AIModule;
+
+        public DeviceAIModule AnalogInputModule
+        {
+            get { return ModuleAIPresent ? AIModule : null; }
+        }        
+
+        #endregion
     }
 }

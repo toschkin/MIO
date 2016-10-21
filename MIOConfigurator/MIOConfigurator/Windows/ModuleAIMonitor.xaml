@@ -1,0 +1,72 @@
+﻿<Window x:Class="MIOConfigurator.Windows.ModuleAIMonitor"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:qc="http://QuickConverter.CodePlex.com/"
+        xmlns:local="clr-namespace:MIOConfigurator.Windows"
+        mc:Ignorable="d"
+        Title="Монитор модуля ТИ" Height="240" Width="500"
+        Background="{DynamicResource GradientThemeBrush}"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize" ShowInTaskbar="False"
+        Closing="Window_Closing" Loaded="Window_Loaded">
+    <StackPanel>
+        <Grid Margin="5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+           
+            <TextBlock Grid.Row="0" Grid.Column="0" Text="Статус модуля:" Padding="5" FontWeight="Bold" FontSize="14"></TextBlock>
+
+            <TextBlock Grid.Row="0" Grid.Column="1"
+                       FontSize="14"
+                       Text="{Binding 
+                       RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, 
+                       Path=StatusDescription, UpdateSourceTrigger=PropertyChanged}"
+                       Padding="5"></TextBlock>
+
+        </Grid>
+        <GroupBox Header="Измерения" FontSize="14">
+            <Grid Margin="5">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="3*"></ColumnDefinition>
+                    <ColumnDefinition Width="5*"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Ток (А):" TextWrapping="Wrap" Padding="5"></TextBlock>
+
+                <TextBlock Grid.Row="0" Grid.Column="1"                              
+                                FontWeight="Bold"
+                                Text="{Binding 
+                                RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, 
+                                Path=CurrentModuleStatus.CurrentMeasurement,
+                                UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:F3}}"                                
+                                TextWrapping="Wrap" Padding="5"></TextBlock>
+
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="Частота (Гц):" TextWrapping="Wrap" Padding="5"></TextBlock>
+
+                <TextBlock Grid.Row="1" Grid.Column="1"                              
+                                FontWeight="Bold"
+                                Text="{Binding 
+                                RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, 
+                                Path=CurrentModuleStatus.FrequencyMeasurement,
+                                UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:F3}}"                                
+                                TextWrapping="Wrap" Padding="5"></TextBlock>
+
+            </Grid>
+        </GroupBox>
+        <StackPanel Orientation="Horizontal">
+            <TextBlock  Text="Статус обмена с устройством:" Padding="10"></TextBlock>
+            <TextBlock  x:Name="ExchangeStatus" Padding="10" Width="Auto" FontWeight="Bold"></TextBlock>
+        </StackPanel>
+        <CheckBox Margin="10" Content="Вести Log-файл соединения" IsChecked="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SaveToLog}"></CheckBox>
+    </StackPanel>
+</Window>

@@ -537,6 +537,31 @@
                             </StackPanel>
                         </StackPanel>
                     </TabItem>
+                    <TabItem Header="Модуль ТИ" Visibility="{qc:Binding '!$P ? Visibility.Collapsed : Visibility.Visible',                                                     
+                                                P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedDevice.ModuleAIPresent}}">
+                        <StackPanel Margin="5">
+                            <CheckBox Content="Модуль в работе" Margin="10,10,10,0" 
+                                              IsChecked="{qc:Binding '$P == 1', ConvertBack='$value?1:0',  P={Binding Path=SelectedDevice.AnalogInputModuleConfiguration.ModuleOperation, Mode=TwoWay, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}}">
+                            </CheckBox>
+                            <Grid Margin="10,10,10,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                    <ColumnDefinition Width="1*"></ColumnDefinition>
+                                    <ColumnDefinition Width="2*"></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"></RowDefinition>
+                                </Grid.RowDefinitions>
+                                <TextBlock Grid.Row ="0" Grid.Column="0" HorizontalAlignment ="Right" Text="Частота измеряемого тока (Гц):" Padding="5"></TextBlock>
+                                <TextBox Grid.Column="1" Margin="5,5,5,5"                                                         
+                                                    wpf:TextBoxMaskBehavior.Mask="Integer"
+        		                                    wpf:TextBoxMaskBehavior.MinimumValue="50"
+        		                                    wpf:TextBoxMaskBehavior.MaximumValue="60"
+                                                    Text="{Binding Path=SelectedDevice.AnalogInputModuleConfiguration.Frequency, RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}">
+                                </TextBox>
+                            </Grid>
+                        </StackPanel>
+                    </TabItem>
                     <TabItem Header="Ретранслятор" Visibility="{qc:Binding '!$P ? Visibility.Collapsed : Visibility.Visible',                                                     
                                                 P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedDevice.ModuleRouterPresent}}">
                         <DockPanel Margin="5" UseLayoutRounding="True">
@@ -886,6 +911,11 @@
                                     P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedDevice.ModuleDOPresent}}"
                                     IsEnabled="{Binding WorkerStopped,RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, UpdateSourceTrigger=PropertyChanged}"
                                     Style="{DynamicResource ButtonGradientStyle}" Click="ModuleDOMonitor_Click">
+                                </Button>
+                                <Button Content="Модуль ТИ" Padding="5" Margin="5" Visibility="{qc:Binding '!$P ? Visibility.Collapsed : Visibility.Visible',                                                     
+                                    P={Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, Path=SelectedDevice.ModuleAIPresent}}"
+                                    IsEnabled="{Binding WorkerStopped,RelativeSource={RelativeSource FindAncestor,AncestorType=Window}, UpdateSourceTrigger=PropertyChanged}"
+                                    Style="{DynamicResource ButtonGradientStyle}" Click="ModuleAIMonitor_Click">
                                 </Button>
                             </WrapPanel>
                         </StackPanel>

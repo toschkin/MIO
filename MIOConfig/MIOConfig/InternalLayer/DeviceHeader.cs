@@ -15,7 +15,7 @@ namespace MIOConfig
         public bool ModuleRouter;
         public bool ModuleDI;
         public bool ModuleDO;
-        public bool ModuleGPS;
+        public bool ModuleAI;
         public bool ModuleMAX7219;
         public bool ModuleAdvantage_TY;
         public bool Reserve7;
@@ -63,7 +63,7 @@ namespace MIOConfig
                     field.SetValue(this, (value & (1 << i++)) != 0);
                 }
                 if (_deviceConfiguration != null)
-                {
+                {                    
                     if (ModuleDI)
                     {
                         if (_deviceConfiguration.DIModuleConfiguration == null) 
@@ -78,8 +78,8 @@ namespace MIOConfig
                             _deviceConfiguration.DOModuleConfiguration = new DeviceModuleDOConfiguration(_deviceConfiguration);
                     }
                     else
-                        _deviceConfiguration.DOModuleConfiguration = null;
-                    
+                        _deviceConfiguration.DOModuleConfiguration = null;                    
+
                     if (ModuleRouter)
                     {
                         if (_deviceConfiguration.RoutingHeader == null)
@@ -91,7 +91,15 @@ namespace MIOConfig
                     {
                         _deviceConfiguration.RoutingTable = null;
                         _deviceConfiguration.RoutingHeader = null;
-                    }                   
+                    }
+
+                    if (ModuleAI)
+                    {
+                        if (_deviceConfiguration.AIModuleConfiguration == null)
+                            _deviceConfiguration.AIModuleConfiguration = new DeviceModuleAIConfiguration();
+                    }
+                    else
+                        _deviceConfiguration.DIModuleConfiguration = null;
                 }
             }
         }
@@ -259,6 +267,7 @@ namespace MIOConfig
             resultString.AppendFormat("\tМодуль ретрансляции - {0}\r\n", (ModuleRouter) ? "есть" : "нет");
             resultString.AppendFormat("\tМодуль ТС - {0}\r\n", (ModuleDI) ? "есть" : "нет");
             resultString.AppendFormat("\tМодуль ТУ - {0}\r\n", (ModuleDO) ? "есть" : "нет");
+            resultString.AppendFormat("\tМодуль ТИ - {0}\r\n", (ModuleAI) ? "есть" : "нет");
             resultString.AppendFormat("\tМодуль Modbus slave - {0}\r\n", (ModuleModbusSlave) ? "есть" : "нет");
 
             resultString.AppendFormat("Основные параметры:\r\n");

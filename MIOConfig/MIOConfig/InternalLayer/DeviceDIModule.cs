@@ -39,7 +39,7 @@ namespace MIOConfig
 
         public bool FromList(List<object> listOfConfigurationItems)
         {
-            if (listOfConfigurationItems.Count < Size)
+            if (listOfConfigurationItems.Count < InputsRegisters.Count + 1)
                 return false;
             int listIndex = 0;
             //Header           

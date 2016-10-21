@@ -42,9 +42,10 @@ namespace MIOConfig
             //minimum 1 UART presentin device
             UartPorts = new List<DeviceUARTPortConfiguration>(3) { new DeviceUARTPortConfiguration(ref thisDevice) };
             DIModuleConfiguration = null;
-            DOModuleConfiguration = null;
+            DOModuleConfiguration = null;            
             RoutingHeader = null;
             RoutingTable = null;
+            AIModuleConfiguration = null;
             ModbusMasterQueriesOnUartPorts = new ObservableCollection<ObservableCollection<DeviceModbusMasterQuery>>(){new ObservableCollection<DeviceModbusMasterQuery>()};
         }
 
@@ -83,6 +84,11 @@ namespace MIOConfig
         public DeviceRoutingHeader RoutingHeader;
 
         /// <summary>
+        /// Holding regs|addr.: 1007+7*UartPorts.Count+5*ModuleDIPresent |count: 4| R/W
+        /// </summary>     
+        public DeviceModuleAIConfiguration AIModuleConfiguration;
+        
+        /// <summary>
         /// Holding regs|addr.: 1007+7*UartPorts.Count + 5*ModuleDIPresent + 10*ModuleDOPresent+2 |count: 2| R/W
         /// </summary>
         public ObservableCollection<DeviceRoutingTableElement> RoutingTable;
@@ -110,6 +116,8 @@ namespace MIOConfig
                 listOfConfigurationItems.Add(RoutingHeader);
             if (RoutingTable != null)
                 listOfConfigurationItems.AddRange(RoutingTable);
+            if (AIModuleConfiguration != null)
+                listOfConfigurationItems.Add(AIModuleConfiguration);
             foreach (var queriesList in ModbusMasterQueriesOnUartPorts)
             {
                 listOfConfigurationItems.AddRange(queriesList);
@@ -139,7 +147,7 @@ namespace MIOConfig
 
             if (DOModuleConfiguration != null && HeaderFields.ModuleDO && listIndex < listOfConfigurationItems.Count)
                 DOModuleConfiguration = listOfConfigurationItems[listIndex++] as DeviceModuleDOConfiguration;
-
+            
             if (RoutingHeader != null && HeaderFields.ModuleRouter && listIndex < listOfConfigurationItems.Count)
             {
                 tempObj = RoutingHeader;                
@@ -154,6 +162,10 @@ namespace MIOConfig
                     RoutingTable[route] = listOfConfigurationItems[listIndex++] as DeviceRoutingTableElement;
                 }    
             }
+
+            if (AIModuleConfiguration != null && HeaderFields.ModuleAI && listIndex < listOfConfigurationItems.Count)
+                AIModuleConfiguration = listOfConfigurationItems[listIndex++] as DeviceModuleAIConfiguration;
+
             if (HeaderFields.ModuleModbusMaster)
             {
                 foreach (ObservableCollection<DeviceModbusMasterQuery> portQueriesList in ModbusMasterQueriesOnUartPorts)

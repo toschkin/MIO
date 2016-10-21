@@ -68,11 +68,14 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="InternalLayer\DeviceAIModule.cs" />
+    <Compile Include="InternalLayer\DeviceAIModuleStatus.cs" />
     <Compile Include="InternalLayer\DeviceDIModule.cs" />
     <Compile Include="InternalLayer\DeviceDIModuleStatus.cs" />
     <Compile Include="InternalLayer\DeviceDOModule.cs" />
     <Compile Include="InternalLayer\DeviceDOModuleStatus.cs" />
     <Compile Include="InternalLayer\DeviceModbusMasterQuery.cs" />
+    <Compile Include="InternalLayer\DeviceModuleAIConfiguration.cs" />
     <Compile Include="InternalLayer\DeviceRoutingHeader.cs" />
     <Compile Include="InternalLayer\DeviceModuleDOConfiguration.cs" />
     <Compile Include="InternalLayer\DeviceRoutingTableElement.cs" />
@@ -81,6 +84,7 @@
     <Compile Include="InternalLayer\IDeviceModule.cs" />
     <Compile Include="InternalLayer\RegistersMapBuilder.cs" />
     <Compile Include="InternalLayer\DeviceUartPortStatus.cs" />
+    <Compile Include="InternalLayer\DeviceRouterModule.cs" />
     <Compile Include="PresentationLayer\Definitions.cs" />
     <Compile Include="PresentationLayer\DeviceFinder.cs" />
     <Compile Include="PresentationLayer\DeviceValidator.cs" />
